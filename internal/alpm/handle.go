@@ -33,6 +33,8 @@ func NewHandle(root string, dbpath string) (*Handle, error) {
 
 func (h *Handle) Close() error {
 	c_ret := C.alpm_release(h.c)
+	h.c = nil
+
 	if c_ret != 0 {
 		return ErrCloseHandle
 	}
