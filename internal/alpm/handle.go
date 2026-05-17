@@ -9,7 +9,7 @@ import (
 	"unsafe"
 )
 
-var ErrCloseHandle = errors.New("failed to close handle")
+var ErrCloseHandle = errors.New("alpm: failed to close handle")
 
 type Handle struct {
 	c *C.alpm_handle_t
