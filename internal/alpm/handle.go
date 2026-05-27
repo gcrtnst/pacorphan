@@ -45,7 +45,7 @@ func (h *Handle) Close() error {
 	h.c = nil
 
 	h.d.Stop()
-	runtime.KeepAlive(h) // Ensures that cleanup is reachable across the call to Stop
+	runtime.KeepAlive(h)
 
 	if c_ret != 0 {
 		return ErrCloseHandle
