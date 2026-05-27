@@ -63,3 +63,28 @@ func TestNewHandleError(t *testing.T) {
 		t.Errorf("err: expected %#v, got %#v", ErrNotADir, err)
 	}
 }
+
+func TestHandleCloseDouble(t *testing.T) {
+	root := t.TempDir()
+	dbpath := filepath.Join(root, "var/lib/pacman/")
+
+	errMkdir := os.MkdirAll(dbpath, 0755|fs.ModeDir)
+	if errMkdir != nil {
+		t.Fatal(errMkdir)
+	}
+
+	h, errNew := NewHandle(root, dbpath)
+	if errNew != nil {
+		t.Fatal(errNew)
+	}
+
+	errClose1 := h.Close()
+	if errClose1 != nil {
+		t.Fatal(errClose1)
+	}
+
+	errClose2 := h.Close()
+	if errClose2 != nil {
+		t.Fatal(errClose2)
+	}
+}
