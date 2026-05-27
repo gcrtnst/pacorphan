@@ -13,8 +13,8 @@ import (
 var ErrCloseHandle = errors.New("alpm: failed to close handle")
 
 type Handle struct {
-	c       *C.alpm_handle_t
-	cleanup runtime.Cleanup
+	c *C.alpm_handle_t
+	d runtime.Cleanup
 }
 
 func NewHandle(root string, dbpath string) (*Handle, error) {
@@ -30,7 +30,7 @@ func NewHandle(root string, dbpath string) (*Handle, error) {
 	}
 
 	h := &Handle{c: c_handle}
-	h.cleanup = runtime.AddCleanup(h, func(h *C.alpm_handle_t) {
+	h.d = runtime.AddCleanup(h, func(h *C.alpm_handle_t) {
 		_ = C.alpm_release(h)
 	}, c_handle)
 	return h, nil
@@ -44,7 +44,7 @@ func (h *Handle) Close() error {
 	c_ret := C.alpm_release(h.c)
 	h.c = nil
 
-	h.cleanup.Stop()
+	h.d.Stop()
 	runtime.KeepAlive(h) // Ensures that cleanup is reachable across the call to Stop
 
 	if c_ret != 0 {
