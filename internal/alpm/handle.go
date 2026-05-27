@@ -30,8 +30,8 @@ func NewHandle(root string, dbpath string) (*Handle, error) {
 	}
 
 	h := &Handle{c: c_handle}
-	h.d = runtime.AddCleanup(h, func(h *C.alpm_handle_t) {
-		_ = C.alpm_release(h)
+	h.d = runtime.AddCleanup(h, func(c_handle *C.alpm_handle_t) {
+		_ = C.alpm_release(c_handle)
 	}, c_handle)
 	return h, nil
 }
