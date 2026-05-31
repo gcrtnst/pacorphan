@@ -11,7 +11,16 @@ type Pkg struct {
 }
 
 func (p *Pkg) Alive() bool {
-	return p.o.Alive()
+	if p == nil {
+		return false
+	}
+
+	if p.o == nil || p.c == nil || !p.o.Alive() {
+		p.o = nil
+		p.c = nil
+		return false
+	}
+	return true
 }
 
 func (p *Pkg) Reason() PkgReason {

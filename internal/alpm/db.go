@@ -10,5 +10,14 @@ type DB struct {
 }
 
 func (d *DB) Alive() bool {
-	return d.o.Alive()
+	if d == nil {
+		return false
+	}
+
+	if d.o == nil || d.c == nil || !d.o.Alive() {
+		d.o = nil
+		d.c = nil
+		return false
+	}
+	return true
 }

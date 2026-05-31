@@ -37,16 +37,15 @@ func NewHandle(root string, dbpath string) (*Handle, error) {
 }
 
 func (h *Handle) Alive() bool {
-	return h.c != nil
+	return h != nil && h.c != nil
 }
 
 func (h *Handle) Close() error {
-	c_handle := h.c
-	if c_handle == nil {
+	if !h.Alive() {
 		return nil
 	}
 
-	c_ret := C.alpm_release(c_handle)
+	c_ret := C.alpm_release(h.c)
 	h.c = nil
 
 	h.d.Stop()
