@@ -5,7 +5,7 @@ package alpm
 import "C"
 
 type DB struct {
-	h *Handle
+	o *Handle
 	c *C.alpm_db_t
 }
 
