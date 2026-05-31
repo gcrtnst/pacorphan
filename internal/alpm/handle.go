@@ -10,7 +10,7 @@ import (
 	"unsafe"
 )
 
-var ErrCloseHandle = errors.New("alpm: failed to close handle")
+var ErrHandleCloseFailed = errors.New("alpm: failed to close handle")
 
 type Handle struct {
 	c *C.alpm_handle_t
@@ -48,7 +48,7 @@ func (h *Handle) Close() error {
 	runtime.KeepAlive(h)
 
 	if c_ret != 0 {
-		return ErrCloseHandle
+		return ErrHandleCloseFailed
 	}
 	return nil
 }
