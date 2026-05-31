@@ -38,13 +38,12 @@ func NewHandle(root string, dbpath string) (*Handle, error) {
 
 func (h *Handle) Close() error {
 	c_handle := h.c
-	h.c = nil
-
 	if c_handle == nil {
 		return nil
 	}
 
 	c_ret := C.alpm_release(c_handle)
+	h.c = nil
 
 	h.d.Stop()
 	runtime.KeepAlive(h)
