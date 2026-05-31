@@ -57,3 +57,14 @@ func (h *Handle) Close() error {
 	}
 	return nil
 }
+
+func (h *Handle) LocalDB() *DB {
+	if !h.Alive() {
+		return nil
+	}
+
+	c_db := C.alpm_get_localdb(h.c)
+	runtime.KeepAlive(h)
+
+	return &DB{h: h, c: c_db}
+}
