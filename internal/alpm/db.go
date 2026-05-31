@@ -11,12 +11,11 @@ type DB struct {
 }
 
 func (h *Handle) LocalDB() *DB {
-	c_handle := h.c
-	if c_handle == nil {
+	if !h.Alive() {
 		return nil
 	}
 
-	c_db := C.alpm_get_localdb(c_handle)
+	c_db := C.alpm_get_localdb(h.c)
 	runtime.KeepAlive(h)
 
 	return &DB{h: h, c: c_db}

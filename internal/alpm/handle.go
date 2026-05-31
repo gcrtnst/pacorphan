@@ -36,6 +36,10 @@ func NewHandle(root string, dbpath string) (*Handle, error) {
 	return h, nil
 }
 
+func (h *Handle) Alive() bool {
+	return h.c != nil
+}
+
 func (h *Handle) Close() error {
 	c_handle := h.c
 	if c_handle == nil {
