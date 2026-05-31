@@ -9,3 +9,6 @@ type DB struct {
 	c *C.alpm_db_t
 }
 
+func (d *DB) Alive() bool {
+	return d.o.Alive()
+}
