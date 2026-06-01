@@ -29,7 +29,7 @@ func (p *Pkg) Reason() PkgReason {
 	}
 
 	c_reason := C.alpm_pkg_get_reason(p.c)
-	runtime.KeepAlive(p.o)
+	runtime.KeepAlive(p)
 	return PkgReason(c_reason)
 }
 
