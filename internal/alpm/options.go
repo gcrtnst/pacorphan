@@ -3,13 +3,24 @@ package alpm
 // #cgo pkg-config: libalpm
 // #include <alpm.h>
 import "C"
+import "runtime"
 
 func (h *Handle) Root() string {
-	c_root := C.alpm_option_get_root(h.c)
-	return C.GoString(c_root)
+	if !h.Alive() {
+		return ""
+	}
+
+	root := C.GoString(C.alpm_option_get_root(h.c))
+	runtime.KeepAlive(h)
+	return root
 }
 
 func (h *Handle) DBPath() string {
-	c_dbpath := C.alpm_option_get_dbpath(h.c)
-	return C.GoString(c_dbpath)
+	if !h.Alive() {
+		return ""
+	}
+
+	dbpath := C.GoString(C.alpm_option_get_dbpath(h.c))
+	runtime.KeepAlive(h)
+	return dbpath
 }
