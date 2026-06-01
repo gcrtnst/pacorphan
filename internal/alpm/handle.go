@@ -67,3 +67,23 @@ func (h *Handle) LocalDB() *DB {
 
 	return &DB{o: h, c: c_db}
 }
+
+func (h *Handle) Root() string {
+	if !h.Alive() {
+		return ""
+	}
+
+	root := C.GoString(C.alpm_option_get_root(h.c))
+	runtime.KeepAlive(h)
+	return root
+}
+
+func (h *Handle) DBPath() string {
+	if !h.Alive() {
+		return ""
+	}
+
+	dbpath := C.GoString(C.alpm_option_get_dbpath(h.c))
+	runtime.KeepAlive(h)
+	return dbpath
+}
