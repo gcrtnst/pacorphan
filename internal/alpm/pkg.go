@@ -15,9 +15,9 @@ func (p *Pkg) Alive() bool {
 		return false
 	}
 
-	if p.o == nil || p.c == nil || !p.o.Alive() {
-		p.o = nil
+	if p.c == nil || p.o == nil || !p.o.Alive() {
 		p.c = nil
+		p.o = nil
 		return false
 	}
 	return true

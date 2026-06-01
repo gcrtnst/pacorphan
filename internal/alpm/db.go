@@ -14,9 +14,9 @@ func (d *DB) Alive() bool {
 		return false
 	}
 
-	if d.o == nil || d.c == nil || !d.o.Alive() {
-		d.o = nil
+	if d.c == nil || d.o == nil || !d.o.Alive() {
 		d.c = nil
+		d.o = nil
 		return false
 	}
 	return true
