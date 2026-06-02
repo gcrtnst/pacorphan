@@ -11,13 +11,11 @@ type Pkg struct {
 }
 
 func (p *Pkg) Alive() bool {
-	if p == nil {
+	if p == nil || p.c == nil {
 		return false
 	}
-
-	if p.c == nil || p.o == nil || !p.o.Alive() {
+	if !p.o.Alive() {
 		p.c = nil
-		p.o = nil
 		return false
 	}
 	return true
