@@ -9,9 +9,9 @@ import (
 )
 
 type List[T any] struct {
-	o handle
+	o owner
 	c *C.alpm_list_t
-	f func(o handle, c_data unsafe.Pointer) T
+	f func(o owner, c_data unsafe.Pointer) T
 }
 
 func (l *List[T]) Alive() bool {
@@ -92,26 +92,26 @@ func (e *Elem[T]) Prev() *Elem[T] {
 	return &Elem[T]{o: e.o, c: c_list}
 }
 
-func newPkgList(owner *DB, c_list *C.alpm_list_t) *List[*Pkg] {
+func newPkgList(o *DB, c_list *C.alpm_list_t) *List[*Pkg] {
 	return &List[*Pkg]{
-		o: owner,
+		o: o,
 		c: c_list,
-		f: func(owner handle, c_data unsafe.Pointer) *Pkg {
-			return &Pkg{o: owner.(*DB), c: (*C.alpm_pkg_t)(c_data)}
+		f: func(o owner, c_data unsafe.Pointer) *Pkg {
+			return &Pkg{o: o.(*DB), c: (*C.alpm_pkg_t)(c_data)}
 		},
 	}
 }
 
-func newDepList(owner *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
+func newDepList(o *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
 	return &List[*Depend]{
-		o: owner,
+		o: o,
 		c: c_list,
-		f: func(owner handle, c_data unsafe.Pointer) *Depend {
-			return &Depend{o: owner.(*Pkg), c: (*C.alpm_depend_t)(c_data)}
+		f: func(o owner, c_data unsafe.Pointer) *Depend {
+			return &Depend{o: o.(*Pkg), c: (*C.alpm_depend_t)(c_data)}
 		},
 	}
 }
 
-type handle interface {
+type owner interface {
 	Alive() bool
 }
