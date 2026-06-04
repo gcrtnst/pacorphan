@@ -10,7 +10,10 @@ import (
 	"unsafe"
 )
 
-var ErrHandleCloseFailed = errors.New("alpm: failed to close handle")
+var (
+	ErrHandleCloseFailed = errors.New("alpm: failed to close handle")
+	ErrHandleClosed      = errors.New("alpm: handle already closed")
+)
 
 type Handle struct {
 	c *C.alpm_handle_t
@@ -86,4 +89,16 @@ func (h *Handle) DBPath() string {
 	dbpath := C.GoString(C.alpm_option_get_dbpath(h.c))
 	runtime.KeepAlive(h)
 	return dbpath
+}
+
+func (h *Handle) errno() error {
+	if !h.Alive() {
+		return ErrHandleClosed
+	}
+
+	errno := Errno(C.alpm_errno(h.c))
+	if errno == ErrOK {
+		return nil
+	}
+	return errno
 }
