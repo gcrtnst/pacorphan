@@ -11,6 +11,13 @@ type Pkg struct {
 }
 
 func newPkg(d *DB, c_pkg *C.alpm_pkg_t) *Pkg {
+	c_db := C.alpm_pkg_get_db(c_pkg)
+	runtime.KeepAlive(d)
+
+	if c_db != d.c {
+		panic("alpm: package database mismatch")
+	}
+
 	return &Pkg{d: d, c: c_pkg}
 }
 
