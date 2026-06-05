@@ -10,7 +10,7 @@ import (
 )
 
 type Depend struct {
-	o *Pkg
+	p *Pkg
 	c *C.alpm_depend_t
 }
 
@@ -18,7 +18,7 @@ func (d *Depend) Alive() bool {
 	if d == nil || d.c == nil {
 		return false
 	}
-	if !d.o.Alive() {
+	if !d.p.Alive() {
 		d.c = nil
 		return false
 	}

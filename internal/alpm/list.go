@@ -102,12 +102,12 @@ func newPkgList(d *DB, c_list *C.alpm_list_t) *List[*Pkg] {
 	}
 }
 
-func newDepList(o *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
+func newDepList(p *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
 	return &List[*Depend]{
-		o: o,
+		o: p,
 		c: c_list,
 		f: func(c_data unsafe.Pointer) *Depend {
-			return &Depend{o: o, c: (*C.alpm_depend_t)(c_data)}
+			return &Depend{p: p, c: (*C.alpm_depend_t)(c_data)}
 		},
 	}
 }
