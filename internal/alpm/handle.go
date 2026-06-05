@@ -68,7 +68,7 @@ func (h *Handle) LocalDB() *DB {
 	c_db := C.alpm_get_localdb(h.c)
 	runtime.KeepAlive(h)
 
-	return &DB{o: h, c: c_db}
+	return newDB(h, c_db)
 }
 
 func (h *Handle) Root() string {
