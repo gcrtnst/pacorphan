@@ -6,26 +6,36 @@ import "C"
 import "runtime"
 
 type Pkg struct {
+	h *Handle
 	d *DB
 	c *C.alpm_pkg_t
 }
 
-func newPkg(d *DB, c_pkg *C.alpm_pkg_t) *Pkg {
+func newPkg(h *Handle, d *DB, c_pkg *C.alpm_pkg_t) *Pkg {
+	c_handle := C.alpm_pkg_get_handle(c_pkg)
+	runtime.KeepAlive(h)
+	runtime.KeepAlive(d)
+
+	if c_handle != h.c {
+		panic("alpm: package handle mismatch")
+	}
+
 	c_db := C.alpm_pkg_get_db(c_pkg)
+	runtime.KeepAlive(h)
 	runtime.KeepAlive(d)
 
 	if c_db != d.c {
 		panic("alpm: package database mismatch")
 	}
 
-	return &Pkg{d: d, c: c_pkg}
+	return &Pkg{h: h, d: d, c: c_pkg}
 }
 
 func (p *Pkg) Alive() bool {
 	if p == nil || p.c == nil {
 		return false
 	}
-	if !p.d.Alive() {
+	if !p.d.Alive() || !p.h.Alive() {
 		p.c = nil
 		return false
 	}
