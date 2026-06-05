@@ -97,7 +97,7 @@ func newPkgList(d *DB, c_list *C.alpm_list_t) *List[*Pkg] {
 		o: d,
 		c: c_list,
 		f: func(c_data unsafe.Pointer) *Pkg {
-			return &Pkg{d: d, c: (*C.alpm_pkg_t)(c_data)}
+			return newPkg(d, (*C.alpm_pkg_t)(c_data))
 		},
 	}
 }

@@ -10,6 +10,10 @@ type Pkg struct {
 	c *C.alpm_pkg_t
 }
 
+func newPkg(d *DB, c_pkg *C.alpm_pkg_t) *Pkg {
+	return &Pkg{d: d, c: c_pkg}
+}
+
 func (p *Pkg) Alive() bool {
 	if p == nil || p.c == nil {
 		return false
