@@ -6,7 +6,7 @@ import "C"
 import "runtime"
 
 type Pkg struct {
-	o *DB
+	d *DB
 	c *C.alpm_pkg_t
 }
 
@@ -14,7 +14,7 @@ func (p *Pkg) Alive() bool {
 	if p == nil || p.c == nil {
 		return false
 	}
-	if !p.o.Alive() {
+	if !p.d.Alive() {
 		p.c = nil
 		return false
 	}

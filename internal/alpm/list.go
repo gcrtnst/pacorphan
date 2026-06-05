@@ -92,12 +92,12 @@ func (e *Elem[T]) Prev() *Elem[T] {
 	return &Elem[T]{o: e.o, c: c_list}
 }
 
-func newPkgList(o *DB, c_list *C.alpm_list_t) *List[*Pkg] {
+func newPkgList(d *DB, c_list *C.alpm_list_t) *List[*Pkg] {
 	return &List[*Pkg]{
-		o: o,
+		o: d,
 		c: c_list,
 		f: func(c_data unsafe.Pointer) *Pkg {
-			return &Pkg{o: o, c: (*C.alpm_pkg_t)(c_data)}
+			return &Pkg{d: d, c: (*C.alpm_pkg_t)(c_data)}
 		},
 	}
 }
