@@ -11,7 +11,7 @@ import (
 type List[T any] struct {
 	o owner
 	c *C.alpm_list_t
-	f func(o owner, c_data unsafe.Pointer) T
+	f func(c_data unsafe.Pointer) T
 }
 
 func (l *List[T]) Alive() bool {
@@ -61,7 +61,7 @@ func (e *Elem[T]) Data() T {
 		return zero
 	}
 
-	return e.o.f(e.o.o, e.c.data)
+	return e.o.f(e.c.data)
 }
 
 func (e *Elem[T]) Next() *Elem[T] {
@@ -96,8 +96,8 @@ func newPkgList(o *DB, c_list *C.alpm_list_t) *List[*Pkg] {
 	return &List[*Pkg]{
 		o: o,
 		c: c_list,
-		f: func(o owner, c_data unsafe.Pointer) *Pkg {
-			return &Pkg{o: o.(*DB), c: (*C.alpm_pkg_t)(c_data)}
+		f: func(c_data unsafe.Pointer) *Pkg {
+			return &Pkg{o: o, c: (*C.alpm_pkg_t)(c_data)}
 		},
 	}
 }
@@ -106,8 +106,8 @@ func newDepList(o *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
 	return &List[*Depend]{
 		o: o,
 		c: c_list,
-		f: func(o owner, c_data unsafe.Pointer) *Depend {
-			return &Depend{o: o.(*Pkg), c: (*C.alpm_depend_t)(c_data)}
+		f: func(c_data unsafe.Pointer) *Depend {
+			return &Depend{o: o, c: (*C.alpm_depend_t)(c_data)}
 		},
 	}
 }
