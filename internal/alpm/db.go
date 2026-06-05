@@ -5,19 +5,19 @@ package alpm
 import "C"
 
 type DB struct {
-	o *Handle
+	h *Handle
 	c *C.alpm_db_t
 }
 
-func newDB(o *Handle, c_db *C.alpm_db_t) *DB {
-	return &DB{o: o, c: c_db}
+func newDB(h *Handle, c_db *C.alpm_db_t) *DB {
+	return &DB{h: h, c: c_db}
 }
 
 func (d *DB) Alive() bool {
 	if d == nil || d.c == nil {
 		return false
 	}
-	if !d.o.Alive() {
+	if !d.h.Alive() {
 		d.c = nil
 		return false
 	}
