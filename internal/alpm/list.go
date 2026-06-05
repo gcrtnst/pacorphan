@@ -107,7 +107,7 @@ func newDepList(p *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
 		o: p,
 		c: c_list,
 		f: func(c_data unsafe.Pointer) *Depend {
-			return &Depend{p: p, c: (*C.alpm_depend_t)(c_data)}
+			return newDep(p, (*C.alpm_depend_t)(c_data))
 		},
 	}
 }

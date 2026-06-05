@@ -14,6 +14,10 @@ type Depend struct {
 	c *C.alpm_depend_t
 }
 
+func newDep(p *Pkg, c_dep *C.alpm_depend_t) *Depend {
+	return &Depend{p: p, c: c_dep}
+}
+
 func (d *Depend) Alive() bool {
 	if d == nil || d.c == nil {
 		return false
