@@ -39,13 +39,13 @@ func NewHandle(root string, dbpath string) (*Handle, error) {
 	return h, nil
 }
 
-func (h *Handle) Alive() bool {
+func (h *Handle) alive() bool {
 	return h != nil && h.c != nil
 }
 
 func (h *Handle) Close() error {
 	defer runtime.KeepAlive(h)
-	if !h.Alive() {
+	if !h.alive() {
 		return nil
 	}
 
@@ -62,7 +62,7 @@ func (h *Handle) Close() error {
 
 func (h *Handle) LocalDB() *DB {
 	defer runtime.KeepAlive(h)
-	if !h.Alive() {
+	if !h.alive() {
 		return nil
 	}
 
@@ -72,7 +72,7 @@ func (h *Handle) LocalDB() *DB {
 
 func (h *Handle) Root() string {
 	defer runtime.KeepAlive(h)
-	if !h.Alive() {
+	if !h.alive() {
 		return ""
 	}
 
@@ -82,7 +82,7 @@ func (h *Handle) Root() string {
 
 func (h *Handle) DBPath() string {
 	defer runtime.KeepAlive(h)
-	if !h.Alive() {
+	if !h.alive() {
 		return ""
 	}
 
@@ -100,7 +100,7 @@ func (h *Handle) error(cfunc string) error {
 
 func (h *Handle) errno() error {
 	defer runtime.KeepAlive(h)
-	if !h.Alive() {
+	if !h.alive() {
 		return ErrHandleClosed
 	}
 

@@ -15,11 +15,11 @@ type List[T any] struct {
 	f func(c_data unsafe.Pointer) T
 }
 
-func (l *List[T]) Alive() bool {
+func (l *List[T]) alive() bool {
 	if l == nil || l.c == nil {
 		return false
 	}
-	if !l.o.Alive() {
+	if !l.o.alive() {
 		l.c = nil
 		return false
 	}
@@ -28,7 +28,7 @@ func (l *List[T]) Alive() bool {
 
 func (l *List[T]) Len() int {
 	defer runtime.KeepAlive(l)
-	if !l.Alive() {
+	if !l.alive() {
 		return 0
 	}
 
@@ -57,11 +57,11 @@ type Elem[T any] struct {
 	c *C.alpm_list_t
 }
 
-func (e *Elem[T]) Alive() bool {
+func (e *Elem[T]) alive() bool {
 	if e == nil || e.c == nil {
 		return false
 	}
-	if !e.o.Alive() {
+	if !e.o.alive() {
 		e.c = nil
 		return false
 	}
@@ -70,7 +70,7 @@ func (e *Elem[T]) Alive() bool {
 
 func (e *Elem[T]) Data() T {
 	defer runtime.KeepAlive(e)
-	if !e.Alive() {
+	if !e.alive() {
 		var zero T
 		return zero
 	}
@@ -80,7 +80,7 @@ func (e *Elem[T]) Data() T {
 
 func (e *Elem[T]) Next() *Elem[T] {
 	defer runtime.KeepAlive(e)
-	if !e.Alive() {
+	if !e.alive() {
 		return nil
 	}
 
@@ -94,7 +94,7 @@ func (e *Elem[T]) Next() *Elem[T] {
 
 func (e *Elem[T]) Prev() *Elem[T] {
 	defer runtime.KeepAlive(e)
-	if !e.Alive() {
+	if !e.alive() {
 		return nil
 	}
 
@@ -127,5 +127,5 @@ func newDepList(p *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
 }
 
 type owner interface {
-	Alive() bool
+	alive() bool
 }

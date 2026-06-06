@@ -18,11 +18,11 @@ func newDep(p *Pkg, c_dep *C.alpm_depend_t) *Depend {
 	return &Depend{p: p, c: c_dep}
 }
 
-func (d *Depend) Alive() bool {
+func (d *Depend) alive() bool {
 	if d == nil || d.c == nil {
 		return false
 	}
-	if !d.p.Alive() {
+	if !d.p.alive() {
 		d.c = nil
 		return false
 	}
@@ -31,7 +31,7 @@ func (d *Depend) Alive() bool {
 
 func (d *Depend) String() string {
 	defer runtime.KeepAlive(d)
-	if !d.Alive() {
+	if !d.alive() {
 		return ""
 	}
 
@@ -42,7 +42,7 @@ func (d *Depend) String() string {
 
 func FindSatisfier(pkgs *List[*Pkg], depstring string) *Pkg {
 	defer runtime.KeepAlive(pkgs)
-	if !pkgs.Alive() {
+	if !pkgs.alive() {
 		return nil
 	}
 

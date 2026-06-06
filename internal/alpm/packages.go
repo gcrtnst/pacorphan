@@ -32,11 +32,11 @@ func newPkg(h *Handle, d *DB, c_pkg *C.alpm_pkg_t) *Pkg {
 	return &Pkg{h: h, d: d, c: c_pkg}
 }
 
-func (p *Pkg) Alive() bool {
+func (p *Pkg) alive() bool {
 	if p == nil || p.c == nil {
 		return false
 	}
-	if !p.d.Alive() || !p.h.Alive() {
+	if !p.d.alive() || !p.h.alive() {
 		p.c = nil
 		return false
 	}
@@ -45,7 +45,7 @@ func (p *Pkg) Alive() bool {
 
 func (p *Pkg) Name() string {
 	defer runtime.KeepAlive(p)
-	if !p.Alive() {
+	if !p.alive() {
 		return ""
 	}
 
@@ -55,7 +55,7 @@ func (p *Pkg) Name() string {
 
 func (p *Pkg) Version() string {
 	defer runtime.KeepAlive(p)
-	if !p.Alive() {
+	if !p.alive() {
 		return ""
 	}
 
@@ -65,7 +65,7 @@ func (p *Pkg) Version() string {
 
 func (p *Pkg) Depends() *List[*Depend] {
 	defer runtime.KeepAlive(p)
-	if !p.Alive() {
+	if !p.alive() {
 		return nil
 	}
 
@@ -75,7 +75,7 @@ func (p *Pkg) Depends() *List[*Depend] {
 
 func (p *Pkg) Reason() PkgReason {
 	defer runtime.KeepAlive(p)
-	if !p.Alive() {
+	if !p.alive() {
 		return PkgReasonUnknown
 	}
 

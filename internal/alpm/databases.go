@@ -21,11 +21,11 @@ func newDB(h *Handle, c_db *C.alpm_db_t) *DB {
 	return &DB{h: h, c: c_db}
 }
 
-func (d *DB) Alive() bool {
+func (d *DB) alive() bool {
 	if d == nil || d.c == nil {
 		return false
 	}
-	if !d.h.Alive() {
+	if !d.h.alive() {
 		d.c = nil
 		return false
 	}
@@ -34,7 +34,7 @@ func (d *DB) Alive() bool {
 
 func (d *DB) PkgCache() (*List[*Pkg], error) {
 	defer runtime.KeepAlive(d)
-	if !d.Alive() {
+	if !d.alive() {
 		return nil, ErrHandleClosed
 	}
 
