@@ -4,6 +4,7 @@ package alpm
 // #include <alpm.h>
 import "C"
 import (
+	"iter"
 	"runtime"
 	"unsafe"
 )
@@ -37,6 +38,18 @@ func (l *List[T]) Len() int {
 
 func (l *List[T]) Front() *Elem[T] {
 	return &Elem[T]{o: l, c: l.c}
+}
+
+func (l *List[T]) All() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		e := l.Front()
+		for e != nil {
+			if !yield(e.Data()) {
+				break
+			}
+			e = e.Next()
+		}
+	}
 }
 
 type Elem[T any] struct {
