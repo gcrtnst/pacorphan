@@ -31,3 +31,18 @@ func (d *DB) Alive() bool {
 	}
 	return true
 }
+
+func (d *DB) PkgCache() (*List[*Pkg], error) {
+	if !d.Alive() {
+		return nil, ErrHandleClosed
+	}
+
+	c_list := C.alpm_db_get_pkgcache(d.c)
+	runtime.KeepAlive(d)
+	if c_list == nil {
+		return nil, d.h.errno()
+	}
+
+	l := newPkgList(d.h, d, c_list)
+	return l, nil
+}
