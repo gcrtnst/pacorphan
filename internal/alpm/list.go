@@ -27,12 +27,12 @@ func (l *List[T]) Alive() bool {
 }
 
 func (l *List[T]) Len() int {
+	defer runtime.KeepAlive(l)
 	if !l.Alive() {
 		return 0
 	}
 
 	c_count := C.alpm_list_count(l.c)
-	runtime.KeepAlive(l)
 	return c2goSize(c_count)
 }
 
@@ -69,6 +69,7 @@ func (e *Elem[T]) Alive() bool {
 }
 
 func (e *Elem[T]) Data() T {
+	defer runtime.KeepAlive(e)
 	if !e.Alive() {
 		var zero T
 		return zero
@@ -78,12 +79,12 @@ func (e *Elem[T]) Data() T {
 }
 
 func (e *Elem[T]) Next() *Elem[T] {
+	defer runtime.KeepAlive(e)
 	if !e.Alive() {
 		return nil
 	}
 
 	c_list := C.alpm_list_next(e.c)
-	runtime.KeepAlive(e)
 	if c_list == nil {
 		return nil
 	}
@@ -92,12 +93,12 @@ func (e *Elem[T]) Next() *Elem[T] {
 }
 
 func (e *Elem[T]) Prev() *Elem[T] {
+	defer runtime.KeepAlive(e)
 	if !e.Alive() {
 		return nil
 	}
 
 	c_list := C.alpm_list_previous(e.c)
-	runtime.KeepAlive(e)
 	if c_list == nil {
 		return nil
 	}

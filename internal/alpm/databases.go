@@ -11,9 +11,9 @@ type DB struct {
 }
 
 func newDB(h *Handle, c_db *C.alpm_db_t) *DB {
-	c_handle := C.alpm_db_get_handle(c_db)
-	runtime.KeepAlive(h)
+	defer runtime.KeepAlive(h)
 
+	c_handle := C.alpm_db_get_handle(c_db)
 	if c_handle != h.c {
 		panic("alpm: database handle mismatch")
 	}
@@ -33,12 +33,12 @@ func (d *DB) Alive() bool {
 }
 
 func (d *DB) PkgCache() (*List[*Pkg], error) {
+	defer runtime.KeepAlive(d)
 	if !d.Alive() {
 		return nil, ErrHandleClosed
 	}
 
 	c_list := C.alpm_db_get_pkgcache(d.c)
-	runtime.KeepAlive(d)
 	if c_list == nil {
 		return nil, d.h.errno()
 	}

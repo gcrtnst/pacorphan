@@ -30,17 +30,18 @@ func (d *Depend) Alive() bool {
 }
 
 func (d *Depend) String() string {
+	defer runtime.KeepAlive(d)
 	if !d.Alive() {
 		return ""
 	}
 
 	c_string := C.alpm_dep_compute_string(d.c)
-	runtime.KeepAlive(d)
 	defer C.free(unsafe.Pointer(c_string))
 	return C.GoString(c_string)
 }
 
 func FindSatisfier(pkgs *List[*Pkg], depstring string) *Pkg {
+	defer runtime.KeepAlive(pkgs)
 	if !pkgs.Alive() {
 		return nil
 	}
@@ -49,8 +50,6 @@ func FindSatisfier(pkgs *List[*Pkg], depstring string) *Pkg {
 	defer C.free(unsafe.Pointer(c_depstring))
 
 	c_pkg := C.alpm_find_satisfier(pkgs.c, c_depstring)
-	runtime.KeepAlive(pkgs)
-
 	if c_pkg == nil {
 		return nil
 	}
