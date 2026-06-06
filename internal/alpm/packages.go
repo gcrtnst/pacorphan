@@ -46,6 +46,26 @@ func (p *Pkg) Alive() bool {
 	return true
 }
 
+func (p *Pkg) Name() string {
+	if !p.Alive() {
+		return ""
+	}
+
+	defer runtime.KeepAlive(p)
+	c_string := C.alpm_pkg_get_name(p.c)
+	return C.GoString(c_string)
+}
+
+func (p *Pkg) Version() string {
+	if !p.Alive() {
+		return ""
+	}
+
+	defer runtime.KeepAlive(p)
+	c_string := C.alpm_pkg_get_version(p.c)
+	return C.GoString(c_string)
+}
+
 func (p *Pkg) Depends() *List[*Depend] {
 	if !p.Alive() {
 		return nil
