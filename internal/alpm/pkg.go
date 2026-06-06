@@ -12,6 +12,10 @@ type Pkg struct {
 }
 
 func newPkg(h *Handle, d *DB, c_pkg *C.alpm_pkg_t) *Pkg {
+	if h != d.h {
+		panic("alpm: database handle mismatch")
+	}
+
 	c_handle := C.alpm_pkg_get_handle(c_pkg)
 	runtime.KeepAlive(h)
 	runtime.KeepAlive(d)
