@@ -40,7 +40,7 @@ func (d *DB) PkgCache() (*List[*Pkg], error) {
 
 	c_list := C.alpm_db_get_pkgcache(d.c)
 	if c_list == nil {
-		return nil, d.h.errno()
+		return nil, d.h.error("alpm_db_get_pkgcache")
 	}
 
 	l := newPkgList(d.h, d, c_list)

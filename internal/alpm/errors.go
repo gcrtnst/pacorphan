@@ -3,6 +3,7 @@ package alpm
 // #cgo pkg-config: libalpm
 // #include <alpm.h>
 import "C"
+import "fmt"
 
 const (
 	ErrOK                          Errno = C.ALPM_ERR_OK
@@ -62,6 +63,19 @@ const (
 	ErrGPGME                       Errno = C.ALPM_ERR_GPGME
 	ErrMissingCapabilitySignatures Errno = C.ALPM_ERR_MISSING_CAPABILITY_SIGNATURES
 )
+
+type Error struct {
+	CFunc string
+	Errno Errno
+}
+
+func (err *Error) Error() string {
+	return fmt.Sprintf("alpm: %s(): %s", err.CFunc, err.Errno.Message())
+}
+
+func (err *Error) Unwrap() error {
+	return err.Errno
+}
 
 type Errno int
 

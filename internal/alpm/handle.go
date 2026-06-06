@@ -29,7 +29,7 @@ func NewHandle(root string, dbpath string) (*Handle, error) {
 
 	c_handle := C.alpm_initialize(c_root, c_dbpath, &c_errno)
 	if c_handle == nil {
-		return nil, Errno(c_errno)
+		return nil, &Error{CFunc: "alpm_initialize", Errno: Errno(c_errno)}
 	}
 
 	h := &Handle{c: c_handle}
@@ -88,6 +88,14 @@ func (h *Handle) DBPath() string {
 
 	c_string := C.alpm_option_get_dbpath(h.c)
 	return C.GoString(c_string)
+}
+
+func (h *Handle) error(cfunc string) error {
+	err := h.errno()
+	if errno, ok := err.(Errno); ok {
+		return &Error{CFunc: cfunc, Errno: errno}
+	}
+	return err
 }
 
 func (h *Handle) errno() error {
