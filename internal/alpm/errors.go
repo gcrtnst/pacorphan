@@ -66,5 +66,9 @@ const (
 type Errno int
 
 func (err Errno) Error() string {
+	return "alpm: " + err.Message()
+}
+
+func (err Errno) Message() string {
 	return C.GoString(C.alpm_strerror(C.alpm_errno_t(err)))
 }
