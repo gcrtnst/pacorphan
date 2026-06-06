@@ -46,6 +46,16 @@ func (p *Pkg) Alive() bool {
 	return true
 }
 
+func (p *Pkg) Depends() *List[*Depend] {
+	if !p.Alive() {
+		return nil
+	}
+
+	c_list := C.alpm_pkg_get_depends(p.c)
+	runtime.KeepAlive(p)
+	return newDepList(p, c_list)
+}
+
 func (p *Pkg) Reason() PkgReason {
 	if !p.Alive() {
 		return PkgReasonUnknown
