@@ -90,6 +90,46 @@ func (h *Handle) LocalDB() *DB {
 	return newDB(h, c_db)
 }
 
+func (h *Handle) FindDBsSatisfier(dbs *List[*DB], depstring string) *Pkg {
+	defer runtime.KeepAlive(h)
+	if !h.alive() {
+		return nil
+	}
+
+	defer runtime.KeepAlive(dbs)
+	if !dbs.alive() {
+		return nil
+	}
+
+	for db := range dbs.All() {
+		if db.h != h {
+			return nil
+		}
+	}
+
+	c_depstring := C.CString(depstring)
+	defer C.free(unsafe.Pointer(c_depstring))
+
+	c_pkg := C.alpm_find_dbs_satisfier(h.c, *dbs.c, c_depstring)
+	if c_pkg == nil {
+		return nil
+	}
+
+	dbp := (*DB)(nil)
+	c_db := C.alpm_pkg_get_db(c_pkg)
+	for db := range dbs.All() {
+		if db.c == c_db {
+			dbp = db
+			break
+		}
+	}
+	if dbp == nil {
+		panic("alpm: package database not found in list")
+	}
+
+	return newPkg(h, dbp, c_pkg)
+}
+
 func (h *Handle) error(cfunc string) error {
 	err := h.errno()
 	if errno, ok := err.(Errno); ok {
