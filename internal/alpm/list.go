@@ -16,7 +16,7 @@ type List[T any] struct {
 }
 
 func (l *List[T]) alive() bool {
-	if l == nil || l.c == nil {
+	if l == nil {
 		return false
 	}
 	if !l.o.alive() {
@@ -37,7 +37,7 @@ func (l *List[T]) Len() int {
 }
 
 func (l *List[T]) Front() *Elem[T] {
-	if !l.alive() {
+	if !l.alive() || l.c == nil {
 		return nil
 	}
 	return &Elem[T]{o: l, c: l.c}
