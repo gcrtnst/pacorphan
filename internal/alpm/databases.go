@@ -3,7 +3,10 @@ package alpm
 // #cgo pkg-config: libalpm
 // #include <alpm.h>
 import "C"
-import "runtime"
+import (
+	"runtime"
+	"unsafe"
+)
 
 type DB struct {
 	h *Handle
@@ -45,4 +48,24 @@ func (d *DB) PkgCache() (*List[*Pkg], error) {
 
 	l := newPkgList(d.h, d, c_list)
 	return l, nil
+}
+
+func newDBList(h *Handle) *List[*DB] {
+	c_list := (*C.alpm_list_t)(nil)
+	l := &List[*DB]{
+		c: &c_list,
+		fi: func(db *DB) unsafe.Pointer {
+			if !db.alive() || db.h != h {
+				return nil
+			}
+			return unsafe.Pointer(db.c)
+		},
+		fo: func(c_data unsafe.Pointer) *DB {
+			return newDB(h, (*C.alpm_db_t)(c_data))
+		},
+	}
+	runtime.AddCleanup(l, func(c_list **C.alpm_list_t) {
+		C.alpm_list_free(*c_list)
+	}, &c_list)
+	return l
 }

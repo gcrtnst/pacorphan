@@ -114,3 +114,14 @@ func CompareVersion(a, b string) int {
 	c_ret := C.alpm_pkg_vercmp(c_a, c_b)
 	return c2goInt(c_ret)
 }
+
+func newPkgList(h *Handle, d *DB, c_list *C.alpm_list_t) *List[*Pkg] {
+	return &List[*Pkg]{
+		o:  d,
+		c:  &c_list,
+		fi: nil,
+		fo: func(c_data unsafe.Pointer) *Pkg {
+			return newPkg(h, d, (*C.alpm_pkg_t)(c_data))
+		},
+	}
+}

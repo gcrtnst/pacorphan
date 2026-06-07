@@ -56,3 +56,14 @@ func FindSatisfier(pkgs *List[*Pkg], depstring string) *Pkg {
 
 	return pkgs.fo(unsafe.Pointer(c_pkg))
 }
+
+func newDepList(p *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
+	return &List[*Depend]{
+		o:  p,
+		c:  &c_list,
+		fi: nil,
+		fo: func(c_data unsafe.Pointer) *Depend {
+			return newDep(p, (*C.alpm_depend_t)(c_data))
+		},
+	}
+}
