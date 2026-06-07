@@ -49,10 +49,10 @@ func FindSatisfier(pkgs *List[*Pkg], depstring string) *Pkg {
 	c_depstring := C.CString(depstring)
 	defer C.free(unsafe.Pointer(c_depstring))
 
-	c_pkg := C.alpm_find_satisfier(pkgs.c, c_depstring)
+	c_pkg := C.alpm_find_satisfier(*pkgs.c, c_depstring)
 	if c_pkg == nil {
 		return nil
 	}
 
-	return pkgs.f(unsafe.Pointer(c_pkg))
+	return pkgs.fo(unsafe.Pointer(c_pkg))
 }

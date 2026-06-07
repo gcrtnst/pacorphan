@@ -10,20 +10,31 @@ import (
 )
 
 type List[T any] struct {
-	o owner
-	c *C.alpm_list_t
-	f func(unsafe.Pointer) T
+	o  owner
+	c  **C.alpm_list_t
+	fi func(T) unsafe.Pointer
+	fo func(unsafe.Pointer) T
 }
 
 func (l *List[T]) alive() bool {
-	if l == nil {
+	if l == nil || l.c == nil {
 		return false
 	}
-	if !l.o.alive() {
+	if l.o != nil && !l.o.alive() {
 		l.c = nil
 		return false
 	}
 	return true
+}
+
+func (l *List[T]) Free() {
+	defer runtime.KeepAlive(l)
+	if !l.alive() || l.o != nil {
+		return
+	}
+
+	C.alpm_list_free(*l.c)
+	*l.c = nil
 }
 
 func (l *List[T]) Len() int {
@@ -32,15 +43,31 @@ func (l *List[T]) Len() int {
 		return 0
 	}
 
-	c_count := C.alpm_list_count(l.c)
+	c_count := C.alpm_list_count(*l.c)
 	return c2goSize(c_count)
 }
 
 func (l *List[T]) Front() *Elem[T] {
-	if !l.alive() || l.c == nil {
+	if !l.alive() || *l.c == nil {
 		return nil
 	}
-	return &Elem[T]{o: l, c: l.c}
+	return &Elem[T]{o: l, c: *l.c}
+}
+
+func (l *List[T]) PushBack(data T) *Elem[T] {
+	defer runtime.KeepAlive(l)
+	defer runtime.KeepAlive(data)
+	if !l.alive() || l.o != nil || l.fi == nil {
+		return nil
+	}
+
+	c_data := l.fi(data)
+	if c_data == nil {
+		return nil
+	}
+
+	c_elem := C.alpm_list_append(l.c, c_data)
+	return &Elem[T]{o: l, c: c_elem}
 }
 
 func (l *List[T]) All() iter.Seq[T] {
@@ -78,7 +105,7 @@ func (e *Elem[T]) Data() T {
 		return zero
 	}
 
-	return e.o.f(e.c.data)
+	return e.o.fo(e.c.data)
 }
 
 func (e *Elem[T]) Next() *Elem[T] {
@@ -109,129 +136,12 @@ func (e *Elem[T]) Prev() *Elem[T] {
 	return &Elem[T]{o: e.o, c: c_list}
 }
 
-type DBList struct {
-	c  **C.alpm_list_t
-	fi func(*DB) unsafe.Pointer
-	fo func(unsafe.Pointer) *DB
-}
-
-func (l *DBList) alive() bool {
-	return l != nil && l.c != nil
-}
-
-func (l *DBList) Free() {
-	defer runtime.KeepAlive(l)
-	if !l.alive() {
-		return
-	}
-
-	C.alpm_list_free(*l.c)
-	*l.c = nil
-}
-
-func (l *DBList) Len() int {
-	defer runtime.KeepAlive(l)
-	if !l.alive() {
-		return 0
-	}
-
-	c_count := C.alpm_list_count(*l.c)
-	return c2goSize(c_count)
-}
-
-func (l *DBList) Front() *DBElem {
-	if !l.alive() {
-		return nil
-	}
-	return &DBElem{o: l, c: *l.c}
-}
-
-func (l *DBList) PushBack(db *DB) *DBElem {
-	defer runtime.KeepAlive(l)
-	defer runtime.KeepAlive(db)
-	if !l.alive() {
-		return nil
-	}
-
-	c_data := l.fi(db)
-	if c_data == nil {
-		return nil
-	}
-
-	c_elem := C.alpm_list_append(l.c, c_data)
-	return &DBElem{o: l, c: c_elem}
-}
-
-func (l *DBList) All() iter.Seq[*DB] {
-	return func(yield func(*DB) bool) {
-		e := l.Front()
-		for e != nil {
-			if !yield(e.Data()) {
-				break
-			}
-			e = e.Next()
-		}
-	}
-}
-
-type DBElem struct {
-	o *DBList
-	c *C.alpm_list_t
-}
-
-func (e *DBElem) alive() bool {
-	if e == nil || e.c == nil {
-		return false
-	}
-	if !e.o.alive() {
-		e.c = nil
-		return false
-	}
-	return true
-}
-
-func (e *DBElem) Data() *DB {
-	defer runtime.KeepAlive(e)
-	if !e.alive() {
-		return nil
-	}
-
-	return e.o.fo(e.c.data)
-}
-
-func (e *DBElem) Next() *DBElem {
-	defer runtime.KeepAlive(e)
-	if !e.alive() {
-		return nil
-	}
-
-	c_list := C.alpm_list_next(e.c)
-	if c_list == nil {
-		return nil
-	}
-
-	return &DBElem{o: e.o, c: c_list}
-}
-
-func (e *DBElem) Prev() *DBElem {
-	defer runtime.KeepAlive(e)
-	if !e.alive() {
-		return nil
-	}
-
-	c_list := C.alpm_list_previous(e.c)
-	if c_list == nil {
-		return nil
-	}
-
-	return &DBElem{o: e.o, c: c_list}
-}
-
 func newPkgList(h *Handle, d *DB, c_list *C.alpm_list_t) *List[*Pkg] {
 	return &List[*Pkg]{
-		o: d,
-		c: c_list,
-		f: func(c_data unsafe.Pointer) *Pkg {
+		o:  d,
+		c:  &c_list,
+		fi: nil,
+		fo: func(c_data unsafe.Pointer) *Pkg {
 			return newPkg(h, d, (*C.alpm_pkg_t)(c_data))
 		},
 	}
@@ -239,17 +149,18 @@ func newPkgList(h *Handle, d *DB, c_list *C.alpm_list_t) *List[*Pkg] {
 
 func newDepList(p *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
 	return &List[*Depend]{
-		o: p,
-		c: c_list,
-		f: func(c_data unsafe.Pointer) *Depend {
+		o:  p,
+		c:  &c_list,
+		fi: nil,
+		fo: func(c_data unsafe.Pointer) *Depend {
 			return newDep(p, (*C.alpm_depend_t)(c_data))
 		},
 	}
 }
 
-func newDBList(h *Handle) *DBList {
+func newDBList(h *Handle) *List[*DB] {
 	c_list := (*C.alpm_list_t)(nil)
-	l := &DBList{
+	l := &List[*DB]{
 		c: &c_list,
 		fi: func(db *DB) unsafe.Pointer {
 			if !db.alive() || db.h != h {
