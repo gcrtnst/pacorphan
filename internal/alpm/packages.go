@@ -77,6 +77,16 @@ func (p *Pkg) Depends() *List[*Depend] {
 	return newDepList(p, c_list)
 }
 
+func (p *Pkg) OptDepends() *List[*Depend] {
+	defer runtime.KeepAlive(p)
+	if !p.alive() {
+		return nil
+	}
+
+	c_list := C.alpm_pkg_get_optdepends(p.c)
+	return newDepList(p, c_list)
+}
+
 func (p *Pkg) Reason() PkgReason {
 	defer runtime.KeepAlive(p)
 	if !p.alive() {

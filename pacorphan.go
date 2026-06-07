@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"iter"
 	"os"
 	"slices"
 
@@ -20,9 +21,10 @@ type Pkg struct {
 }
 
 func run() int {
-	var fQuiet bool
+	var fQuiet, fUnrequired bool
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
 	fs.BoolVarP(&fQuiet, "quiet", "q", false, "show less information")
+	fs.BoolVarP(&fUnrequired, "unrequired", "t", false, "ignore optdepends")
 
 	errParse := fs.Parse(os.Args[1:])
 	if errParse != nil {
@@ -32,7 +34,7 @@ func run() int {
 		return 1
 	}
 
-	orphans, err := FindOrphans()
+	orphans, err := FindOrphans(FindOrphansOption{IgnoreOptDepends: fUnrequired})
 	if err != nil {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
 			switch errALPM.CFunc {
@@ -65,7 +67,11 @@ func run() int {
 	return 0
 }
 
-func FindOrphans() (orphans []Pkg, err error) {
+type FindOrphansOption struct {
+	IgnoreOptDepends bool
+}
+
+func FindOrphans(opt FindOrphansOption) (orphans []Pkg, err error) {
 	h, errHandleNew := alpm.NewHandle("/", "/var/lib/pacman")
 	if errHandleNew != nil {
 		return nil, err
@@ -100,7 +106,12 @@ func FindOrphans() (orphans []Pkg, err error) {
 		var pkg *alpm.Pkg
 		pkg, stack = pop(stack)
 
-		for dep := range pkg.Depends().All() {
+		depSeq := pkg.Depends().All()
+		if opt.IgnoreOptDepends {
+			depSeq = concat(depSeq, pkg.OptDepends().All())
+		}
+
+		for dep := range depSeq {
 			depPkg := alpm.FindSatisfier(pkgList, dep.String())
 			if depPkg != nil {
 				depName := depPkg.Name()
@@ -138,4 +149,16 @@ func pop[S ~[]E, E any](s S) (E, S) {
 	s[len(s)-1] = zero
 	s = s[:len(s)-1]
 	return e, s
+}
+
+func concat[V any](seqs ...iter.Seq[V]) iter.Seq[V] {
+	return func(yield func(V) bool) {
+		for _, seq := range seqs {
+			for e := range seq {
+				if !yield(e) {
+					return
+				}
+			}
+		}
+	}
 }
