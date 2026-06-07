@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"iter"
 	"os"
+	"os/exec"
 	"slices"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
@@ -34,6 +35,12 @@ func run() int {
 			fmt.Fprintf(os.Stderr, "error: %s\n", errParse)
 		}
 		return 1
+	}
+
+	if !fs.Changed("dbpath") {
+		if dbpath, ok := GetConfDBPath(); ok {
+			fOpt.DBPath = dbpath
+		}
 	}
 
 	orphans, err := FindOrphans(fOpt)
@@ -153,6 +160,18 @@ func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 		return alpm.CompareVersion(a.Version, b.Version)
 	})
 	return orphans, nil
+}
+
+func GetConfDBPath() (string, bool) {
+	cmd := exec.Command("pacman-conf", "DBPath")
+	out, err := cmd.Output()
+	if err != nil {
+		return "", false
+	}
+	if len(out) >= 1 && out[len(out)-1] == '\n' {
+		out = out[:len(out)-1]
+	}
+	return string(out), true
 }
 
 func pop[S ~[]E, E any](s S) (E, S) {
