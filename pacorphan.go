@@ -34,7 +34,7 @@ func run() int {
 		return 1
 	}
 
-	orphans, err := FindOrphans(FindOrphansOption{IgnoreOptDepends: fUnrequired})
+	orphans, err := FindOrphans(&FindOrphansOption{IgnoreOptDepends: fUnrequired})
 	if err != nil {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
 			switch errALPM.CFunc {
@@ -71,7 +71,7 @@ type FindOrphansOption struct {
 	IgnoreOptDepends bool
 }
 
-func FindOrphans(opt FindOrphansOption) (orphans []Pkg, err error) {
+func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 	h, errHandleNew := alpm.NewHandle("/", "/var/lib/pacman")
 	if errHandleNew != nil {
 		return nil, err
