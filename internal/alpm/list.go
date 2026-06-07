@@ -12,7 +12,7 @@ import (
 type List[T any] struct {
 	o owner
 	c *C.alpm_list_t
-	f func(c_data unsafe.Pointer) T
+	f func(unsafe.Pointer) T
 }
 
 func (l *List[T]) alive() bool {
