@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"maps"
 	"os"
 	"slices"
 
@@ -13,25 +13,57 @@ func main() {
 	os.Exit(run())
 }
 
-func run() (code int) {
+type Pkg struct {
+	Name    string
+	Version string
+}
+
+func run() int {
+	orphans, err := FindOrphans()
+	if err != nil {
+		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
+			switch errALPM.CFunc {
+			case "alpm_initialize":
+				fmt.Fprintf(os.Stderr, "error: failed to initialize alpm library: %s\n", errALPM.Errno.Message())
+				return 1
+			case "alpm_db_get_pkgcache":
+				fmt.Fprintf(os.Stderr, "error: failed to load pkgcache: %s\n", errALPM.Errno.Message())
+				return 1
+			default:
+				fmt.Fprintf(os.Stderr, "error: %s(): %s\n", errALPM.CFunc, errALPM.Errno.Message())
+				return 1
+			}
+		} else if errors.Is(err, alpm.ErrHandleCloseFailed) {
+			fmt.Fprintf(os.Stderr, "warn: failed to release alpm library\n")
+			// continue
+		} else {
+			fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
+			return 1
+		}
+	}
+
+	for _, pkg := range orphans {
+		fmt.Printf("%s %s\n", pkg.Name, pkg.Version)
+	}
+	return 0
+}
+
+func FindOrphans() (orphans []Pkg, err error) {
 	h, errHandleNew := alpm.NewHandle("/", "/var/lib/pacman")
 	if errHandleNew != nil {
-		fmt.Fprintf(os.Stderr, "error: cannot initialize alpm: %s\n", errHandleNew.Error())
-		return 1
+		return nil, err
 	}
 	defer func() {
 		errHandleClose := h.Close()
-		if errHandleClose != nil {
-			fmt.Fprintf(os.Stderr, "error: cannot release alpm: %s\n", errHandleClose.Error())
-			code = 1
+		if errHandleClose != nil && err == nil {
+			err = errHandleClose
 		}
 	}()
 
 	db := h.LocalDB()
 	pkgList, errPkgCache := db.PkgCache()
 	if errPkgCache != nil {
-		fmt.Fprintf(os.Stderr, "error: cannot load package cache: %s\n", errPkgCache.Error())
-		return 1
+		return nil, errPkgCache
 	}
 
 	mark := make(map[string]*alpm.Pkg)
@@ -63,33 +95,31 @@ func run() (code int) {
 		}
 	}
 
-	orphans := slices.Collect(maps.Values(mark))
-	slices.SortStableFunc(orphans, func(a, b *alpm.Pkg) int {
-		aName := a.Name()
-		bName := b.Name()
-		if aName < bName {
+	orphans = make([]Pkg, 0, len(mark))
+	for _, pkg := range mark {
+		orphans = append(orphans, Pkg{
+			Name:    pkg.Name(),
+			Version: pkg.Version(),
+		})
+	}
+	slices.SortStableFunc(orphans, func(a, b Pkg) int {
+		if a.Name < b.Name {
 			return -1
 		}
-		if aName > bName {
+		if a.Name > b.Name {
 			return 1
 		}
 
-		aVersion := a.Version()
-		bVersion := b.Version()
-		if aVersion < bVersion {
+		if a.Version < b.Version {
 			return -1
 		}
-		if aVersion > bVersion {
+		if a.Version > b.Version {
 			return 1
 		}
 
 		return 0
 	})
-
-	for _, pkg := range orphans {
-		fmt.Printf("%s %s\n", pkg.Name(), pkg.Version())
-	}
-	return 0
+	return orphans, nil
 }
 
 func pop[S ~[]E, E any](s S) (E, S) {
