@@ -110,7 +110,7 @@ func FindOrphans(opt FindOrphansOption) (orphans []Pkg, err error) {
 		pkg, stack = pop(stack)
 
 		depSeq := pkg.Depends().All()
-		if opt.IgnoreOptDepends {
+		if !opt.IgnoreOptDepends {
 			depSeq = concat(depSeq, pkg.OptDepends().All())
 		}
 
