@@ -40,23 +40,6 @@ func (d *Depend) String() string {
 	return C.GoString(c_string)
 }
 
-func FindSatisfier(pkgs *List[*Pkg], depstring string) *Pkg {
-	defer runtime.KeepAlive(pkgs)
-	if !pkgs.alive() {
-		return nil
-	}
-
-	c_depstring := C.CString(depstring)
-	defer C.free(unsafe.Pointer(c_depstring))
-
-	c_pkg := C.alpm_find_satisfier(*pkgs.c, c_depstring)
-	if c_pkg == nil {
-		return nil
-	}
-
-	return pkgs.fo(unsafe.Pointer(c_pkg))
-}
-
 func newDepList(p *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
 	return &List[*Depend]{
 		o:  p,
