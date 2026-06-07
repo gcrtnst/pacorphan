@@ -84,6 +84,9 @@ func FindOrphans(opt FindOrphansOption) (orphans []Pkg, err error) {
 	}()
 
 	db := h.LocalDB()
+	dbList := alpm.NewDBList(h)
+	dbList.PushBack(db)
+
 	pkgList, errPkgCache := db.PkgCache()
 	if errPkgCache != nil {
 		return nil, errPkgCache
@@ -112,7 +115,7 @@ func FindOrphans(opt FindOrphansOption) (orphans []Pkg, err error) {
 		}
 
 		for dep := range depSeq {
-			depPkg := alpm.FindSatisfier(pkgList, dep.String())
+			depPkg := h.FindDBsSatisfier(dbList, dep.String())
 			if depPkg != nil {
 				depName := depPkg.Name()
 				if _, ok := mark[depName]; ok {
