@@ -37,6 +37,9 @@ func (l *List[T]) Len() int {
 }
 
 func (l *List[T]) Front() *Elem[T] {
+	if !l.alive() {
+		return nil
+	}
 	return &Elem[T]{o: l, c: l.c}
 }
 
