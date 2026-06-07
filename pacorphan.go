@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
+	"github.com/spf13/pflag"
 )
 
 func main() {
@@ -19,6 +20,18 @@ type Pkg struct {
 }
 
 func run() int {
+	var fQuiet bool
+	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
+	fs.BoolVarP(&fQuiet, "quiet", "q", false, "show less information")
+
+	errParse := fs.Parse(os.Args[1:])
+	if errParse != nil {
+		if !errors.Is(errParse, pflag.ErrHelp) {
+			fmt.Fprintf(os.Stderr, "error: %s\n", errParse)
+		}
+		return 1
+	}
+
 	orphans, err := FindOrphans()
 	if err != nil {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
@@ -43,7 +56,11 @@ func run() int {
 	}
 
 	for _, pkg := range orphans {
-		fmt.Printf("%s %s\n", pkg.Name, pkg.Version)
+		if fQuiet {
+			fmt.Printf("%s\n", pkg.Name)
+		} else {
+			fmt.Printf("%s %s\n", pkg.Name, pkg.Version)
+		}
 	}
 	return 0
 }
