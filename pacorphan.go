@@ -109,15 +109,7 @@ func FindOrphans() (orphans []Pkg, err error) {
 		if a.Name > b.Name {
 			return 1
 		}
-
-		if a.Version < b.Version {
-			return -1
-		}
-		if a.Version > b.Version {
-			return 1
-		}
-
-		return 0
+		return alpm.CompareVersion(a.Version, b.Version)
 	})
 	return orphans, nil
 }

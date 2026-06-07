@@ -1,9 +1,13 @@
 package alpm
 
 // #cgo pkg-config: libalpm
+// #include <stdlib.h>
 // #include <alpm.h>
 import "C"
-import "runtime"
+import (
+	"runtime"
+	"unsafe"
+)
 
 type Pkg struct {
 	h *Handle
@@ -90,3 +94,13 @@ const (
 	PkgReasonDepend   PkgReason = C.ALPM_PKG_REASON_DEPEND
 	PkgReasonUnknown  PkgReason = C.ALPM_PKG_REASON_UNKNOWN
 )
+
+func CompareVersion(a, b string) int {
+	c_a := C.CString(a)
+	defer C.free(unsafe.Pointer(c_a))
+	c_b := C.CString(b)
+	defer C.free(unsafe.Pointer(c_b))
+
+	c_ret := C.alpm_pkg_vercmp(c_a, c_b)
+	return c2goInt(c_ret)
+}
