@@ -9,6 +9,10 @@ import (
 	"unsafe"
 )
 
+type owner interface {
+	alive() bool
+}
+
 type List[T any] struct {
 	o  owner
 	c  **C.alpm_list_t
@@ -176,8 +180,4 @@ func newDBList(h *Handle) *List[*DB] {
 		C.alpm_list_free(*c_list)
 	}, &c_list)
 	return l
-}
-
-type owner interface {
-	alive() bool
 }
