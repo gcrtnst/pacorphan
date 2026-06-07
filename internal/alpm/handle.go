@@ -60,16 +60,6 @@ func (h *Handle) Close() error {
 	return nil
 }
 
-func (h *Handle) LocalDB() *DB {
-	defer runtime.KeepAlive(h)
-	if !h.alive() {
-		return nil
-	}
-
-	c_db := C.alpm_get_localdb(h.c)
-	return newDB(h, c_db)
-}
-
 func (h *Handle) Root() string {
 	defer runtime.KeepAlive(h)
 	if !h.alive() {
@@ -88,6 +78,16 @@ func (h *Handle) DBPath() string {
 
 	c_string := C.alpm_option_get_dbpath(h.c)
 	return C.GoString(c_string)
+}
+
+func (h *Handle) LocalDB() *DB {
+	defer runtime.KeepAlive(h)
+	if !h.alive() {
+		return nil
+	}
+
+	c_db := C.alpm_get_localdb(h.c)
+	return newDB(h, c_db)
 }
 
 func (h *Handle) error(cfunc string) error {
