@@ -102,6 +102,7 @@ func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 
 	db := h.LocalDB()
 	dbList := alpm.NewDBList(h)
+	defer dbList.Free()
 	dbList.PushBack(db)
 
 	pkgList, errPkgCache := db.PkgCache()
