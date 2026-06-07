@@ -37,12 +37,6 @@ func run() int {
 		return 1
 	}
 
-	if !fs.Changed("dbpath") {
-		if dbpath, ok := GetConfDBPath(); ok {
-			fOpt.DBPath = dbpath
-		}
-	}
-
 	orphans, err := FindOrphans(fOpt)
 	if err != nil {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
@@ -82,10 +76,16 @@ type FindOrphansOption struct {
 }
 
 func NewFindOrphansOption() *FindOrphansOption {
-	return &FindOrphansOption{
+	opt := &FindOrphansOption{
 		DBPath:           "/var/lib/pacman",
 		IgnoreOptDepends: false,
 	}
+
+	if dbpath, ok := GetConfDBPath(); ok {
+		opt.DBPath = dbpath
+	}
+
+	return opt
 }
 
 func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
