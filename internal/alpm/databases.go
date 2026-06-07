@@ -50,7 +50,7 @@ func (d *DB) PkgCache() (*List[*Pkg], error) {
 	return l, nil
 }
 
-func newDBList(h *Handle) *List[*DB] {
+func NewDBList(h *Handle) *List[*DB] {
 	c_list := (*C.alpm_list_t)(nil)
 	l := &List[*DB]{
 		c: &c_list,
