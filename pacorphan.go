@@ -21,10 +21,11 @@ type Pkg struct {
 }
 
 func run() int {
-	var fQuiet, fUnrequired bool
+	fQuiet := false
+	fOpt := NewFindOrphansOption()
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
-	fs.BoolVarP(&fQuiet, "quiet", "q", false, "show less information")
-	fs.BoolVarP(&fUnrequired, "unrequired", "t", false, "ignore optdepends")
+	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
+	fs.BoolVarP(&fOpt.IgnoreOptDepends, "unrequired", "t", fOpt.IgnoreOptDepends, "ignore optdepends")
 
 	errParse := fs.Parse(os.Args[1:])
 	if errParse != nil {
@@ -34,7 +35,7 @@ func run() int {
 		return 1
 	}
 
-	orphans, err := FindOrphans(&FindOrphansOption{IgnoreOptDepends: fUnrequired})
+	orphans, err := FindOrphans(fOpt)
 	if err != nil {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
 			switch errALPM.CFunc {
@@ -69,6 +70,12 @@ func run() int {
 
 type FindOrphansOption struct {
 	IgnoreOptDepends bool
+}
+
+func NewFindOrphansOption() *FindOrphansOption {
+	return &FindOrphansOption{
+		IgnoreOptDepends: false,
+	}
 }
 
 func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
