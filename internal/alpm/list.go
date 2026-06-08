@@ -16,6 +16,7 @@ type owner interface {
 type List[T any] struct {
 	o  owner
 	c  **C.alpm_list_t
+	v  uint
 	fi func(T) unsafe.Pointer
 	fo func(unsafe.Pointer) T
 }
@@ -37,6 +38,7 @@ func (l *List[T]) Free() {
 		return
 	}
 
+	l.v++
 	C.alpm_list_free(*l.c)
 	*l.c = nil
 }
@@ -89,13 +91,14 @@ func (l *List[T]) All() iter.Seq[T] {
 type Elem[T any] struct {
 	o *List[T]
 	c *C.alpm_list_t
+	v uint
 }
 
 func (e *Elem[T]) alive() bool {
 	if e == nil || e.c == nil {
 		return false
 	}
-	if !e.o.alive() {
+	if !e.o.alive() || e.o.v != e.v {
 		e.c = nil
 		return false
 	}
