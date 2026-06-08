@@ -23,7 +23,7 @@ type Pkg struct {
 
 func run() int {
 	fQuiet := false
-	fOpt := NewFindOrphansOption()
+	fOpt := &FindOrphansOption{}
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
 	fs.StringVarP(&fOpt.DBPath, "dbpath", "b", fOpt.DBPath, "set an alternate database location")
 	fs.StringVarP(&fOpt.Root, "root", "r", fOpt.Root, "set an alternate installation root")
@@ -77,22 +77,25 @@ type FindOrphansOption struct {
 	IgnoreOptDepends bool
 }
 
-func NewFindOrphansOption() *FindOrphansOption {
-	opt := &FindOrphansOption{
-		Root:             "/",
-		DBPath:           "/var/lib/pacman",
-		IgnoreOptDepends: false,
-	}
-
-	if dbpath, ok := (&PacmanConf{}).Get("DBPath"); ok {
-		opt.DBPath = dbpath
-	}
-
-	return opt
-}
-
 func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
-	h, errHandleNew := alpm.NewHandle(opt.Root, opt.DBPath)
+	optRoot := opt.Root
+	if optRoot == "" {
+		optRoot = "/"
+	}
+
+	optDBPath := opt.DBPath
+	if optDBPath == "" {
+		conf := &PacmanConf{Root: optRoot}
+		if dbpath, ok := conf.Get("DBPath"); ok {
+			optDBPath = dbpath
+		} else {
+			optDBPath = "/var/lib/pacman/"
+		}
+	}
+
+	optIgnoreOptDepends := opt.IgnoreOptDepends
+
+	h, errHandleNew := alpm.NewHandle(optRoot, optDBPath)
 	if errHandleNew != nil {
 		return nil, err
 	}
@@ -131,7 +134,7 @@ func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 		pkg, stack = pop(stack)
 
 		depSeq := pkg.Depends().All()
-		if !opt.IgnoreOptDepends {
+		if !optIgnoreOptDepends {
 			depSeq = concat(depSeq, pkg.OptDepends().All())
 		}
 
