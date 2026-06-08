@@ -26,6 +26,7 @@ func run() int {
 	fOpt := NewFindOrphansOption()
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
 	fs.StringVarP(&fOpt.DBPath, "dbpath", "b", fOpt.DBPath, "set an alternate database location")
+	fs.StringVarP(&fOpt.Root, "root", "r", fOpt.Root, "set an alternate installation root")
 	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
 	fs.BoolVarP(&fOpt.IgnoreOptDepends, "unrequired", "t", fOpt.IgnoreOptDepends, "ignore optdepends")
 
@@ -71,12 +72,14 @@ func run() int {
 }
 
 type FindOrphansOption struct {
+	Root             string
 	DBPath           string
 	IgnoreOptDepends bool
 }
 
 func NewFindOrphansOption() *FindOrphansOption {
 	opt := &FindOrphansOption{
+		Root:             "/",
 		DBPath:           "/var/lib/pacman",
 		IgnoreOptDepends: false,
 	}
@@ -89,7 +92,7 @@ func NewFindOrphansOption() *FindOrphansOption {
 }
 
 func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
-	h, errHandleNew := alpm.NewHandle("/", opt.DBPath)
+	h, errHandleNew := alpm.NewHandle(opt.Root, opt.DBPath)
 	if errHandleNew != nil {
 		return nil, err
 	}
