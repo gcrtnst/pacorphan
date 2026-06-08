@@ -84,7 +84,7 @@ func NewFindOrphansOption() *FindOrphansOption {
 		IgnoreOptDepends: false,
 	}
 
-	if dbpath, ok := GetConfDBPath(); ok {
+	if dbpath, ok := (&PacmanConf{}).Get("DBPath"); ok {
 		opt.DBPath = dbpath
 	}
 
@@ -166,7 +166,25 @@ func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 	return orphans, nil
 }
 
-func GetConfDBPath() (string, bool) {
+type PacmanConf struct {
+	Config  string
+	Root    string
+	SysRoot string
+}
+
+func (c *PacmanConf) Get(directive string) (string, bool) {
+	args := make([]string, 0, 4)
+	if v := c.Config; v != "" {
+		args = append(args, "--config="+v)
+	}
+	if v := c.Root; v != "" {
+		args = append(args, "--rootdir="+v)
+	}
+	if v := c.SysRoot; v != "" {
+		args = append(args, "--sysroot="+v)
+	}
+	args = append(args, directive)
+
 	cmd := exec.Command("pacman-conf", "DBPath")
 	out, err := cmd.Output()
 	if err != nil {
