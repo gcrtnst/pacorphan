@@ -107,7 +107,7 @@ func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 
 	h, errHandleNew := alpm.NewHandle(optRoot, optDBPath)
 	if errHandleNew != nil {
-		return nil, err
+		return nil, errHandleNew
 	}
 	defer func() {
 		errHandleClose := h.Close()
