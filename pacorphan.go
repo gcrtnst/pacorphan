@@ -198,7 +198,7 @@ func (c *PacmanConf) Get(directive string) (string, bool) {
 	}
 	args = append(args, directive)
 
-	cmd := exec.Command("pacman-conf", "DBPath")
+	cmd := exec.Command("pacman-conf", args...)
 	out, err := cmd.Output()
 	if err != nil {
 		return "", false
