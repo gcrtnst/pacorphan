@@ -6,6 +6,7 @@ import (
 	"iter"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"slices"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
@@ -98,7 +99,7 @@ func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 		if dbpath, ok := conf.Get("DBPath"); ok {
 			optDBPath = dbpath
 		} else {
-			optDBPath = "/var/lib/pacman/"
+			optDBPath = filepath.Join(optSysRoot, "/var/lib/pacman/")
 		}
 	}
 
