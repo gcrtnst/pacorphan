@@ -27,6 +27,7 @@ func run() int {
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
 	fs.StringVarP(&fOpt.DBPath, "dbpath", "b", fOpt.DBPath, "set an alternate database location")
 	fs.StringVarP(&fOpt.Root, "root", "r", fOpt.Root, "set an alternate installation root")
+	fs.StringVarP(&fOpt.SysRoot, "sysroot", "S", fOpt.SysRoot, "set an alternate system root")
 	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
 	fs.BoolVarP(&fOpt.IgnoreOptDepends, "unrequired", "t", fOpt.IgnoreOptDepends, "ignore optdepends")
 
@@ -72,20 +73,26 @@ func run() int {
 }
 
 type FindOrphansOption struct {
+	SysRoot          string
 	Root             string
 	DBPath           string
 	IgnoreOptDepends bool
 }
 
 func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
+	optSysRoot := opt.SysRoot
+	if optSysRoot == "" {
+		optSysRoot = "/"
+	}
+
 	optRoot := opt.Root
 	if optRoot == "" {
-		optRoot = "/"
+		optRoot = optSysRoot
 	}
 
 	optDBPath := opt.DBPath
 	if optDBPath == "" {
-		conf := &PacmanConf{Root: optRoot}
+		conf := &PacmanConf{Root: optRoot, SysRoot: optSysRoot}
 		if dbpath, ok := conf.Get("DBPath"); ok {
 			optDBPath = dbpath
 		} else {
