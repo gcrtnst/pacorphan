@@ -26,12 +26,12 @@ func run() int {
 	fQuiet := false
 	fOpt := &FindOrphansOption{}
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
-	fs.StringVarP(&fOpt.Config, "config", "C", fOpt.Config, "set an alternate configuration file")
-	fs.StringVarP(&fOpt.DBPath, "dbpath", "b", fOpt.DBPath, "set an alternate database location")
-	fs.StringVarP(&fOpt.Root, "root", "R", fOpt.Root, "set an alternate installation root")
-	fs.StringVarP(&fOpt.SysRoot, "sysroot", "S", fOpt.SysRoot, "set an alternate system root")
 	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
 	fs.BoolVarP(&fOpt.IgnoreOptDepends, "unrequired", "t", fOpt.IgnoreOptDepends, "ignore optdepends")
+	fs.StringVarP(&fOpt.DBPath, "dbpath", "b", fOpt.DBPath, "set an alternate database location")
+	fs.StringVarP(&fOpt.Root, "root", "R", fOpt.Root, "set an alternate installation root")
+	fs.StringVarP(&fOpt.Config, "config", "C", fOpt.Config, "set an alternate configuration file")
+	fs.StringVarP(&fOpt.SysRoot, "sysroot", "S", fOpt.SysRoot, "set an alternate system root")
 
 	errParse := fs.Parse(os.Args[1:])
 	if errParse != nil {
