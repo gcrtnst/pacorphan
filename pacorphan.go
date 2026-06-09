@@ -24,6 +24,7 @@ type Pkg struct {
 
 func run() int {
 	fQuiet := false
+	fHelp := false
 	fOpt := &FindOrphansOption{}
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
 	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
@@ -32,13 +33,18 @@ func run() int {
 	fs.StringVarP(&fOpt.Root, "root", "R", fOpt.Root, "set an alternate installation root")
 	fs.StringVarP(&fOpt.Config, "config", "C", fOpt.Config, "set an alternate configuration file")
 	fs.StringVarP(&fOpt.SysRoot, "sysroot", "S", fOpt.SysRoot, "set an alternate system root")
+	fs.BoolVarP(&fHelp, "help", "h", fHelp, "show this help message and exit")
 
 	errParse := fs.Parse(os.Args[1:])
 	if errParse != nil {
-		if !errors.Is(errParse, pflag.ErrHelp) {
-			fmt.Fprintf(os.Stderr, "error: %s\n", errParse)
-		}
-		return 1
+		fmt.Fprintf(os.Stderr, "error: %s\n", errParse)
+		return 2
+	}
+
+	if fHelp {
+		fmt.Printf("Usage of %s:\n", fs.Name())
+		fmt.Print(fs.FlagUsages())
+		return 0
 	}
 
 	orphans, err := FindOrphans(fOpt)
