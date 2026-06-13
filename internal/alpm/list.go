@@ -26,6 +26,7 @@ func (l *List[T]) alive() bool {
 		return false
 	}
 	if l.o != nil && !l.o.alive() {
+		*l.c = nil
 		l.c = nil
 		return false
 	}
