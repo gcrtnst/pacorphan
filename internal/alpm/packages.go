@@ -116,6 +116,9 @@ func CompareVersion(a, b string) int {
 }
 
 func newPkgList(h *Handle, d *DB, c_list *C.alpm_list_t) *List[*Pkg] {
+	// Assumes that the list is never modified.
+	// If introducing a bridge to an API that involves list modifications,
+	// invalidate the list when it may have been modified.
 	return &List[*Pkg]{
 		o:  d,
 		c:  &c_list,

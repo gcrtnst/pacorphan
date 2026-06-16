@@ -41,6 +41,9 @@ func (d *Depend) String() string {
 }
 
 func newDepList(p *Pkg, c_list *C.alpm_list_t) *List[*Depend] {
+	// Assumes that the list is never modified.
+	// If introducing a bridge to an API that involves list modifications,
+	// invalidate the list when it may have been modified.
 	return &List[*Depend]{
 		o:  p,
 		c:  &c_list,
