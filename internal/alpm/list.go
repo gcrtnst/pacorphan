@@ -58,7 +58,7 @@ func (l *List[T]) Front() *Elem[T] {
 	if !l.alive() || *l.c == nil {
 		return nil
 	}
-	return &Elem[T]{o: l, c: *l.c}
+	return &Elem[T]{o: l, c: *l.c, v: l.v}
 }
 
 func (l *List[T]) PushBack(data T) *Elem[T] {
@@ -74,7 +74,7 @@ func (l *List[T]) PushBack(data T) *Elem[T] {
 	}
 
 	c_elem := C.alpm_list_append(l.c, c_data)
-	return &Elem[T]{o: l, c: c_elem}
+	return &Elem[T]{o: l, c: c_elem, v: l.v}
 }
 
 func (l *List[T]) All() iter.Seq[T] {
@@ -127,7 +127,7 @@ func (e *Elem[T]) Next() *Elem[T] {
 		return nil
 	}
 
-	return &Elem[T]{o: e.o, c: c_list}
+	return &Elem[T]{o: e.o, c: c_list, v: e.v}
 }
 
 func (e *Elem[T]) Prev() *Elem[T] {
@@ -141,5 +141,5 @@ func (e *Elem[T]) Prev() *Elem[T] {
 		return nil
 	}
 
-	return &Elem[T]{o: e.o, c: c_list}
+	return &Elem[T]{o: e.o, c: c_list, v: e.v}
 }
