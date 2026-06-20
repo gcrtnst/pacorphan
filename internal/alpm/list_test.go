@@ -582,19 +582,19 @@ func TestOwnedListFrontAfterFree(t *testing.T) {
 	gotFreeData := e.Data()
 	wantFreeData := 0
 	if gotFreeData != wantFreeData {
-		t.Errorf("after free: l.Data() = %d, want %d", gotFreeData, wantFreeData)
+		t.Errorf("after free: e.Data() = %d, want %d", gotFreeData, wantFreeData)
 	}
 
 	gotFreePrev := e.Prev()
 	wantFreePrev := (*Elem[int])(nil)
 	if gotFreePrev != wantFreePrev {
-		t.Errorf("after free: l.Prev() = %#v, want %#v", gotFreePrev, wantFreePrev)
+		t.Errorf("after free: e.Prev() = %#v, want %#v", gotFreePrev, wantFreePrev)
 	}
 
 	gotFreeNext := e.Next()
 	wantFreeNext := (*Elem[int])(nil)
 	if gotFreeNext != wantFreeNext {
-		t.Errorf("after free: l.Next() = %#v, want %#v", gotFreeNext, wantFreeNext)
+		t.Errorf("after free: e.Next() = %#v, want %#v", gotFreeNext, wantFreeNext)
 	}
 
 	s := []int{1, 2, 3}
