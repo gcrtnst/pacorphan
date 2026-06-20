@@ -1,6 +1,7 @@
 package alpm
 
 // #cgo pkg-config: libalpm
+// #include <stdlib.h>
 // #include <alpm.h>
 import "C"
 import (
@@ -142,4 +143,83 @@ func (e *Elem[T]) Prev() *Elem[T] {
 	}
 
 	return &Elem[T]{o: e.o, c: c_list, v: e.v}
+}
+
+// ------------------------------------------------------------
+// Since CGo is not supported within *_test.go files,
+// we need to place things for testing here.
+
+type testListOwner struct {
+	a bool
+	c *C.alpm_list_t
+	d runtime.Cleanup
+}
+
+func newTestListOwner(s []int) *testListOwner {
+	c_list := (*C.alpm_list_t)(nil)
+	for _, v := range s {
+		c_data := C.malloc(C.size_t(unsafe.Sizeof(v)))
+		*(*int)(c_data) = v
+		C.alpm_list_append(&c_list, c_data)
+	}
+
+	o := &testListOwner{a: true, c: c_list}
+	o.d = runtime.AddCleanup(o, freeTestListOwner, c_list)
+	return o
+}
+
+func (o *testListOwner) alive() bool {
+	return o.a
+}
+
+func (o *testListOwner) Free() {
+	freeTestListOwner(o.c)
+	o.a = false
+	o.c = nil
+	o.d.Stop()
+	runtime.KeepAlive(o)
+}
+
+func freeTestListOwner(c_list *C.alpm_list_t) {
+	for c_elem := c_list; c_elem != nil; c_elem = C.alpm_list_next(c_elem) {
+		C.free(c_elem.data)
+	}
+	C.alpm_list_free(c_list)
+}
+
+func newTestBorrowedList(o *testListOwner) *List[int] {
+	return &List[int]{
+		o: o,
+		c: &o.c,
+		fo: func(c_data unsafe.Pointer) int {
+			return *(*int)(c_data)
+		},
+	}
+}
+
+func newTestOwnedList() *List[int] {
+	c_list := (*C.alpm_list_t)(nil)
+	l := &List[int]{c: &c_list}
+
+	l.fi = func(v int) unsafe.Pointer {
+		defer runtime.KeepAlive(l)
+
+		c_data := C.malloc(C.size_t(unsafe.Sizeof(v)))
+		runtime.AddCleanup(l, func(c_data unsafe.Pointer) {
+			C.free(c_data)
+		}, c_data)
+		*(*int)(c_data) = v
+		return c_data
+	}
+
+	l.fo = func(c_data unsafe.Pointer) int {
+		defer runtime.KeepAlive(l)
+		return *(*int)(c_data)
+	}
+
+	runtime.AddCleanup(l, func(c_list **C.alpm_list_t) {
+		C.alpm_list_free(*c_list)
+	}, &c_list)
+
+	return l
 }
