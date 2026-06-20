@@ -55,7 +55,7 @@ func TestNilListAll(t *testing.T) {
 	}
 }
 
-func TestEmptyListFree(t *testing.T) {
+func TestZeroListFree(t *testing.T) {
 	l := &List[int]{}
 	l.Free()
 
@@ -66,7 +66,7 @@ func TestEmptyListFree(t *testing.T) {
 	}
 }
 
-func TestEmptyListLen(t *testing.T) {
+func TestZeroListLen(t *testing.T) {
 	l := &List[int]{}
 
 	got := l.Len()
@@ -76,7 +76,7 @@ func TestEmptyListLen(t *testing.T) {
 	}
 }
 
-func TestEmptyListFront(t *testing.T) {
+func TestZeroListFront(t *testing.T) {
 	l := &List[int]{}
 
 	got := l.Front()
@@ -86,7 +86,7 @@ func TestEmptyListFront(t *testing.T) {
 	}
 }
 
-func TestEmptyListPushBack(t *testing.T) {
+func TestZeroListPushBack(t *testing.T) {
 	l := &List[int]{}
 
 	const data = 0
@@ -97,7 +97,7 @@ func TestEmptyListPushBack(t *testing.T) {
 	}
 }
 
-func TestEmptyListAll(t *testing.T) {
+func TestZeroListAll(t *testing.T) {
 	l := &List[int]{}
 
 	got := 0
@@ -141,7 +141,7 @@ func TestNilElemPrev(t *testing.T) {
 	}
 }
 
-func TestEmptyElemData(t *testing.T) {
+func TestZeroElemData(t *testing.T) {
 	e := &Elem[int]{}
 
 	got := e.Data()
@@ -151,7 +151,7 @@ func TestEmptyElemData(t *testing.T) {
 	}
 }
 
-func TestEmptyElemNext(t *testing.T) {
+func TestZeroElemNext(t *testing.T) {
 	e := &Elem[int]{}
 
 	got := e.Next()
@@ -161,7 +161,7 @@ func TestEmptyElemNext(t *testing.T) {
 	}
 }
 
-func TestEmptyElemPrev(t *testing.T) {
+func TestZeroElemPrev(t *testing.T) {
 	e := &Elem[int]{}
 
 	got := e.Prev()
