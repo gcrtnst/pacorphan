@@ -213,7 +213,7 @@ func TestBorrowedListLenEmpty(t *testing.T) {
 	}
 }
 
-func TestBorrowdListLenAfterFree(t *testing.T) {
+func TestBorrowedListLenAfterFree(t *testing.T) {
 	o := newTestListOwner([]int{1, 2, 3})
 	l := newTestBorrowedList(o)
 	o.Free()
