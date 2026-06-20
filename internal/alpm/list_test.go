@@ -3,6 +3,7 @@ package alpm
 import (
 	"slices"
 	"testing"
+	"unsafe"
 )
 
 func TestNilListFree(t *testing.T) {
@@ -382,6 +383,31 @@ func TestBorrowedListAllAfterFree(t *testing.T) {
 	}
 }
 
+func TestBorrowedListAllFreeWhileIter(t *testing.T) {
+	s := []int{1, 2, 3}
+	o := newTestListOwner(s)
+	defer o.Free()
+
+	l := newTestBorrowedList(o)
+
+	i := 2
+	got := make([]int, 0, len(s))
+	l.All()(func(v int) bool {
+		got = append(got, v)
+
+		if len(got) >= i {
+			o.Free()
+		}
+
+		return true
+	})
+
+	want := s[:i]
+	if !slices.Equal(got, want) {
+		t.Errorf("l.All() = %#v, want %#v", got, want)
+	}
+}
+
 func TestBorrowedElemDataAfterFree(t *testing.T) {
 	o := newTestListOwner([]int{1, 2, 3})
 	l := newTestBorrowedList(o)
@@ -675,6 +701,26 @@ func TestOwnedListPushBack(t *testing.T) {
 		if !slices.Equal(gotAll, wantAll) {
 			t.Errorf("l.All() = %#v, want %#v", gotAll, wantAll)
 		}
+	}
+}
+
+func TestOwnedListPushBackFail(t *testing.T) {
+	l := newTestOwnedList()
+	defer l.Free()
+
+	l.fi = func(v int) unsafe.Pointer { return nil }
+
+	v := 1
+	gotElem := l.PushBack(v)
+	wantElem := (*Elem[int])(nil)
+	if gotElem != wantElem {
+		t.Errorf("l.PushBack(%d) = %#v, want %#v", v, gotElem, wantElem)
+	}
+
+	gotLen := l.Len()
+	wantLen := 0
+	if gotLen != wantLen {
+		t.Errorf("l.Len() = %#v, want %#v", gotLen, wantLen)
 	}
 }
 
