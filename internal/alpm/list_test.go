@@ -750,7 +750,7 @@ func TestOwnedListAllEmpty(t *testing.T) {
 	defer l.Free()
 
 	l.All()(func(v int) bool {
-		t.Error()
+		t.Errorf("l.All() yielded value %d, want no values (empty list)", v)
 		return true
 	})
 }
