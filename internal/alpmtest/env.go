@@ -59,32 +59,32 @@ func NewEnv() (_ *Env, err error) {
 	return e, nil
 }
 
-func (r *Env) Dispose() error {
-	errMakePkg := r.MakePkg.Dispose()
-	errRoot := os.RemoveAll(r.Root)
+func (e *Env) Dispose() error {
+	errMakePkg := e.MakePkg.Dispose()
+	errRoot := os.RemoveAll(e.Root)
 	return errors.Join(errMakePkg, errRoot)
 }
 
-func (r *Env) Install(pkg string, explicit bool) error {
+func (e *Env) Install(pkg string, explicit bool) error {
 	asopt := "--asdeps"
 	if explicit {
 		asopt = "--asexplicit"
 	}
 
 	cmd := &exec.Cmd{
-		Path: r.Unshare,
+		Path: e.Unshare,
 		Args: []string{
-			r.Unshare, "--map-root-user", "--",
-			r.Pacman, "--upgrade", "--noconfirm", asopt, "--sysroot", r.Root, "--noprogress", "--", pkg,
+			e.Unshare, "--map-root-user", "--",
+			e.Pacman, "--upgrade", "--noconfirm", asopt, "--sysroot", e.Root, "--noprogress", "--", pkg,
 		},
-		Stdout: r.Stdout,
-		Stderr: r.Stderr,
+		Stdout: e.Stdout,
+		Stderr: e.Stderr,
 	}
 	err := cmd.Run()
 	return WrapExitError(cmd, err)
 }
 
-func (r *Env) MakeAndInstall(src *PkgBuild, explicit bool) error {
+func (e *Env) MakeAndInstall(src *PkgBuild, explicit bool) error {
 	var err error
 
 	tmp, err := os.MkdirTemp("", "")
@@ -93,13 +93,13 @@ func (r *Env) MakeAndInstall(src *PkgBuild, explicit bool) error {
 	}
 	defer os.RemoveAll(tmp) // ignore error
 
-	pkgList, err := r.MakePkg.Run(tmp, src)
+	pkgList, err := e.MakePkg.Run(tmp, src)
 	if err != nil {
 		return err
 	}
 
 	for _, pkg := range pkgList {
-		err = r.Install(pkg, explicit)
+		err = e.Install(pkg, explicit)
 		if err != nil {
 			return err
 		}
