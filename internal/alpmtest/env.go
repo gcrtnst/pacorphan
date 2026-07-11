@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -13,8 +14,8 @@ type Env struct {
 
 	Pacman  string
 	Unshare string
-	Stdout  *os.File
-	Stderr  *os.File
+	Stdout  io.Writer
+	Stderr  io.Writer
 }
 
 func NewEnv() (_ *Env, err error) {
@@ -63,6 +64,16 @@ func (e *Env) Dispose() error {
 	errMakePkg := e.MakePkg.Dispose()
 	errRoot := os.RemoveAll(e.Root)
 	return errors.Join(errMakePkg, errRoot)
+}
+
+func (e *Env) SetStdout(w io.Writer) {
+	e.Stdout = w
+	e.MakePkg.Stdout = w
+}
+
+func (e *Env) SetStderr(w io.Writer) {
+	e.Stderr = w
+	e.MakePkg.Stderr = w
 }
 
 func (e *Env) Install(pkg string, explicit bool) error {
