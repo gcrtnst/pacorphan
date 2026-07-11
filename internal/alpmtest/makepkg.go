@@ -133,8 +133,11 @@ func CreateTempMakePkgConf() (_ string, err error) {
 		return "", err
 	}
 
-	b := BashScript{&BashVar{Name: "CARCH", Value: arch}}
-	s := b.Text()
+	b := BashScript{
+		&BashVar{Name: "CARCH", Value: arch},
+		&BashVar{Name: "PKGEXT", Value: ".pkg.tar.gz"},
+		&BashVar{Name: "SRCEXT", Value: ".src.tar.gz"},
+	}
 
 	f, err := os.CreateTemp("", "makepkg-*.conf")
 	if err != nil {
@@ -147,7 +150,7 @@ func CreateTempMakePkgConf() (_ string, err error) {
 		}
 	}()
 
-	_, err = f.Write([]byte(s))
+	_, err = f.Write([]byte(b.Text()))
 	if err != nil {
 		return "", err
 	}
