@@ -75,7 +75,7 @@ func (r *Env) Install(pkg string, explicit bool) error {
 		Path: r.Unshare,
 		Args: []string{
 			r.Unshare, "--map-root-user", "--",
-			r.Pacman, "--upgrade", "--noconfirm", asopt, "--sysroot", r.Root, "--", pkg,
+			r.Pacman, "--upgrade", "--noconfirm", asopt, "--sysroot", r.Root, "--noprogress", "--", pkg,
 		},
 		Stdout: r.Stdout,
 		Stderr: r.Stderr,
