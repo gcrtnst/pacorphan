@@ -128,6 +128,11 @@ func CreateTempRoot() (_ string, err error) {
 		return "", err
 	}
 
+	err = os.MkdirAll(filepath.Join(abs, "var/cache/pacman/pkg"), 0o755)
+	if err != nil {
+		return "", err
+	}
+
 	err = os.MkdirAll(filepath.Join(abs, "etc"), 0o755)
 	if err != nil {
 		return "", err
