@@ -54,8 +54,8 @@ func NewEnv() (_ *Env, err error) {
 		MakePkg: makepkg,
 		Pacman:  pacman,
 		Unshare: unshare,
-		Stdout:  os.Stdout,
-		Stderr:  os.Stderr,
+		Stdout:  nil,
+		Stderr:  nil,
 	}
 	return e, nil
 }

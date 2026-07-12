@@ -34,8 +34,8 @@ func NewMakePkg() (*MakePkg, error) {
 	m := &MakePkg{
 		BinPath: bin,
 		CfgPath: cfg,
-		Stdout:  os.Stdout,
-		Stderr:  os.Stderr,
+		Stdout:  nil,
+		Stderr:  nil,
 	}
 	return m, nil
 }
