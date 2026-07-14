@@ -1,0 +1,34 @@
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func main() {
+	os.Exit(run())
+}
+
+func run() int {
+	failed := false
+	for _, c := range TestList {
+		t := newT()
+
+		fmt.Printf("=== RUN   %s\n", c.Name)
+		c.Func(t)
+
+		if t.Failed() {
+			failed = true
+			fmt.Printf("--- FAIL: %s\n", c.Name)
+		} else {
+			fmt.Printf("--- PASS: %s\n", c.Name)
+		}
+	}
+
+	if failed {
+		fmt.Println("FAIL")
+		return 1
+	}
+	fmt.Println("PASS")
+	return 0
+}
