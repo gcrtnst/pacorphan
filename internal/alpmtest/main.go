@@ -11,7 +11,7 @@ func main() {
 
 func run() int {
 	failed := false
-	for _, c := range TestList {
+	for _, c := range testList {
 		t := newT()
 
 		fmt.Printf("=== RUN   %s\n", c.Name)

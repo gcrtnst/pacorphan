@@ -5,7 +5,33 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 )
+
+var testList = []testEntry{}
+
+type testEntry struct {
+	Name string
+	Func TestFunc
+}
+
+func Register(name string, fn TestFunc) {
+	testList = append(testList, testEntry{
+		Name: name,
+		Func: fn,
+	})
+	slices.SortStableFunc(testList, func(a, b testEntry) int {
+		if a.Name < b.Name {
+			return -1
+		}
+		if a.Name > b.Name {
+			return 1
+		}
+		return 0
+	})
+}
+
+type TestFunc func(*T)
 
 type T struct {
 	failed bool
