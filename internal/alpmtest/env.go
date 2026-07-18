@@ -10,6 +10,7 @@ import (
 
 type Env struct {
 	Root    string
+	DBPath  string
 	MakePkg *MakePkg
 
 	Pacman  string
@@ -51,6 +52,7 @@ func NewEnv() (_ *Env, err error) {
 
 	e := &Env{
 		Root:    root,
+		DBPath:  filepath.Join(root, "var/lib/pacman"),
 		MakePkg: makepkg,
 		Pacman:  pacman,
 		Unshare: unshare,
