@@ -33,8 +33,8 @@ func TestHandle(t *T) {
 	}
 }
 
-func init() { Register("TestHandleErrorInit", TestHandleErrorInit) }
-func TestHandleErrorInit(t *T) {
+func init() { Register("TestHandleInitError", TestHandleInitError) }
+func TestHandleInitError(t *T) {
 	root, errMkdir := os.MkdirTemp("", "")
 	if errMkdir != nil {
 		t.Error(errMkdir)
