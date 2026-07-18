@@ -33,6 +33,44 @@ func TestHandle(t *T) {
 	}
 }
 
+func init() { Register("TestHandleClosed", TestHandleClosed) }
+func TestHandleClosed(t *T) {
+	env := HelpEnv(t)
+
+	h, errNew := alpm.NewHandle(env.Root, env.DBPath)
+	if errNew != nil {
+		t.Fatal(errNew)
+	}
+
+	errClose := h.Close()
+	if errClose != nil {
+		t.Fatal(errClose)
+	}
+
+	errCloseDouble := h.Close()
+	if errCloseDouble != nil {
+		t.Error(errCloseDouble)
+	}
+
+	gotRoot := h.Root()
+	const wantRoot = ""
+	if gotRoot != wantRoot {
+		t.Errorf("h.Root() = %q, want %q", gotRoot, wantRoot)
+	}
+
+	gotDBPath := h.DBPath()
+	const wantDBPath = ""
+	if gotDBPath != wantDBPath {
+		t.Errorf("h.DBPath() = %q, want %q", gotDBPath, wantDBPath)
+	}
+
+	gotDB := h.LocalDB()
+	wantDB := (*alpm.DB)(nil)
+	if gotDB != wantDB {
+		t.Errorf("h.LocalDB() = %#v, got %#v", gotDB, wantDB)
+	}
+}
+
 func init() { Register("TestHandleInitError", TestHandleInitError) }
 func TestHandleInitError(t *T) {
 	root, errMkdir := os.MkdirTemp("", "")
