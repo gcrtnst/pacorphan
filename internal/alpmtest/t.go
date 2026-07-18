@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -33,6 +34,19 @@ func Register(name string, fn TestFunc) {
 
 type TestFunc func(*T)
 
+var errTestExit = errors.New("alpmtest: test exit")
+
+func runTest(t *T, fn TestFunc) {
+	defer func() {
+		r := recover()
+		if r != nil && r != errTestExit {
+			panic(r)
+		}
+	}()
+
+	fn(t)
+}
+
 type T struct {
 	failed bool
 	output io.Writer
@@ -57,14 +71,29 @@ func (t *T) Fail() {
 	t.failed = true
 }
 
-func (t *T) Error(args ...any) {
+func (t *T) FailNow() {
 	t.Fail()
+	panic(errTestExit)
+}
+
+func (t *T) Error(args ...any) {
 	t.Log(args...)
+	t.Fail()
 }
 
 func (t *T) Errorf(format string, args ...any) {
-	t.Fail()
 	t.Logf(format, args...)
+	t.Fail()
+}
+
+func (t *T) Fatal(args ...any) {
+	t.Log(args...)
+	t.FailNow()
+}
+
+func (t *T) Fatalf(format string, args ...any) {
+	t.Logf(format, args...)
+	t.FailNow()
 }
 
 func (t *T) Log(args ...any) {

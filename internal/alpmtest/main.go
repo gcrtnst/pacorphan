@@ -15,7 +15,7 @@ func run() int {
 		t := newT()
 
 		fmt.Printf("=== RUN   %s\n", c.Name)
-		c.Func(t)
+		runTest(t, c.Func)
 
 		if t.Failed() {
 			failed = true

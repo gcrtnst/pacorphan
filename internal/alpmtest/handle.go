@@ -22,14 +22,12 @@ func TestHandleErrorInit(t *T) {
 	h, err := alpm.NewHandle(root, dbpath)
 	if err == nil {
 		_ = h.Close()
-		t.Errorf(`alpm.NewHandle(%q, %q) error = nil, want non-nil`, root, dbpath)
-		return
+		t.Fatalf(`alpm.NewHandle(%q, %q) error = nil, want non-nil`, root, dbpath)
 	}
 
 	e, ok := err.(*alpm.Error)
 	if !ok {
-		t.Errorf(`alpm.NewHandle(%q, %q) error type = %T, want %T`, root, dbpath, err, (*alpm.Error)(nil))
-		return
+		t.Fatalf(`alpm.NewHandle(%q, %q) error type = %T, want %T`, root, dbpath, err, (*alpm.Error)(nil))
 	}
 
 	const wantCFunc = "alpm_initialize"
