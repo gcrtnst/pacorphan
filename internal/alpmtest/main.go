@@ -12,12 +12,9 @@ func main() {
 func run() int {
 	failed := false
 	for _, c := range testList {
-		t := newT()
-
 		fmt.Printf("=== RUN   %s\n", c.Name)
-		runTest(t, c.Func)
-
-		if t.Failed() {
+		f := runTest(c.Func)
+		if f {
 			failed = true
 			fmt.Printf("--- FAIL: %s\n", c.Name)
 		} else {

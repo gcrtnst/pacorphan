@@ -36,7 +36,9 @@ type TestFunc func(*T)
 
 var errTestExit = errors.New("alpmtest: test exit")
 
-func runTest(t *T, fn TestFunc) {
+func runTest(fn TestFunc) bool {
+	t := newT()
+
 	defer func() {
 		r := recover()
 		if r != nil && r != errTestExit {
@@ -45,6 +47,7 @@ func runTest(t *T, fn TestFunc) {
 	}()
 
 	fn(t)
+	return t.Failed()
 }
 
 type T struct {
