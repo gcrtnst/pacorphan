@@ -46,13 +46,20 @@ func runTest(fn TestFunc) bool {
 		}
 	}()
 
+	defer func() {
+		for _, f := range t.cleanups {
+			defer f()
+		}
+	}()
+
 	fn(t)
 	return t.Failed()
 }
 
 type T struct {
-	failed bool
-	output io.Writer
+	failed   bool
+	output   io.Writer
+	cleanups []func()
 }
 
 func newT() *T {
@@ -109,6 +116,10 @@ func (t *T) Logf(format string, args ...any) {
 		b = append(b, '\n')
 	}
 	_, _ = t.Output().Write(b)
+}
+
+func (t *T) Cleanup(f func()) {
+	t.cleanups = append(t.cleanups, f)
 }
 
 type prefixWriter struct {
