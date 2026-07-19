@@ -90,10 +90,11 @@ func (m *MakePkg) Run(dst string, src *PkgBuild) ([]string, error) {
 	)
 
 	cmdList := &exec.Cmd{
-		Path: bin,
-		Args: append(slices.Clone(arg), "--packagelist"),
-		Env:  env,
-		Dir:  dir,
+		Path:   bin,
+		Args:   append(slices.Clone(arg), "--packagelist"),
+		Env:    env,
+		Dir:    dir,
+		Stderr: m.Stderr,
 	}
 	outList, err := cmdList.Output()
 	if err != nil {
