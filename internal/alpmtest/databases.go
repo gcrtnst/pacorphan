@@ -167,3 +167,91 @@ func TestDBList(t *T) {
 		t.Errorf(`db2.PkgCache() error = "%v", want %v`, errPkgs2Closed, alpm.ErrHandleClosed)
 	}
 }
+
+func init() { Register("TestDBListMismatchHandle", TestDBListMismatchHandle) }
+func TestDBListMismatchHandle(t *T) {
+	env1 := HelpEnv(t)
+	HelpMakeAndInstall(t, env1, NewPkgBuild("pkg1", "0.0.1"), true)
+
+	env2 := HelpEnv(t)
+	HelpMakeAndInstall(t, env2, NewPkgBuild("pkg2", "0.0.2"), true)
+
+	h1, errHandle1 := alpm.NewHandle(env1.Root, env1.DBPath)
+	if errHandle1 != nil {
+		t.Error(errHandle1)
+	}
+
+	h2, errHandle2 := alpm.NewHandle(env2.Root, env2.DBPath)
+	if errHandle2 != nil {
+		t.Error(errHandle2)
+	}
+
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	l1 := alpm.NewDBList(h1)
+	l1.PushBack(h1.LocalDB())
+	l1.PushBack(h2.LocalDB())
+
+	l2 := alpm.NewDBList(h2)
+	l2.PushBack(h1.LocalDB())
+	l2.PushBack(h2.LocalDB())
+
+	l1Len := l1.Len()
+	if l1Len != 1 {
+		t.Errorf("l1.Len() = %d, want 1", l1Len)
+	}
+
+	l2Len := l2.Len()
+	if l2Len != 1 {
+		t.Errorf("l2.Len() = %d, want 1", l2Len)
+	}
+
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	db1 := l1.Front().Data()
+	pkgs1, errPkgs1 := db1.PkgCache()
+	if errPkgs1 != nil {
+		t.Error(errPkgs1)
+	}
+
+	db2 := l2.Front().Data()
+	pkgs2, errPkgs2 := db2.PkgCache()
+	if errPkgs2 != nil {
+		t.Error(errPkgs2)
+	}
+
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	pkgs1Len := pkgs1.Len()
+	if pkgs1Len != 1 {
+		t.Errorf("pkgs1.Len() = %d, want 1", pkgs1Len)
+	}
+
+	pkgs2Len := pkgs2.Len()
+	if pkgs2Len != 1 {
+		t.Errorf("pkgs2.Len() = %d, want 1", pkgs2Len)
+	}
+
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	pkg1 := pkgs1.Front().Data()
+	pkg2 := pkgs2.Front().Data()
+
+	pkg1Name := pkg1.Name()
+	if pkg1Name != "pkg1" {
+		t.Errorf("pkg1.Name() = %q, want %q", pkg1Name, "pkg1")
+	}
+
+	pkg2Name := pkg2.Name()
+	if pkg2Name != "pkg2" {
+		t.Errorf("pkg2.Name() = %q, want %q", pkg2Name, "pkg2")
+	}
+}
