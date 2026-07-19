@@ -168,8 +168,8 @@ func TestDBList(t *T) {
 	}
 }
 
-func init() { Register("TestDBListMismatchHandle", TestDBListMismatchHandle) }
-func TestDBListMismatchHandle(t *T) {
+func init() { Register("TestDBListHandleMismatch", TestDBListHandleMismatch) }
+func TestDBListHandleMismatch(t *T) {
 	env1 := HelpEnv(t)
 	HelpMakeAndInstall(t, env1, NewPkgBuild("pkg1", "0.0.1"), true)
 
