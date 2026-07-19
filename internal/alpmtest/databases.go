@@ -255,3 +255,34 @@ func TestDBListHandleMismatch(t *T) {
 		t.Errorf("pkg2.Name() = %q, want %q", pkg2Name, "pkg2")
 	}
 }
+
+func init() { Register("TestDBListHandleClose", TestDBListHandleClose) }
+func TestDBListHandleClose(t *T) {
+	env := HelpEnv(t)
+
+	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
+	if errHandle != nil {
+		t.Fatal(errHandle)
+	}
+	defer func() {
+		err := h.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	l := alpm.NewDBList(h)
+	db := h.LocalDB()
+
+	errClose := h.Close()
+	if errClose != nil {
+		t.Fatal(errClose)
+	}
+
+	l.PushBack(db)
+
+	lLen := l.Len()
+	if lLen != 0 {
+		t.Errorf("l.Len() = %d, want 0", lLen)
+	}
+}
