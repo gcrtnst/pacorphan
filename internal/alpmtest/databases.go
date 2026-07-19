@@ -180,11 +180,23 @@ func TestDBListHandleMismatch(t *T) {
 	if errHandle1 != nil {
 		t.Error(errHandle1)
 	}
+	defer func() {
+		err := h1.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
 
 	h2, errHandle2 := alpm.NewHandle(env2.Root, env2.DBPath)
 	if errHandle2 != nil {
 		t.Error(errHandle2)
 	}
+	defer func() {
+		err := h2.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
 
 	if t.Failed() {
 		t.FailNow()
