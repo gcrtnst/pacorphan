@@ -222,6 +222,29 @@ func TestFindDBsSatisfierHandleZero(t *T) {
 	}
 }
 
+func init() { Register("TestFindDBsSatisfierDBsNil", TestFindDBsSatisfierDBsNil) }
+func TestFindDBsSatisfierDBsNil(t *T) {
+	env := HelpEnv(t)
+	HelpMakeAndInstall(t, env, NewPkgBuild("a", "0.0.1"), true)
+
+	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
+	if errHandle != nil {
+		t.Fatal(errHandle)
+	}
+	defer func(h *alpm.Handle) {
+		err := h.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}(h)
+
+	l := (*alpm.List[*alpm.DB])(nil)
+	pkg := h.FindDBsSatisfier(l, "a")
+	if pkg != nil {
+		t.Errorf(`h.FindDBsSatisfier(l, "a") = %#v, want nil`, pkg)
+	}
+}
+
 func samefile(fp1, fp2 string) bool {
 	fi1, err1 := os.Stat(fp1)
 	if err1 != nil {
