@@ -136,6 +136,11 @@ func TestFindDBsSatisfier(t *T) {
 	if pkgBName != "b" {
 		t.Errorf(`h.FindDBsSatisfier(l, "b=0.0.2").Name() = %q, want "b"`, pkgBName)
 	}
+
+	pkgC := h.FindDBsSatisfier(l, "c=0.0.3")
+	if pkgC != nil {
+		t.Errorf(`h.FindDBsSatisfier(l, "c=0.0.3") = %#v, want nil`, pkgC)
+	}
 }
 
 func init() { Register("TestFindDBsSatisfierHandleClosed", TestFindDBsSatisfierHandleClosed) }
