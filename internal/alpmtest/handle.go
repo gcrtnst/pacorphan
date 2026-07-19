@@ -105,6 +105,39 @@ func TestHandleInitError(t *T) {
 	}
 }
 
+func init() { Register("TestFindDBsSatisfier", TestFindDBsSatisfier) }
+func TestFindDBsSatisfier(t *T) {
+	env := HelpEnv(t)
+	HelpMakeAndInstall(t, env, NewPkgBuild("a", "0.0.1"), true)
+	HelpMakeAndInstall(t, env, NewPkgBuild("b", "0.0.2"), true)
+
+	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
+	if errHandle != nil {
+		t.Fatal(errHandle)
+	}
+	defer func() {
+		err := h.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	l := alpm.NewDBList(h)
+	l.PushBack(h.LocalDB())
+
+	pkgA := h.FindDBsSatisfier(l, "a=0.0.1")
+	pkgAName := pkgA.Name()
+	if pkgAName != "a" {
+		t.Errorf(`h.FindDBsSatisfier(l, "a=0.0.1").Name() = %q, want "a"`, pkgAName)
+	}
+
+	pkgB := h.FindDBsSatisfier(l, "b=0.0.2")
+	pkgBName := pkgB.Name()
+	if pkgBName != "b" {
+		t.Errorf(`h.FindDBsSatisfier(l, "b=0.0.2").Name() = %q, want "b"`, pkgBName)
+	}
+}
+
 func samefile(fp1, fp2 string) bool {
 	fi1, err1 := os.Stat(fp1)
 	if err1 != nil {
