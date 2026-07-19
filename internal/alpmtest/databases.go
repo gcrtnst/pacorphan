@@ -203,10 +203,12 @@ func TestDBListHandleMismatch(t *T) {
 	}
 
 	l1 := alpm.NewDBList(h1)
+	defer l1.Free()
 	l1.PushBack(h1.LocalDB())
 	l1.PushBack(h2.LocalDB())
 
 	l2 := alpm.NewDBList(h2)
+	defer l2.Free()
 	l2.PushBack(h1.LocalDB())
 	l2.PushBack(h2.LocalDB())
 
@@ -284,6 +286,7 @@ func TestDBListHandleClose(t *T) {
 	}()
 
 	l := alpm.NewDBList(h)
+	defer l.Free()
 	db := h.LocalDB()
 
 	errClose := h.Close()
@@ -315,6 +318,7 @@ func TestDBListAddUninitializedDB(t *T) {
 	}()
 
 	l := alpm.NewDBList(h)
+	defer l.Free()
 	l.PushBack((*alpm.DB)(nil))
 	l.PushBack(&alpm.DB{})
 
