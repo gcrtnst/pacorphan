@@ -298,3 +298,28 @@ func TestDBListHandleClose(t *T) {
 		t.Errorf("l.Len() = %d, want 0", lLen)
 	}
 }
+
+func init() { Register("TestDBListAddUninitializedDB", TestDBListAddUninitializedDB) }
+func TestDBListAddUninitializedDB(t *T) {
+	env := HelpEnv(t)
+
+	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
+	if errHandle != nil {
+		t.Fatal(errHandle)
+	}
+	defer func() {
+		err := h.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	l := alpm.NewDBList(h)
+	l.PushBack((*alpm.DB)(nil))
+	l.PushBack(&alpm.DB{})
+
+	lLen := l.Len()
+	if lLen != 0 {
+		t.Errorf("l.Len() = %d, want 0", lLen)
+	}
+}
