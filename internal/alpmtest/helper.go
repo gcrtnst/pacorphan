@@ -13,6 +13,7 @@ func HelpEnv(t *T) *Env {
 		}
 	})
 
+	env.SetStderr(t.Output())
 	return env
 }
 
