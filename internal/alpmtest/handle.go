@@ -227,6 +227,45 @@ func TestFindDBsSatisfierHandleZero(t *T) {
 	}
 }
 
+func init() { Register("TestFindDBsSatisfierHandleMismatch", TestFindDBsSatisfierHandleMismatch) }
+func TestFindDBsSatisfierHandleMismatch(t *T) {
+	env1 := HelpEnv(t)
+	HelpMakeAndInstall(t, env1, NewPkgBuild("a", "0.0.1"), true)
+
+	env2 := HelpEnv(t)
+	HelpMakeAndInstall(t, env2, NewPkgBuild("a", "0.0.1"), true)
+
+	h1, errHandle1 := alpm.NewHandle(env1.Root, env1.DBPath)
+	if errHandle1 != nil {
+		t.Fatal(errHandle1)
+	}
+	defer func() {
+		err := h1.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	h2, errHandle2 := alpm.NewHandle(env2.Root, env2.DBPath)
+	if errHandle2 != nil {
+		t.Fatal(errHandle2)
+	}
+	defer func() {
+		err := h2.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	l2 := alpm.NewDBList(h2)
+	l2.PushBack(h2.LocalDB())
+
+	pkg := h1.FindDBsSatisfier(l2, "a")
+	if pkg != nil {
+		t.Errorf(`h1.FindDBsSatisfier(l2, "a") = %#v, want nil`, pkg)
+	}
+}
+
 func init() { Register("TestFindDBsSatisfierDBsNil", TestFindDBsSatisfierDBsNil) }
 func TestFindDBsSatisfierDBsNil(t *T) {
 	env := HelpEnv(t)
