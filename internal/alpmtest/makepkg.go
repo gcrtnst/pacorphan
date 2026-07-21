@@ -67,7 +67,7 @@ func (m *MakePkg) Run(dst string, src *PkgBuild) ([]string, error) {
 
 	arg := []string{
 		bin, "--config", m.CfgPath,
-		"-p", srcName, "--clean", "--cleanbuild",
+		"-p", srcName, "--nodeps", "--clean", "--cleanbuild",
 	}
 
 	var env []string
