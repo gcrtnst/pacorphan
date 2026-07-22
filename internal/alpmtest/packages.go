@@ -179,3 +179,126 @@ func TestPkg(t *T) {
 		t.Errorf("pkgC.Reason() = %d, want %d", pkgCReason, alpm.PkgReasonExplicit)
 	}
 }
+
+func init() { Register("TestPkgClosed", TestPkgClosed) }
+func TestPkgClosed(t *T) {
+	env := HelpEnv(t)
+
+	srcA := NewPkgBuild("a", "0.0.1")
+	HelpMakeAndInstall(t, env, srcA, false)
+
+	srcB := NewPkgBuild("b", "0.0.2")
+	srcB.Depends = append(srcB.Depends, "a")
+	HelpMakeAndInstall(t, env, srcB, true)
+
+	srcC := NewPkgBuild("c", "0.0.3")
+	srcC.OptDepends = append(srcC.OptDepends, "a")
+	HelpMakeAndInstall(t, env, srcC, true)
+
+	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
+	if errHandle != nil {
+		t.Fatal(errHandle)
+	}
+	defer func() {
+		err := h.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	db := h.LocalDB()
+	pkgs, errPkgs := db.PkgCache()
+	if errPkgs != nil {
+		t.Fatal(errPkgs)
+	}
+
+	pkgsLen := pkgs.Len()
+	if pkgsLen != 3 {
+		t.Fatalf("pkgs.Len() = %d, want 3", pkgsLen)
+	}
+
+	elem := pkgs.Front()
+	pkgA := elem.Data()
+	pkgB := elem.Next().Data()
+	pkgC := elem.Next().Next().Data()
+
+	errClose := h.Close()
+	if errClose != nil {
+		t.Fatal(errClose)
+	}
+
+	pkgAName := pkgA.Name()
+	if pkgAName != "" {
+		t.Errorf(`pkgA.Name() = %q, want ""`, pkgAName)
+	}
+
+	pkgAVer := pkgA.Version()
+	if pkgAVer != "" {
+		t.Errorf(`pkgA.Version() = %q, want ""`, pkgAVer)
+	}
+
+	pkgADepLen := pkgA.Depends().Len()
+	if pkgADepLen != 0 {
+		t.Errorf("pkgA.Depends().Len() = %d, want 0", pkgADepLen)
+	}
+
+	pkgAOptLen := pkgA.OptDepends().Len()
+	if pkgAOptLen != 0 {
+		t.Errorf("pkgA.OptDepends().Len() = %d, want 0", pkgAOptLen)
+	}
+
+	pkgAReason := pkgA.Reason()
+	if pkgAReason != alpm.PkgReasonUnknown {
+		t.Errorf("pkgA.Reason() = %d, want %d", pkgAReason, alpm.PkgReasonUnknown)
+	}
+
+	pkgBName := pkgB.Name()
+	if pkgBName != "" {
+		t.Errorf(`pkgB.Name() = %q, want ""`, pkgBName)
+	}
+
+	pkgBVer := pkgB.Version()
+	if pkgBVer != "" {
+		t.Errorf(`pkgB.Version() = %q, want ""`, pkgBVer)
+	}
+
+	pkgBDepLen := pkgB.Depends().Len()
+	if pkgBDepLen != 0 {
+		t.Errorf("pkgB.Depends().Len() = %d, want 0", pkgBDepLen)
+	}
+
+	pkgBOptLen := pkgB.OptDepends().Len()
+	if pkgBOptLen != 0 {
+		t.Errorf("pkgB.OptDepends().Len() = %d, want 0", pkgBOptLen)
+	}
+
+	pkgBReason := pkgB.Reason()
+	if pkgBReason != alpm.PkgReasonUnknown {
+		t.Errorf("pkgB.Reason() = %d, want %d", pkgBReason, alpm.PkgReasonUnknown)
+	}
+
+	pkgCName := pkgC.Name()
+	if pkgCName != "" {
+		t.Errorf(`pkgC.Name() = %q, want ""`, pkgCName)
+	}
+
+	pkgCVer := pkgC.Version()
+	if pkgCVer != "" {
+		t.Errorf(`pkgC.Version() = %q, want ""`, pkgCVer)
+	}
+
+	pkgCDepLen := pkgC.Depends().Len()
+	if pkgCDepLen != 0 {
+		t.Errorf("pkgC.Depends().Len() = %d, want 0", pkgCDepLen)
+	}
+
+	pkgCOptLen := pkgC.OptDepends().Len()
+	if pkgCOptLen != 0 {
+		t.Errorf("pkgC.OptDepends().Len() = %d, want 0", pkgCOptLen)
+	}
+
+	pkgCReason := pkgC.Reason()
+	if pkgCReason != alpm.PkgReasonUnknown {
+		t.Errorf("pkgC.Reason() = %d, want %d", pkgCReason, alpm.PkgReasonUnknown)
+	}
+}
