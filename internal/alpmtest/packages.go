@@ -302,3 +302,41 @@ func TestPkgClosed(t *T) {
 		t.Errorf("pkgC.Reason() = %d, want %d", pkgCReason, alpm.PkgReasonUnknown)
 	}
 }
+
+func init() { Register("TestPkgListClosed", TestPkgListClosed) }
+func TestPkgListClosed(t *T) {
+	env := HelpEnv(t)
+	HelpMakeAndInstall(t, env, NewPkgBuild("a", "0.0.1"), false)
+
+	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
+	if errHandle != nil {
+		t.Fatal(errHandle)
+	}
+	defer func() {
+		err := h.Close()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	db := h.LocalDB()
+	pkgs, errPkgs := db.PkgCache()
+	if errPkgs != nil {
+		t.Fatal(errPkgs)
+	}
+
+	pkgsLen := pkgs.Len()
+	if pkgsLen != 1 {
+		t.Fatalf("before close: pkgs.Len() = %d, want 1", pkgsLen)
+	}
+
+	errClose := h.Close()
+	if errClose != nil {
+		t.Fatal(errClose)
+	}
+
+	pkgsLen = pkgs.Len()
+	if pkgsLen != 0 {
+		t.Fatalf("before close: pkgs.Len() = %d, want 0", pkgsLen)
+	}
+}
