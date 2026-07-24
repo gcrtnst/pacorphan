@@ -7,7 +7,7 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/alpm"
 )
 
-func init() { Register("TestDBClosed", TestDBClosed) }
+func init() { register("TestDBClosed", TestDBClosed) }
 func TestDBClosed(t *T) {
 	env := HelpEnv(t)
 
@@ -38,7 +38,7 @@ func TestDBClosed(t *T) {
 	}
 }
 
-func init() { Register("TestDBInvalid", TestDBInvalid) }
+func init() { register("TestDBInvalid", TestDBInvalid) }
 func TestDBInvalid(t *T) {
 	env := HelpEnv(t)
 	HelpMakeAndInstall(t, env, NewPkgBuild("a", "0.0.1"), true)
@@ -79,7 +79,7 @@ func TestDBInvalid(t *T) {
 	}
 }
 
-func init() { Register("TestDBList", TestDBList) }
+func init() { register("TestDBList", TestDBList) }
 func TestDBList(t *T) {
 	env := HelpEnv(t)
 
@@ -168,7 +168,7 @@ func TestDBList(t *T) {
 	}
 }
 
-func init() { Register("TestDBListHandleMismatch", TestDBListHandleMismatch) }
+func init() { register("TestDBListHandleMismatch", TestDBListHandleMismatch) }
 func TestDBListHandleMismatch(t *T) {
 	env1 := HelpEnv(t)
 	HelpMakeAndInstall(t, env1, NewPkgBuild("pkg1", "0.0.1"), true)
@@ -270,7 +270,7 @@ func TestDBListHandleMismatch(t *T) {
 	}
 }
 
-func init() { Register("TestDBListHandleClose", TestDBListHandleClose) }
+func init() { register("TestDBListHandleClose", TestDBListHandleClose) }
 func TestDBListHandleClose(t *T) {
 	env := HelpEnv(t)
 
@@ -302,7 +302,7 @@ func TestDBListHandleClose(t *T) {
 	}
 }
 
-func init() { Register("TestDBListAddUninitializedDB", TestDBListAddUninitializedDB) }
+func init() { register("TestDBListAddUninitializedDB", TestDBListAddUninitializedDB) }
 func TestDBListAddUninitializedDB(t *T) {
 	env := HelpEnv(t)
 

@@ -86,7 +86,7 @@ type testEntry struct {
 	Func TestFunc
 }
 
-func Register(name string, fn TestFunc) {
+func register(name string, fn TestFunc) {
 	testList = append(testList, testEntry{
 		Name: name,
 		Func: fn,
