@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"slices"
 )
 
 var errTestExit = errors.New("alpmtest: test exit")
@@ -77,29 +76,6 @@ func (t *T) Logf(format string, args ...any) {
 
 func (t *T) Cleanup(f func()) {
 	t.cleanups = append(t.cleanups, f)
-}
-
-var testList = []testEntry{}
-
-type testEntry struct {
-	Name string
-	Func TestFunc
-}
-
-func register(name string, fn TestFunc) {
-	testList = append(testList, testEntry{
-		Name: name,
-		Func: fn,
-	})
-	slices.SortStableFunc(testList, func(a, b testEntry) int {
-		if a.Name < b.Name {
-			return -1
-		}
-		if a.Name > b.Name {
-			return 1
-		}
-		return 0
-	})
 }
 
 func runTest(fn TestFunc) (failed bool) {
