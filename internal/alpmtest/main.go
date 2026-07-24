@@ -16,7 +16,7 @@ func run() int {
 	failed := false
 	for _, c := range testList {
 		fmt.Printf("=== RUN   %s\n", c.Name)
-		f := runTest(c.Func)
+		f := RunTest(c.Func)
 		if f {
 			failed = true
 			fmt.Printf("--- FAIL: %s\n", c.Name)

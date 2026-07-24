@@ -78,7 +78,7 @@ func (t *T) Cleanup(f func()) {
 	t.cleanups = append(t.cleanups, f)
 }
 
-func runTest(fn TestFunc) (failed bool) {
+func RunTest(fn TestFunc) (failed bool) {
 	t := newT()
 
 	defer func() {
