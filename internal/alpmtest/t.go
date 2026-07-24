@@ -9,56 +9,9 @@ import (
 	"slices"
 )
 
-var testList = []testEntry{}
-
-type testEntry struct {
-	Name string
-	Func TestFunc
-}
-
-func Register(name string, fn TestFunc) {
-	testList = append(testList, testEntry{
-		Name: name,
-		Func: fn,
-	})
-	slices.SortStableFunc(testList, func(a, b testEntry) int {
-		if a.Name < b.Name {
-			return -1
-		}
-		if a.Name > b.Name {
-			return 1
-		}
-		return 0
-	})
-}
-
-type TestFunc func(*T)
-
 var errTestExit = errors.New("alpmtest: test exit")
 
-func runTest(fn TestFunc) (failed bool) {
-	t := newT()
-
-	defer func() {
-		failed = t.Failed()
-	}()
-
-	defer func() {
-		r := recover()
-		if r != nil && r != errTestExit {
-			panic(r)
-		}
-	}()
-
-	defer func() {
-		for _, f := range t.cleanups {
-			defer f()
-		}
-	}()
-
-	fn(t)
-	return
-}
+type TestFunc func(*T)
 
 type T struct {
 	failed   bool
@@ -124,6 +77,53 @@ func (t *T) Logf(format string, args ...any) {
 
 func (t *T) Cleanup(f func()) {
 	t.cleanups = append(t.cleanups, f)
+}
+
+var testList = []testEntry{}
+
+type testEntry struct {
+	Name string
+	Func TestFunc
+}
+
+func Register(name string, fn TestFunc) {
+	testList = append(testList, testEntry{
+		Name: name,
+		Func: fn,
+	})
+	slices.SortStableFunc(testList, func(a, b testEntry) int {
+		if a.Name < b.Name {
+			return -1
+		}
+		if a.Name > b.Name {
+			return 1
+		}
+		return 0
+	})
+}
+
+func runTest(fn TestFunc) (failed bool) {
+	t := newT()
+
+	defer func() {
+		failed = t.Failed()
+	}()
+
+	defer func() {
+		r := recover()
+		if r != nil && r != errTestExit {
+			panic(r)
+		}
+	}()
+
+	defer func() {
+		for _, f := range t.cleanups {
+			defer f()
+		}
+	}()
+
+	fn(t)
+	return
 }
 
 type prefixWriter struct {
