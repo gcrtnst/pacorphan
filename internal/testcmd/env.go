@@ -1,12 +1,33 @@
 package testcmd
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 )
+
+const (
+	defaultPacmanConf = "/etc/pacman.conf"
+	defaultDBPath     = "/var/lib/pacman"
+	defaultCacheDir   = "/var/cache/pacman/pkg"
+)
+
+type EnvOption struct {
+	PacmanConf string
+	DBPath     string
+	CacheDir   string
+}
+
+func NewEnvOption() *EnvOption {
+	return &EnvOption{
+		PacmanConf: defaultPacmanConf,
+		DBPath:     defaultDBPath,
+		CacheDir:   defaultCacheDir,
+	}
+}
 
 type Env struct {
 	Root    string
@@ -19,7 +40,15 @@ type Env struct {
 	Stderr  io.Writer
 }
 
-func NewEnv() (_ *Env, err error) {
+func NewEnv() (*Env, error) {
+	return NewEnvWithOption(nil)
+}
+
+func NewEnvWithOption(opt *EnvOption) (_ *Env, err error) {
+	if opt == nil {
+		opt = NewEnvOption()
+	}
+
 	unshare, err := exec.LookPath("unshare")
 	if err != nil {
 		return nil, err
@@ -40,7 +69,7 @@ func NewEnv() (_ *Env, err error) {
 		}
 	}()
 
-	root, err := CreateTempRoot()
+	root, err := CreateTempRoot(opt)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +81,7 @@ func NewEnv() (_ *Env, err error) {
 
 	e := &Env{
 		Root:    root,
-		DBPath:  filepath.Join(root, "var/lib/pacman"),
+		DBPath:  filepath.Join(root, opt.DBPath),
 		MakePkg: makepkg,
 		Pacman:  pacman,
 		Unshare: unshare,
@@ -120,7 +149,13 @@ func (e *Env) MakeAndInstall(src *PkgBuild, explicit bool) error {
 	return nil
 }
 
-func CreateTempRoot() (_ string, err error) {
+func CreateTempRoot(opt *EnvOption) (_ string, err error) {
+	if opt == nil {
+		opt = NewEnvOption()
+	}
+	// Assume that all file paths in opt are absolute paths and
+	// do not contain special characters such as newline characters.
+
 	dir, err := os.MkdirTemp("", "")
 	if err != nil {
 		return "", err
@@ -136,26 +171,34 @@ func CreateTempRoot() (_ string, err error) {
 		return "", err
 	}
 
-	err = os.MkdirAll(filepath.Join(abs, "var/lib/pacman"), 0o755)
+	err = os.MkdirAll(filepath.Join(abs, opt.PacmanConf, ".."), 0o755)
 	if err != nil {
 		return "", err
 	}
 
-	err = os.MkdirAll(filepath.Join(abs, "var/cache/pacman/pkg"), 0o755)
+	err = os.MkdirAll(filepath.Join(abs, opt.DBPath), 0o755)
 	if err != nil {
 		return "", err
 	}
 
-	err = os.MkdirAll(filepath.Join(abs, "etc"), 0o755)
+	err = os.MkdirAll(filepath.Join(abs, opt.CacheDir), 0o755)
 	if err != nil {
 		return "", err
 	}
 
-	err = os.WriteFile(
-		filepath.Join(abs, "etc/pacman.conf"),
-		[]byte("[options]\nSigLevel = Never\nDisableSandbox\n"),
-		0o644,
-	)
+	conf := new(bytes.Buffer)
+	_, _ = conf.WriteString("[options]\nSigLevel = Never\nDisableSandbox\n")
+	if opt.DBPath != defaultDBPath {
+		_, _ = conf.WriteString("DBPath = ")
+		_, _ = conf.WriteString(opt.DBPath)
+		_, _ = conf.WriteRune('\n')
+	}
+	if opt.CacheDir != defaultCacheDir {
+		_, _ = conf.WriteString("CacheDir = ")
+		_, _ = conf.WriteString(opt.CacheDir)
+		_, _ = conf.WriteRune('\n')
+	}
+	err = os.WriteFile(filepath.Join(abs, opt.PacmanConf), conf.Bytes(), 0o644)
 	if err != nil {
 		return "", err
 	}
