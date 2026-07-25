@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/gcrtnst/pacorphan/internal/testcmd"
+	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
-var testMain = testcmd.NewTestMain()
+var testMain = testenv.NewTestMain()
 
 func main() {
 	os.Exit(testMain.Run())

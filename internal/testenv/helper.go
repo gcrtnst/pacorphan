@@ -1,4 +1,4 @@
-package testcmd
+package testenv
 
 import "bytes"
 

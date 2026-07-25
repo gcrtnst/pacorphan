@@ -6,12 +6,12 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/gcrtnst/pacorphan/internal/testcmd"
+	"github.com/gcrtnst/pacorphan/internal/testenv"
 	"github.com/spf13/pflag"
 )
 
 var pacorphan = ""
-var testMain = testcmd.NewTestMain()
+var testMain = testenv.NewTestMain()
 
 func main() {
 	os.Exit(run())

@@ -5,12 +5,12 @@ import (
 	"os"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
-	"github.com/gcrtnst/pacorphan/internal/testcmd"
+	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 func init() { testMain.Register("TestDBClosed", TestDBClosed) }
-func TestDBClosed(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
+func TestDBClosed(t *testenv.T) {
+	env := testenv.HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -40,10 +40,10 @@ func TestDBClosed(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestDBInvalid", TestDBInvalid) }
-func TestDBInvalid(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
-	src := testcmd.NewPkgBuild("a", "0.0.1")
-	testcmd.HelpMakeAndInstall(t, env, src, true)
+func TestDBInvalid(t *testenv.T) {
+	env := testenv.HelpEnv(t)
+	src := testenv.NewPkgBuild("a", "0.0.1")
+	testenv.HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -82,11 +82,11 @@ func TestDBInvalid(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestDBList", TestDBList) }
-func TestDBList(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
+func TestDBList(t *testenv.T) {
+	env := testenv.HelpEnv(t)
 
-	src := testcmd.NewPkgBuild("a", "1.2.3")
-	testcmd.HelpMakeAndInstall(t, env, src, true)
+	src := testenv.NewPkgBuild("a", "1.2.3")
+	testenv.HelpMakeAndInstall(t, env, src, true)
 	const pkgName = "a"
 	const pkgVer = "1.2.3-1"
 	const pkgCnt = 1
@@ -172,14 +172,14 @@ func TestDBList(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestDBListHandleMismatch", TestDBListHandleMismatch) }
-func TestDBListHandleMismatch(t *testcmd.T) {
-	env1 := testcmd.HelpEnv(t)
-	src1 := testcmd.NewPkgBuild("pkg1", "0.0.1")
-	testcmd.HelpMakeAndInstall(t, env1, src1, true)
+func TestDBListHandleMismatch(t *testenv.T) {
+	env1 := testenv.HelpEnv(t)
+	src1 := testenv.NewPkgBuild("pkg1", "0.0.1")
+	testenv.HelpMakeAndInstall(t, env1, src1, true)
 
-	env2 := testcmd.HelpEnv(t)
-	src2 := testcmd.NewPkgBuild("pkg2", "0.0.2")
-	testcmd.HelpMakeAndInstall(t, env2, src2, true)
+	env2 := testenv.HelpEnv(t)
+	src2 := testenv.NewPkgBuild("pkg2", "0.0.2")
+	testenv.HelpMakeAndInstall(t, env2, src2, true)
 
 	h1, errHandle1 := alpm.NewHandle(env1.Root, env1.DBPath)
 	if errHandle1 != nil {
@@ -276,8 +276,8 @@ func TestDBListHandleMismatch(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestDBListHandleClose", TestDBListHandleClose) }
-func TestDBListHandleClose(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
+func TestDBListHandleClose(t *testenv.T) {
+	env := testenv.HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -308,8 +308,8 @@ func TestDBListHandleClose(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestDBListAddUninitializedDB", TestDBListAddUninitializedDB) }
-func TestDBListAddUninitializedDB(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
+func TestDBListAddUninitializedDB(t *testenv.T) {
+	env := testenv.HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {

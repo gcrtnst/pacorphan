@@ -8,11 +8,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/gcrtnst/pacorphan/internal/testcmd"
+	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 func init() { testMain.Register("TestHelp", TestHelp) }
-func TestHelp(t *testcmd.T) {
+func TestHelp(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--help"},
@@ -25,7 +25,7 @@ func TestHelp(t *testcmd.T) {
 
 	err := cmd.Run()
 	if err != nil {
-		t.Error(testcmd.WrapExitError(cmd, err))
+		t.Error(testenv.WrapExitError(cmd, err))
 	}
 
 	stdoutRe := regexp.MustCompile(`(?s)^Usage of pacorphan:\n.+$`)
@@ -39,7 +39,7 @@ func TestHelp(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestErrorFlagParse", TestErrorFlagParse) }
-func TestErrorFlagParse(t *testcmd.T) {
+func TestErrorFlagParse(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--invalid-option"},
@@ -57,7 +57,7 @@ func TestErrorFlagParse(t *testcmd.T) {
 			t.Errorf("exec [%s]: exit code = %d, want %d", strings.Join(cmd.Args, " "), e.ExitCode(), wantCode)
 		}
 	} else if err != nil {
-		t.Error(testcmd.WrapExitError(cmd, err))
+		t.Error(testenv.WrapExitError(cmd, err))
 	} else {
 		t.Errorf("exec [%s]: exit code = 0, want %d", strings.Join(cmd.Args, " "), wantCode)
 	}
@@ -73,8 +73,8 @@ func TestErrorFlagParse(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestErrorALPMInit", TestErrorALPMInit) }
-func TestErrorALPMInit(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
+func TestErrorALPMInit(t *testenv.T) {
+	env := testenv.HelpEnv(t)
 
 	errRemove := os.RemoveAll(env.DBPath)
 	if errRemove != nil {
@@ -98,7 +98,7 @@ func TestErrorALPMInit(t *testcmd.T) {
 			t.Errorf("exec [%s]: exit code = %d, want %d", strings.Join(cmd.Args, " "), e.ExitCode(), wantCode)
 		}
 	} else if err != nil {
-		t.Error(testcmd.WrapExitError(cmd, err))
+		t.Error(testenv.WrapExitError(cmd, err))
 	} else {
 		t.Errorf("exec [%s]: exit code = 0, want %d", strings.Join(cmd.Args, " "), wantCode)
 	}

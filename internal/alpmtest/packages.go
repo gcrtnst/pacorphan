@@ -5,23 +5,23 @@ import (
 	"slices"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
-	"github.com/gcrtnst/pacorphan/internal/testcmd"
+	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 func init() { testMain.Register("TestPkg", TestPkg) }
-func TestPkg(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
+func TestPkg(t *testenv.T) {
+	env := testenv.HelpEnv(t)
 
-	srcA := testcmd.NewPkgBuild("a", "0.0.1")
-	testcmd.HelpMakeAndInstall(t, env, srcA, false)
+	srcA := testenv.NewPkgBuild("a", "0.0.1")
+	testenv.HelpMakeAndInstall(t, env, srcA, false)
 
-	srcB := testcmd.NewPkgBuild("b", "0.0.2")
+	srcB := testenv.NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a")
-	testcmd.HelpMakeAndInstall(t, env, srcB, true)
+	testenv.HelpMakeAndInstall(t, env, srcB, true)
 
-	srcC := testcmd.NewPkgBuild("c", "0.0.3")
+	srcC := testenv.NewPkgBuild("c", "0.0.3")
 	srcC.OptDepends = append(srcC.OptDepends, "a")
-	testcmd.HelpMakeAndInstall(t, env, srcC, true)
+	testenv.HelpMakeAndInstall(t, env, srcC, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -182,19 +182,19 @@ func TestPkg(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestPkgClosed", TestPkgClosed) }
-func TestPkgClosed(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
+func TestPkgClosed(t *testenv.T) {
+	env := testenv.HelpEnv(t)
 
-	srcA := testcmd.NewPkgBuild("a", "0.0.1")
-	testcmd.HelpMakeAndInstall(t, env, srcA, false)
+	srcA := testenv.NewPkgBuild("a", "0.0.1")
+	testenv.HelpMakeAndInstall(t, env, srcA, false)
 
-	srcB := testcmd.NewPkgBuild("b", "0.0.2")
+	srcB := testenv.NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a")
-	testcmd.HelpMakeAndInstall(t, env, srcB, true)
+	testenv.HelpMakeAndInstall(t, env, srcB, true)
 
-	srcC := testcmd.NewPkgBuild("c", "0.0.3")
+	srcC := testenv.NewPkgBuild("c", "0.0.3")
 	srcC.OptDepends = append(srcC.OptDepends, "a")
-	testcmd.HelpMakeAndInstall(t, env, srcC, true)
+	testenv.HelpMakeAndInstall(t, env, srcC, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -305,10 +305,10 @@ func TestPkgClosed(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestPkgListClosed", TestPkgListClosed) }
-func TestPkgListClosed(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
-	src := testcmd.NewPkgBuild("a", "0.0.1")
-	testcmd.HelpMakeAndInstall(t, env, src, false)
+func TestPkgListClosed(t *testenv.T) {
+	env := testenv.HelpEnv(t)
+	src := testenv.NewPkgBuild("a", "0.0.1")
+	testenv.HelpMakeAndInstall(t, env, src, false)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {

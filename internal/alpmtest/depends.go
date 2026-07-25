@@ -2,19 +2,19 @@ package main
 
 import (
 	"github.com/gcrtnst/pacorphan/internal/alpm"
-	"github.com/gcrtnst/pacorphan/internal/testcmd"
+	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 func init() { testMain.Register("TestDepend", TestDepend) }
-func TestDepend(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
+func TestDepend(t *testenv.T) {
+	env := testenv.HelpEnv(t)
 
-	srcA := testcmd.NewPkgBuild("a", "0.0.1")
-	testcmd.HelpMakeAndInstall(t, env, srcA, false)
+	srcA := testenv.NewPkgBuild("a", "0.0.1")
+	testenv.HelpMakeAndInstall(t, env, srcA, false)
 
-	srcB := testcmd.NewPkgBuild("b", "0.0.2")
+	srcB := testenv.NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a=0.0.1")
-	testcmd.HelpMakeAndInstall(t, env, srcB, true)
+	testenv.HelpMakeAndInstall(t, env, srcB, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -63,15 +63,15 @@ func TestDepend(t *testcmd.T) {
 }
 
 func init() { testMain.Register("TestDependListClosed", TestDependListClosed) }
-func TestDependListClosed(t *testcmd.T) {
-	env := testcmd.HelpEnv(t)
+func TestDependListClosed(t *testenv.T) {
+	env := testenv.HelpEnv(t)
 
-	srcA := testcmd.NewPkgBuild("a", "0.0.1")
-	testcmd.HelpMakeAndInstall(t, env, srcA, false)
+	srcA := testenv.NewPkgBuild("a", "0.0.1")
+	testenv.HelpMakeAndInstall(t, env, srcA, false)
 
-	srcB := testcmd.NewPkgBuild("b", "0.0.2")
+	srcB := testenv.NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a=0.0.1")
-	testcmd.HelpMakeAndInstall(t, env, srcB, true)
+	testenv.HelpMakeAndInstall(t, env, srcB, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
