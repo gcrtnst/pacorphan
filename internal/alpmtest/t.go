@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
-	"os"
 )
 
 var errTestExit = errors.New("alpmtest: test exit")
@@ -21,7 +19,7 @@ type T struct {
 func newT() *T {
 	return &T{
 		failed: false,
-		output: newPrefixWriter(os.Stdout, "    "),
+		output: io.Discard,
 	}
 }
 
@@ -76,73 +74,4 @@ func (t *T) Logf(format string, args ...any) {
 
 func (t *T) Cleanup(f func()) {
 	t.cleanups = append(t.cleanups, f)
-}
-
-func RunTest(fn TestFunc) (failed bool) {
-	t := newT()
-
-	defer func() {
-		failed = t.Failed()
-	}()
-
-	defer func() {
-		r := recover()
-		if r != nil && r != errTestExit {
-			panic(r)
-		}
-	}()
-
-	defer func() {
-		for _, f := range t.cleanups {
-			defer f()
-		}
-	}()
-
-	fn(t)
-	return
-}
-
-type prefixWriter struct {
-	w      io.Writer
-	prefix string
-	mid    bool
-}
-
-func newPrefixWriter(w io.Writer, prefix string) *prefixWriter {
-	return &prefixWriter{
-		w:      w,
-		prefix: prefix,
-		mid:    false,
-	}
-}
-
-func (w *prefixWriter) Write(p []byte) (int, error) {
-	n := 0
-	for n < len(p) {
-		if !w.mid {
-			_, err := io.WriteString(w.w, w.prefix)
-			if err != nil {
-				return n, err
-			}
-
-			w.mid = true
-		}
-
-		b := p[n:]
-		i := bytes.IndexByte(b, '\n')
-
-		if i < 0 {
-			m, err := w.w.Write(b)
-			n += m
-			return n, err
-		}
-
-		m, err := w.w.Write(b[:i+1])
-		n += m
-		if err != nil {
-			return n, err
-		}
-		w.mid = false
-	}
-	return n, nil
 }

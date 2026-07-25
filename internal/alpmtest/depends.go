@@ -2,7 +2,7 @@ package main
 
 import "github.com/gcrtnst/pacorphan/internal/alpm"
 
-func init() { register("TestDepend", TestDepend) }
+func init() { testMain.Register("TestDepend", TestDepend) }
 func TestDepend(t *T) {
 	env := HelpEnv(t)
 
@@ -59,7 +59,7 @@ func TestDepend(t *T) {
 	}
 }
 
-func init() { register("TestDependListClosed", TestDependListClosed) }
+func init() { testMain.Register("TestDependListClosed", TestDependListClosed) }
 func TestDependListClosed(t *T) {
 	env := HelpEnv(t)
 

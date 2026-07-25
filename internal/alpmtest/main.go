@@ -1,36 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"slices"
 )
 
-var testList = []testEntry{}
+var testMain = NewTestMain()
 
 func main() {
-	os.Exit(run())
-}
-
-func run() int {
-	failed := false
-	for _, c := range testList {
-		fmt.Printf("=== RUN   %s\n", c.Name)
-		f := RunTest(c.Func)
-		if f {
-			failed = true
-			fmt.Printf("--- FAIL: %s\n", c.Name)
-		} else {
-			fmt.Printf("--- PASS: %s\n", c.Name)
-		}
-	}
-
-	if failed {
-		fmt.Println("FAIL")
-		return 1
-	}
-	fmt.Println("PASS")
-	return 0
+	os.Exit(testMain.Run())
 }
 
 type testEntry struct {
@@ -38,12 +19,22 @@ type testEntry struct {
 	Func TestFunc
 }
 
-func register(name string, fn TestFunc) {
-	testList = append(testList, testEntry{
+type TestMain struct {
+	Output io.Writer
+
+	testList []testEntry
+}
+
+func NewTestMain() *TestMain {
+	return &TestMain{Output: os.Stdout}
+}
+
+func (m *TestMain) Register(name string, fn TestFunc) {
+	m.testList = append(m.testList, testEntry{
 		Name: name,
 		Func: fn,
 	})
-	slices.SortStableFunc(testList, func(a, b testEntry) int {
+	slices.SortStableFunc(m.testList, func(a, b testEntry) int {
 		if a.Name < b.Name {
 			return -1
 		}
@@ -52,4 +43,97 @@ func register(name string, fn TestFunc) {
 		}
 		return 0
 	})
+}
+
+func (m *TestMain) Run() int {
+	failed := false
+	for _, c := range m.testList {
+		fmt.Fprintf(m.Output, "=== RUN   %s\n", c.Name)
+		f := m.runTest(c.Func)
+		if f {
+			failed = true
+			fmt.Fprintf(m.Output, "--- FAIL: %s\n", c.Name)
+		} else {
+			fmt.Fprintf(m.Output, "--- PASS: %s\n", c.Name)
+		}
+	}
+
+	if failed {
+		fmt.Fprintln(m.Output, "FAIL")
+		return 1
+	}
+	fmt.Fprintln(m.Output, "PASS")
+	return 0
+}
+
+func (m *TestMain) runTest(fn TestFunc) (failed bool) {
+	failed = true
+
+	t := newT()
+	t.output = newPrefixWriter(m.Output, "    ")
+
+	defer func() {
+		failed = t.Failed()
+	}()
+
+	defer func() {
+		r := recover()
+		if r != nil && r != errTestExit {
+			panic(r)
+		}
+	}()
+
+	defer func() {
+		for _, f := range t.cleanups {
+			defer f()
+		}
+	}()
+
+	fn(t)
+	return
+}
+
+type prefixWriter struct {
+	w      io.Writer
+	prefix string
+	mid    bool
+}
+
+func newPrefixWriter(w io.Writer, prefix string) *prefixWriter {
+	return &prefixWriter{
+		w:      w,
+		prefix: prefix,
+		mid:    false,
+	}
+}
+
+func (w *prefixWriter) Write(p []byte) (int, error) {
+	n := 0
+	for n < len(p) {
+		if !w.mid {
+			_, err := io.WriteString(w.w, w.prefix)
+			if err != nil {
+				return n, err
+			}
+
+			w.mid = true
+		}
+
+		b := p[n:]
+		i := bytes.IndexByte(b, '\n')
+
+		if i < 0 {
+			m, err := w.w.Write(b)
+			n += m
+			return n, err
+		}
+
+		m, err := w.w.Write(b[:i+1])
+		n += m
+		if err != nil {
+			return n, err
+		}
+		w.mid = false
+	}
+	return n, nil
 }
