@@ -7,7 +7,7 @@ func HelpEnv(t *T) *Env {
 }
 
 func HelpEnvWithOption(t *T, opt *EnvOption) *Env {
-	env, err := NewEnvWithOption(opt)
+	env, err := NewEnv(opt)
 	if err != nil {
 		t.Fatal(err)
 	}

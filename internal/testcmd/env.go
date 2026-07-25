@@ -40,11 +40,7 @@ type Env struct {
 	Stderr  io.Writer
 }
 
-func NewEnv() (*Env, error) {
-	return NewEnvWithOption(nil)
-}
-
-func NewEnvWithOption(opt *EnvOption) (_ *Env, err error) {
+func NewEnv(opt *EnvOption) (_ *Env, err error) {
 	if opt == nil {
 		opt = NewEnvOption()
 	}
