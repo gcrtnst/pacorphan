@@ -10,33 +10,6 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/testcmd"
 )
 
-func init() { testMain.Register("TestHelp", TestHelp) }
-func TestHelp(t *testcmd.T) {
-	cmd := &exec.Cmd{
-		Path: pacorphan,
-		Args: []string{"pacorphan", "--help"},
-	}
-
-	stdout := new(bytes.Buffer)
-	stderr := new(bytes.Buffer)
-	cmd.Stdout = stdout
-	cmd.Stderr = stderr
-
-	err := cmd.Run()
-	if err != nil {
-		t.Error(testcmd.WrapExitError(cmd, err))
-	}
-
-	stdoutRe := regexp.MustCompile(`(?s)^Usage of pacorphan:\n.+$`)
-	if !stdoutRe.Match(stdout.Bytes()) {
-		t.Errorf("exec [%s]: stdout.Bytes() = %q, want regexp %q", strings.Join(cmd.Args, " "), stdout.Bytes(), stdoutRe.String())
-	}
-
-	if stderr.Len() != 0 {
-		t.Errorf("exec [%s]: stderr.Len() = %d, want 0", strings.Join(cmd.Args, " "), stderr.Len())
-	}
-}
-
 func init() { testMain.Register("TestFlagParseError", TestFlagParseError) }
 func TestFlagParseError(t *testcmd.T) {
 	cmd := &exec.Cmd{
@@ -68,5 +41,32 @@ func TestFlagParseError(t *testcmd.T) {
 	stderrRe := regexp.MustCompile(`^error: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
 		t.Errorf("exec [%s]: stderr.Bytes() = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
+	}
+}
+
+func init() { testMain.Register("TestHelp", TestHelp) }
+func TestHelp(t *testcmd.T) {
+	cmd := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--help"},
+	}
+
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	if err != nil {
+		t.Error(testcmd.WrapExitError(cmd, err))
+	}
+
+	stdoutRe := regexp.MustCompile(`(?s)^Usage of pacorphan:\n.+$`)
+	if !stdoutRe.Match(stdout.Bytes()) {
+		t.Errorf("exec [%s]: stdout.Bytes() = %q, want regexp %q", strings.Join(cmd.Args, " "), stdout.Bytes(), stdoutRe.String())
+	}
+
+	if stderr.Len() != 0 {
+		t.Errorf("exec [%s]: stderr.Len() = %d, want 0", strings.Join(cmd.Args, " "), stderr.Len())
 	}
 }
