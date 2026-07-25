@@ -37,8 +37,8 @@ func TestHelp(t *testcmd.T) {
 	}
 }
 
-func init() { testMain.Register("TestFlagParseError", TestFlagParseError) }
-func TestFlagParseError(t *testcmd.T) {
+func init() { testMain.Register("TestErrorFlagParse", TestErrorFlagParse) }
+func TestErrorFlagParse(t *testcmd.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--invalid-option"},
@@ -70,4 +70,3 @@ func TestFlagParseError(t *testcmd.T) {
 		t.Errorf("exec [%s]: stderr.Bytes() = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
 }
-
