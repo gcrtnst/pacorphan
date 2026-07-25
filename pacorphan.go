@@ -101,7 +101,7 @@ func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 
 	optDBPath := opt.DBPath
 	if optDBPath == "" {
-		conf := &PacmanConf{Config: opt.Config, Root: optRoot, SysRoot: optSysRoot}
+		conf := &PacmanConf{Config: opt.Config, Root: opt.Root, SysRoot: opt.SysRoot}
 		if dbpath, ok := conf.Get("DBPath"); ok {
 			optDBPath = dbpath
 		} else {
