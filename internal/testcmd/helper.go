@@ -3,7 +3,11 @@ package testcmd
 import "bytes"
 
 func HelpEnv(t *T) *Env {
-	env, err := NewEnv()
+	return HelpEnvWithOption(t, nil)
+}
+
+func HelpEnvWithOption(t *T, opt *EnvOption) *Env {
+	env, err := NewEnvWithOption(opt)
 	if err != nil {
 		t.Fatal(err)
 	}
