@@ -30,11 +30,11 @@ func TestHelp(t *testenv.T) {
 
 	stdoutRe := regexp.MustCompile(`(?s)^Usage of pacorphan:\n.+$`)
 	if !stdoutRe.Match(stdout.Bytes()) {
-		t.Errorf("exec [%s]: stdout.Bytes() = %q, want regexp %q", strings.Join(cmd.Args, " "), stdout.Bytes(), stdoutRe.String())
+		t.Errorf("exec [%s]: stdout = %q, want regexp %q", strings.Join(cmd.Args, " "), stdout.Bytes(), stdoutRe.String())
 	}
 
 	if stderr.Len() != 0 {
-		t.Errorf("exec [%s]: stderr.Len() = %d, want 0", strings.Join(cmd.Args, " "), stderr.Len())
+		t.Errorf(`exec [%s]: stderr = %q, want ""`, strings.Join(cmd.Args, " "), stderr.Bytes())
 	}
 }
 
@@ -63,12 +63,12 @@ func TestErrorFlagParse(t *testenv.T) {
 	}
 
 	if stdout.Len() != 0 {
-		t.Errorf("exec [%s]: stdout.Len() = %d, want 0", strings.Join(cmd.Args, " "), stdout.Len())
+		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
 	}
 
 	stderrRe := regexp.MustCompile(`^error: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
-		t.Errorf("exec [%s]: stderr.Bytes() = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
+		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
 }
 
@@ -104,11 +104,11 @@ func TestErrorALPMInit(t *testenv.T) {
 	}
 
 	if stdout.Len() != 0 {
-		t.Errorf("exec [%s]: stdout.Len() = %d, want 0", strings.Join(cmd.Args, " "), stdout.Len())
+		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
 	}
 
 	stderrRe := regexp.MustCompile(`^error: failed to initialize alpm library: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
-		t.Errorf("exec [%s]: stderr.Bytes() = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
+		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
 }
