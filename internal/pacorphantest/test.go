@@ -11,6 +11,34 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
+func init() { testMain.Register("TestEmpty", TestEmpty) }
+func TestEmpty(t *testenv.T) {
+	env := testenv.HelpEnv(t)
+
+	cmd := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--sysroot", env.Root},
+	}
+
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	if err != nil {
+		t.Error(testenv.WrapExitError(cmd, err))
+	}
+
+	if stdout.Len() != 0 {
+		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
+	}
+
+	if stderr.Len() != 0 {
+		t.Errorf(`exec [%s]: stderr = %q, want ""`, strings.Join(cmd.Args, " "), stderr.Bytes())
+	}
+}
+
 func init() { testMain.Register("TestHelp", TestHelp) }
 func TestHelp(t *testenv.T) {
 	cmd := &exec.Cmd{
