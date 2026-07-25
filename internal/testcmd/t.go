@@ -1,4 +1,4 @@
-package main
+package testcmd
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-var errTestExit = errors.New("alpmtest: test exit")
+var errTestExit = errors.New("testenv: test exit")
 
 type TestFunc func(*T)
 

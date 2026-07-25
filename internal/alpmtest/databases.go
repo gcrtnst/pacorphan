@@ -5,11 +5,12 @@ import (
 	"os"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
+	"github.com/gcrtnst/pacorphan/internal/testcmd"
 )
 
 func init() { testMain.Register("TestDBClosed", TestDBClosed) }
-func TestDBClosed(t *T) {
-	env := HelpEnv(t)
+func TestDBClosed(t *testcmd.T) {
+	env := testcmd.HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -39,9 +40,10 @@ func TestDBClosed(t *T) {
 }
 
 func init() { testMain.Register("TestDBInvalid", TestDBInvalid) }
-func TestDBInvalid(t *T) {
-	env := HelpEnv(t)
-	HelpMakeAndInstall(t, env, NewPkgBuild("a", "0.0.1"), true)
+func TestDBInvalid(t *testcmd.T) {
+	env := testcmd.HelpEnv(t)
+	src := testcmd.NewPkgBuild("a", "0.0.1")
+	testcmd.HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -80,10 +82,11 @@ func TestDBInvalid(t *T) {
 }
 
 func init() { testMain.Register("TestDBList", TestDBList) }
-func TestDBList(t *T) {
-	env := HelpEnv(t)
+func TestDBList(t *testcmd.T) {
+	env := testcmd.HelpEnv(t)
 
-	HelpMakeAndInstall(t, env, NewPkgBuild("a", "1.2.3"), true)
+	src := testcmd.NewPkgBuild("a", "1.2.3")
+	testcmd.HelpMakeAndInstall(t, env, src, true)
 	const pkgName = "a"
 	const pkgVer = "1.2.3-1"
 	const pkgCnt = 1
@@ -169,12 +172,14 @@ func TestDBList(t *T) {
 }
 
 func init() { testMain.Register("TestDBListHandleMismatch", TestDBListHandleMismatch) }
-func TestDBListHandleMismatch(t *T) {
-	env1 := HelpEnv(t)
-	HelpMakeAndInstall(t, env1, NewPkgBuild("pkg1", "0.0.1"), true)
+func TestDBListHandleMismatch(t *testcmd.T) {
+	env1 := testcmd.HelpEnv(t)
+	src1 := testcmd.NewPkgBuild("pkg1", "0.0.1")
+	testcmd.HelpMakeAndInstall(t, env1, src1, true)
 
-	env2 := HelpEnv(t)
-	HelpMakeAndInstall(t, env2, NewPkgBuild("pkg2", "0.0.2"), true)
+	env2 := testcmd.HelpEnv(t)
+	src2 := testcmd.NewPkgBuild("pkg2", "0.0.2")
+	testcmd.HelpMakeAndInstall(t, env2, src2, true)
 
 	h1, errHandle1 := alpm.NewHandle(env1.Root, env1.DBPath)
 	if errHandle1 != nil {
@@ -271,8 +276,8 @@ func TestDBListHandleMismatch(t *T) {
 }
 
 func init() { testMain.Register("TestDBListHandleClose", TestDBListHandleClose) }
-func TestDBListHandleClose(t *T) {
-	env := HelpEnv(t)
+func TestDBListHandleClose(t *testcmd.T) {
+	env := testcmd.HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -303,8 +308,8 @@ func TestDBListHandleClose(t *T) {
 }
 
 func init() { testMain.Register("TestDBListAddUninitializedDB", TestDBListAddUninitializedDB) }
-func TestDBListAddUninitializedDB(t *T) {
-	env := HelpEnv(t)
+func TestDBListAddUninitializedDB(t *testcmd.T) {
+	env := testcmd.HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
