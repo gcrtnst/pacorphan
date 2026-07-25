@@ -89,29 +89,32 @@ type FindOrphansOption struct {
 }
 
 func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
-	optSysRoot := opt.SysRoot
-	if optSysRoot == "" {
-		optSysRoot = "/"
+	sysroot := opt.SysRoot
+	if sysroot == "" {
+		sysroot = "/"
 	}
 
-	optRoot := opt.Root
-	if optRoot == "" {
-		optRoot = optSysRoot
+	root := opt.Root
+	if root == "" {
+		root = "/"
 	}
+	root = filepath.Join(sysroot, root)
 
-	optDBPath := opt.DBPath
-	if optDBPath == "" {
+	dbpath := opt.DBPath
+	if dbpath != "" {
+		dbpath = filepath.Join(sysroot, dbpath)
+	} else {
 		conf := &PacmanConf{Config: opt.Config, Root: opt.Root, SysRoot: opt.SysRoot}
-		if dbpath, ok := conf.Get("DBPath"); ok {
-			optDBPath = dbpath
+		if d, ok := conf.Get("DBPath"); ok {
+			dbpath = d
 		} else {
-			optDBPath = filepath.Join(optSysRoot, "/var/lib/pacman/")
+			dbpath = filepath.Join(sysroot, "/var/lib/pacman/")
 		}
 	}
 
 	optIgnoreOptDepends := opt.IgnoreOptDepends
 
-	h, errHandleNew := alpm.NewHandle(optRoot, optDBPath)
+	h, errHandleNew := alpm.NewHandle(root, dbpath)
 	if errHandleNew != nil {
 		return nil, errHandleNew
 	}
