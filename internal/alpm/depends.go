@@ -29,6 +29,15 @@ func (d *Depend) alive() bool {
 	return true
 }
 
+func (d *Depend) Name() string {
+	defer runtime.KeepAlive(d)
+	if !d.alive() {
+		return ""
+	}
+
+	return C.GoString(d.c.name)
+}
+
 func (d *Depend) String() string {
 	defer runtime.KeepAlive(d)
 	if !d.alive() {

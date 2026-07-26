@@ -46,6 +46,11 @@ func TestDepend(t *testenv.T) {
 
 	dep := pkgB.Depends().Front().Data()
 
+	depName := dep.Name()
+	if depName != srcA.Name {
+		t.Errorf("dep.Name() = %q, want %q", depName, srcA.Name)
+	}
+
 	depStr := dep.String()
 	if depStr != srcB.Depends[0] {
 		t.Errorf("dep.String() = %q, want %q", depStr, srcB.Depends[0])
@@ -54,6 +59,11 @@ func TestDepend(t *testenv.T) {
 	errClose := h.Close()
 	if errClose != nil {
 		t.Fatal(errClose)
+	}
+
+	depNameClosed := dep.Name()
+	if depNameClosed != "" {
+		t.Errorf(`after close: dep.Name() = %q, want ""`, depNameClosed)
 	}
 
 	depStrClosed := dep.String()
