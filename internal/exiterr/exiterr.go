@@ -1,4 +1,4 @@
-package testenv
+package exiterr
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ type ExitError struct {
 	Err *exec.ExitError
 }
 
-func WrapExitError(cmd *exec.Cmd, err error) error {
+func Wrap(cmd *exec.Cmd, err error) error {
 	if errExit, ok := errors.AsType[*exec.ExitError](err); ok {
 		return &ExitError{Cmd: cmd, Err: errExit}
 	}
@@ -19,12 +19,16 @@ func WrapExitError(cmd *exec.Cmd, err error) error {
 }
 
 func (e *ExitError) Error() string {
-	msgCmd := "exec <nil>"
+	if e == nil {
+		return "<nil>"
+	}
+
+	msgCmd := "exec"
 	if e.Cmd != nil {
 		msgCmd = "exec [" + strings.Join(e.Cmd.Args, " ") + "]"
 	}
 
-	msgErr := "unknown error"
+	msgErr := "<nil>"
 	if e.Err != nil {
 		msgErr = e.Err.Error()
 	}
@@ -33,7 +37,7 @@ func (e *ExitError) Error() string {
 }
 
 func (e *ExitError) Unwrap() error {
-	if e.Err == nil {
+	if e == nil || e.Err == nil {
 		return nil
 	}
 	return e.Err

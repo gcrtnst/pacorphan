@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/gcrtnst/pacorphan/internal/exiterr"
 )
 
 const (
@@ -119,7 +121,7 @@ func (e *Env) Install(pkg string, explicit bool) error {
 		Stderr: e.Stderr,
 	}
 	err := cmd.Run()
-	return WrapExitError(cmd, err)
+	return exiterr.Wrap(cmd, err)
 }
 
 func (e *Env) MakeAndInstall(src *PkgBuild, explicit bool) error {

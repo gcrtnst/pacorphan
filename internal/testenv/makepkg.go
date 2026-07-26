@@ -9,6 +9,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/gcrtnst/pacorphan/internal/exiterr"
 )
 
 type MakePkg struct {
@@ -98,7 +100,7 @@ func (m *MakePkg) Run(dst string, src *PkgBuild) ([]string, error) {
 	}
 	outList, err := cmdList.Output()
 	if err != nil {
-		return nil, WrapExitError(cmdList, err)
+		return nil, exiterr.Wrap(cmdList, err)
 	}
 
 	pkgList := make([]string, 0, 1)
@@ -122,7 +124,7 @@ func (m *MakePkg) Run(dst string, src *PkgBuild) ([]string, error) {
 	}
 	err = cmdMake.Run()
 	if err != nil {
-		return nil, WrapExitError(cmdMake, err)
+		return nil, exiterr.Wrap(cmdMake, err)
 	}
 
 	return pkgList, nil
@@ -276,7 +278,7 @@ func Arch() (string, error) {
 	cmd := exec.Command("uname", "--machine")
 	out, err := cmd.Output()
 	if err != nil {
-		return "", WrapExitError(cmd, err)
+		return "", exiterr.Wrap(cmd, err)
 	}
 
 	arch := strings.TrimSpace(string(out))

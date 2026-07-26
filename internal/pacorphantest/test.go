@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gcrtnst/pacorphan/internal/exiterr"
 	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
@@ -27,7 +28,7 @@ func TestEmpty(t *testenv.T) {
 
 	err := cmd.Run()
 	if err != nil {
-		t.Error(testenv.WrapExitError(cmd, err))
+		t.Error(exiterr.Wrap(cmd, err))
 	}
 
 	if stdout.Len() != 0 {
@@ -69,7 +70,7 @@ func TestCustomPath(t *testenv.T) {
 
 	err := cmd.Run()
 	if err != nil {
-		t.Error(testenv.WrapExitError(cmd, err))
+		t.Error(exiterr.Wrap(cmd, err))
 	}
 
 	stdoutWant := src.Name + "\n"
@@ -96,7 +97,7 @@ func TestHelp(t *testenv.T) {
 
 	err := cmd.Run()
 	if err != nil {
-		t.Error(testenv.WrapExitError(cmd, err))
+		t.Error(exiterr.Wrap(cmd, err))
 	}
 
 	stdoutRe := regexp.MustCompile(`(?s)^Usage of pacorphan:\n.+$`)
@@ -128,7 +129,7 @@ func TestErrorFlagParse(t *testenv.T) {
 			t.Errorf("exec [%s]: exit code = %d, want %d", strings.Join(cmd.Args, " "), e.ExitCode(), wantCode)
 		}
 	} else if err != nil {
-		t.Error(testenv.WrapExitError(cmd, err))
+		t.Error(exiterr.Wrap(cmd, err))
 	} else {
 		t.Errorf("exec [%s]: exit code = 0, want %d", strings.Join(cmd.Args, " "), wantCode)
 	}
@@ -169,7 +170,7 @@ func TestErrorALPMInit(t *testenv.T) {
 			t.Errorf("exec [%s]: exit code = %d, want %d", strings.Join(cmd.Args, " "), e.ExitCode(), wantCode)
 		}
 	} else if err != nil {
-		t.Error(testenv.WrapExitError(cmd, err))
+		t.Error(exiterr.Wrap(cmd, err))
 	} else {
 		t.Errorf("exec [%s]: exit code = 0, want %d", strings.Join(cmd.Args, " "), wantCode)
 	}
