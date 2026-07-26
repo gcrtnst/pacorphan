@@ -83,6 +83,49 @@ func TestManualPath(t *testenv.T) {
 	}
 }
 
+func init() { testMain.Register("TestCustomPath", TestCustomPath) }
+func TestCustomPath(t *testenv.T) {
+	// When --sysroot is used, if the DBPath defined in the sysroot's pacman.conf
+	// does not exist on the host system (outside the sysroot), the following error
+	// occurs even though the path exists inside the sysroot:
+	// error: 'failed to resolve path '/var/lib/pacman-alt/' passed to 'DBPath': No such file or directory
+	//
+	// Since this is considered a bug in pacman, this test is skipped until it is fixed.
+	t.Skip("skipping due to pacman bug with --sysroot")
+
+	opt := testenv.NewEnvOption()
+	opt.DBPath = "/var/lib/pacman-alt"
+	opt.CacheDir = "/var/cache/pacman-alt/pkg"
+	env := testenv.HelpEnvWithOption(t, opt) // generates pacman.conf including DBPath
+
+	src := testenv.NewPkgBuild("a", "0.0.1")
+	testenv.HelpMakeAndInstall(t, env, src, false) // pacman is executed internally with --sysroot
+
+	cmd := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--sysroot", env.Root, "--quiet"},
+	}
+
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	if err != nil {
+		t.Error(exiterr.Wrap(cmd, err))
+	}
+
+	stdoutWant := src.Name + "\n"
+	if !bytes.Equal(stdout.Bytes(), []byte(stdoutWant)) {
+		t.Errorf("exec [%s]: stdout = %q, want %q", strings.Join(cmd.Args, " "), stdout.Bytes(), stdoutWant)
+	}
+
+	if stderr.Len() != 0 {
+		t.Errorf(`exec [%s]: stderr = %q, want ""`, strings.Join(cmd.Args, " "), stderr.Bytes())
+	}
+}
+
 func init() { testMain.Register("TestHelp", TestHelp) }
 func TestHelp(t *testenv.T) {
 	cmd := &exec.Cmd{
