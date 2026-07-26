@@ -43,12 +43,15 @@ func (m *TestMain) Run() int {
 	failed := false
 	for _, c := range m.testList {
 		fmt.Fprintf(m.Output, "=== RUN   %s\n", c.Name)
-		f := m.runTest(c.Func)
-		if f {
+		result := m.runTest(c.Func)
+		switch result {
+		case testSkip:
+			fmt.Fprintf(m.Output, "--- SKIP: %s\n", c.Name)
+		case testPass:
+			fmt.Fprintf(m.Output, "--- PASS: %s\n", c.Name)
+		default:
 			failed = true
 			fmt.Fprintf(m.Output, "--- FAIL: %s\n", c.Name)
-		} else {
-			fmt.Fprintf(m.Output, "--- PASS: %s\n", c.Name)
 		}
 	}
 
@@ -60,14 +63,20 @@ func (m *TestMain) Run() int {
 	return 0
 }
 
-func (m *TestMain) runTest(fn TestFunc) (failed bool) {
-	failed = true
+func (m *TestMain) runTest(fn TestFunc) (result testResult) {
+	result = testFail
 
 	t := newT()
 	t.output = newPrefixWriter(m.Output, "    ")
 
 	defer func() {
-		failed = t.Failed()
+		if t.Failed() {
+			result = testFail
+		} else if t.Skipped() {
+			result = testSkip
+		} else {
+			result = testPass
+		}
 	}()
 
 	defer func() {
@@ -86,6 +95,14 @@ func (m *TestMain) runTest(fn TestFunc) (failed bool) {
 	fn(t)
 	return
 }
+
+type testResult int
+
+const (
+	testPass testResult = iota
+	testFail
+	testSkip
+)
 
 type prefixWriter struct {
 	w      io.Writer

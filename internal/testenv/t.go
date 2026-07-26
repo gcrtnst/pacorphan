@@ -12,6 +12,7 @@ type TestFunc func(*T)
 
 type T struct {
 	failed   bool
+	skipped  bool
 	output   io.Writer
 	cleanups []func()
 }
@@ -27,6 +28,10 @@ func (t *T) Failed() bool {
 	return t.failed
 }
 
+func (t *T) Skipped() bool {
+	return t.skipped
+}
+
 func (t *T) Output() io.Writer {
 	return t.output
 }
@@ -37,6 +42,11 @@ func (t *T) Fail() {
 
 func (t *T) FailNow() {
 	t.Fail()
+	panic(errTestExit)
+}
+
+func (t *T) SkipNow() {
+	t.skipped = true
 	panic(errTestExit)
 }
 
@@ -58,6 +68,16 @@ func (t *T) Fatal(args ...any) {
 func (t *T) Fatalf(format string, args ...any) {
 	t.Logf(format, args...)
 	t.FailNow()
+}
+
+func (t *T) Skip(args ...any) {
+	t.Log(args...)
+	t.SkipNow()
+}
+
+func (t *T) Skipf(format string, args ...any) {
+	t.Logf(format, args...)
+	t.SkipNow()
 }
 
 func (t *T) Log(args ...any) {
