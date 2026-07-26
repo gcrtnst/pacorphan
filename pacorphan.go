@@ -28,14 +28,14 @@ type Pkg struct {
 func run() int {
 	fQuiet := false
 	fHelp := false
-	fUnrequired := false
+	fStrict := false
 	fDBPath := ""
 	fRoot := ""
 	fConfig := ""
 	fSysRoot := ""
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
 	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
-	fs.BoolVarP(&fUnrequired, "unrequired", "t", fUnrequired, "ignore optdepends")
+	fs.BoolVarP(&fStrict, "strict", "t", fStrict, "ignore optdepends")
 	fs.StringVarP(&fDBPath, "dbpath", "b", fDBPath, "set an alternate database location")
 	fs.StringVarP(&fRoot, "root", "R", fRoot, "set an alternate installation root")
 	fs.StringVarP(&fConfig, "config", "C", fConfig, "set an alternate configuration file")
@@ -90,7 +90,7 @@ func run() int {
 		}
 	}
 
-	orphans, err := FindOrphans(root, dbpath, fUnrequired)
+	orphans, err := FindOrphans(root, dbpath, fStrict)
 	if err != nil {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
 			switch errALPM.CFunc {
