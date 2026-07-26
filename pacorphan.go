@@ -105,7 +105,7 @@ func run() int {
 				return 1
 			}
 		} else if errors.Is(err, alpm.ErrHandleCloseFailed) {
-			fmt.Fprintf(os.Stderr, "warn: failed to release alpm library\n")
+			fmt.Fprintf(os.Stderr, "warning: failed to release alpm library\n")
 			// continue
 		} else {
 			fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
