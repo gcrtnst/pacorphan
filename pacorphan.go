@@ -95,10 +95,19 @@ func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 	}
 
 	root := opt.Root
+	if root != "" {
+		root = filepath.Join(sysroot, root)
+	} else {
+		conf := &PacmanConf{Config: opt.Config, Root: opt.Root, SysRoot: opt.SysRoot}
+		if r, ok := conf.Get("RootDir"); ok {
+			root = r
+		} else {
+			root = filepath.Join(sysroot, "/")
+		}
+	}
 	if root == "" {
 		root = "/"
 	}
-	root = filepath.Join(sysroot, root)
 
 	dbpath := opt.DBPath
 	if dbpath != "" {
