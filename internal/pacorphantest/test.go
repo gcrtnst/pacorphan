@@ -40,8 +40,8 @@ func TestEmpty(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestCustomPath", TestCustomPath) }
-func TestCustomPath(t *testenv.T) {
+func init() { testMain.Register("TestManualPath", TestManualPath) }
+func TestManualPath(t *testenv.T) {
 	// When --sysroot is used, if the DBPath defined in the sysroot's pacman.conf
 	// does not exist on the host system (outside the sysroot), the following error
 	// occurs even though the path exists inside the sysroot:
