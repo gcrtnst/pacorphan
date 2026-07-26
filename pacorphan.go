@@ -25,14 +25,18 @@ type Pkg struct {
 func run() int {
 	fQuiet := false
 	fHelp := false
-	fOpt := &FindOrphansOption{}
+	fUnrequired := false
+	fDBPath := ""
+	fRoot := ""
+	fConfig := ""
+	fSysRoot := ""
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
 	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
-	fs.BoolVarP(&fOpt.IgnoreOptDepends, "unrequired", "t", fOpt.IgnoreOptDepends, "ignore optdepends")
-	fs.StringVarP(&fOpt.DBPath, "dbpath", "b", fOpt.DBPath, "set an alternate database location")
-	fs.StringVarP(&fOpt.Root, "root", "R", fOpt.Root, "set an alternate installation root")
-	fs.StringVarP(&fOpt.Config, "config", "C", fOpt.Config, "set an alternate configuration file")
-	fs.StringVarP(&fOpt.SysRoot, "sysroot", "S", fOpt.SysRoot, "set an alternate system root")
+	fs.BoolVarP(&fUnrequired, "unrequired", "t", fUnrequired, "ignore optdepends")
+	fs.StringVarP(&fDBPath, "dbpath", "b", fDBPath, "set an alternate database location")
+	fs.StringVarP(&fRoot, "root", "R", fRoot, "set an alternate installation root")
+	fs.StringVarP(&fConfig, "config", "C", fConfig, "set an alternate configuration file")
+	fs.StringVarP(&fSysRoot, "sysroot", "S", fSysRoot, "set an alternate system root")
 	fs.BoolVarP(&fHelp, "help", "h", fHelp, "show this help message and exit")
 
 	errParse := fs.Parse(os.Args[1:])
@@ -47,7 +51,40 @@ func run() int {
 		return 0
 	}
 
-	orphans, err := FindOrphans(fOpt)
+	conf := &PacmanConf{
+		Config:  fConfig,
+		Root:    fRoot,
+		SysRoot: fSysRoot,
+	}
+
+	sysroot := fSysRoot
+	if sysroot != "" {
+		sysroot = "/"
+	}
+
+	var root string
+	if fRoot != "" {
+		root = filepath.Join(sysroot, fRoot)
+	} else {
+		if r, ok := conf.Get("RootDir"); ok {
+			root = r
+		} else {
+			root = filepath.Join(sysroot, "/")
+		}
+	}
+
+	var dbpath string
+	if fDBPath != "" {
+		dbpath = filepath.Join(sysroot, fDBPath)
+	} else {
+		if d, ok := conf.Get("DBPath"); ok {
+			dbpath = d
+		} else {
+			dbpath = filepath.Join(sysroot, "/var/lib/pacman/")
+		}
+	}
+
+	orphans, err := FindOrphans(root, dbpath, fUnrequired)
 	if err != nil {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
 			switch errALPM.CFunc {
@@ -80,49 +117,7 @@ func run() int {
 	return 0
 }
 
-type FindOrphansOption struct {
-	SysRoot          string
-	Config           string
-	Root             string
-	DBPath           string
-	IgnoreOptDepends bool
-}
-
-func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
-	sysroot := opt.SysRoot
-	if sysroot == "" {
-		sysroot = "/"
-	}
-
-	root := opt.Root
-	if root != "" {
-		root = filepath.Join(sysroot, root)
-	} else {
-		conf := &PacmanConf{Config: opt.Config, Root: opt.Root, SysRoot: opt.SysRoot}
-		if r, ok := conf.Get("RootDir"); ok {
-			root = r
-		} else {
-			root = filepath.Join(sysroot, "/")
-		}
-	}
-	if root == "" {
-		root = "/"
-	}
-
-	dbpath := opt.DBPath
-	if dbpath != "" {
-		dbpath = filepath.Join(sysroot, dbpath)
-	} else {
-		conf := &PacmanConf{Config: opt.Config, Root: opt.Root, SysRoot: opt.SysRoot}
-		if d, ok := conf.Get("DBPath"); ok {
-			dbpath = d
-		} else {
-			dbpath = filepath.Join(sysroot, "/var/lib/pacman/")
-		}
-	}
-
-	optIgnoreOptDepends := opt.IgnoreOptDepends
-
+func FindOrphans(root string, dbpath string, strict bool) (orphans []Pkg, err error) {
 	h, errHandleNew := alpm.NewHandle(root, dbpath)
 	if errHandleNew != nil {
 		return nil, errHandleNew
@@ -162,7 +157,7 @@ func FindOrphans(opt *FindOrphansOption) (orphans []Pkg, err error) {
 		pkg, stack = pop(stack)
 
 		depSeq := pkg.Depends().All()
-		if !optIgnoreOptDepends {
+		if !strict {
 			depSeq = concat(depSeq, pkg.OptDepends().All())
 		}
 
