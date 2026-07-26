@@ -53,10 +53,10 @@ func TestManualPath(t *testenv.T) {
 	opt := testenv.NewEnvOption()
 	opt.DBPath = "/var/lib/pacman-alt"
 	opt.CacheDir = "/var/cache/pacman-alt/pkg"
-	env := testenv.HelpEnvWithOption(t, opt)
+	env := testenv.HelpEnvWithOption(t, opt) // generates pacman.conf including DBPath
 
 	src := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, src, false)
+	testenv.HelpMakeAndInstall(t, env, src, false) // pacman is executed internally with --sysroot
 
 	cmd := &exec.Cmd{
 		Path: pacorphan,
