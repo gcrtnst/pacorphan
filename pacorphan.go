@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"iter"
 	"os"
 	"os/exec"
@@ -10,6 +12,7 @@ import (
 	"slices"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
+	"github.com/gcrtnst/pacorphan/internal/exiterr"
 	"github.com/spf13/pflag"
 )
 
@@ -55,6 +58,7 @@ func run() int {
 		Config:  fConfig,
 		Root:    fRoot,
 		SysRoot: fSysRoot,
+		Stderr:  os.Stderr,
 	}
 
 	sysroot := fSysRoot
@@ -66,10 +70,11 @@ func run() int {
 	if fRoot != "" {
 		root = filepath.Join(sysroot, fRoot)
 	} else {
-		if r, ok := conf.Get("RootDir"); ok {
-			root = r
-		} else {
-			root = filepath.Join(sysroot, "/")
+		var err error
+		root, err = conf.Get("RootDir")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %s\n", err)
+			return 1
 		}
 	}
 
@@ -77,10 +82,11 @@ func run() int {
 	if fDBPath != "" {
 		dbpath = filepath.Join(sysroot, fDBPath)
 	} else {
-		if d, ok := conf.Get("DBPath"); ok {
-			dbpath = d
-		} else {
-			dbpath = filepath.Join(sysroot, "/var/lib/pacman/")
+		var err error
+		dbpath, err = conf.Get("DBPath")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %s\n", err)
+			return 1
 		}
 	}
 
@@ -196,9 +202,11 @@ type PacmanConf struct {
 	Config  string
 	Root    string
 	SysRoot string
+
+	Stderr io.Writer
 }
 
-func (c *PacmanConf) Get(directive string) (string, bool) {
+func (c *PacmanConf) Get(directive string) (string, error) {
 	args := make([]string, 0, 4)
 	if v := c.Config; v != "" {
 		args = append(args, "--config="+v)
@@ -211,15 +219,21 @@ func (c *PacmanConf) Get(directive string) (string, bool) {
 	}
 	args = append(args, directive)
 
+	buf := new(bytes.Buffer)
 	cmd := exec.Command("pacman-conf", args...)
-	out, err := cmd.Output()
+	cmd.Stdout = buf
+	cmd.Stderr = c.Stderr
+
+	err := cmd.Run()
 	if err != nil {
-		return "", false
+		return "", exiterr.Wrap(cmd, err)
 	}
+
+	out := buf.Bytes()
 	if len(out) >= 1 && out[len(out)-1] == '\n' {
 		out = out[:len(out)-1]
 	}
-	return string(out), true
+	return string(out), nil
 }
 
 func pop[S ~[]E, E any](s S) (E, S) {
