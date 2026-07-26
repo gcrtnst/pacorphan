@@ -104,6 +104,17 @@ func run() int {
 				fmt.Fprintf(os.Stderr, "error: %s(): %s\n", errALPM.CFunc, errALPM.Errno.Message())
 				return 1
 			}
+		} else if errDeps, ok := errors.AsType[MissingDepsError](err); ok {
+			for _, mdep := range errDeps {
+				if mdep.InstalledVersion == "" {
+					fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', which is not installed\n", mdep.DependentPkgName, mdep.DepString)
+				} else if !mdep.Optional {
+					fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
+				} else {
+					fmt.Fprintf(os.Stderr, "warning: '%s' recommends '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
+				}
+			}
+			// continue
 		} else if errors.Is(err, alpm.ErrHandleCloseFailed) {
 			fmt.Fprintf(os.Stderr, "warning: failed to release alpm library\n")
 			// continue
@@ -158,22 +169,34 @@ func FindOrphans(root string, dbpath string, strict bool) (orphans []Pkg, err er
 		}
 	}
 
+	var miss []MissingDep
 	for len(stack) > 0 {
 		var pkg *alpm.Pkg
 		pkg, stack = pop(stack)
 
-		depSeq := pkg.Depends().All()
-		if !strict {
-			depSeq = concat(depSeq, pkg.OptDepends().All())
-		}
-
-		for dep := range depSeq {
+		for meta := range IterDepend(pkg, !strict) {
+			dep := meta.Depend
 			depPkg := h.FindDBsSatisfier(dbList, dep.String())
 			if depPkg != nil {
 				depName := depPkg.Name()
 				if _, ok := mark[depName]; ok {
 					delete(mark, depName)
 					stack = append(stack, depPkg)
+				}
+			} else {
+				mdep := MissingDep{
+					DependentPkgName: pkg.Name(),
+					DepString:        dep.String(),
+					Optional:         meta.Optional,
+				}
+
+				depPkg = h.FindDBsSatisfier(dbList, dep.Name())
+				if depPkg != nil {
+					mdep.InstalledVersion = depPkg.Version()
+				}
+
+				if !mdep.Optional || mdep.InstalledVersion != "" {
+					miss = append(miss, mdep)
 				}
 			}
 		}
@@ -195,7 +218,40 @@ func FindOrphans(root string, dbpath string, strict bool) (orphans []Pkg, err er
 		}
 		return alpm.CompareVersion(a.Version, b.Version)
 	})
-	return orphans, nil
+
+	errDep := (error)(nil)
+	if len(miss) > 0 {
+		slices.SortStableFunc(miss, func(a, b MissingDep) int {
+			if a.DependentPkgName < b.DependentPkgName {
+				return -1
+			}
+			if a.DependentPkgName > b.DependentPkgName {
+				return 1
+			}
+			if !a.Optional && b.Optional {
+				return -1
+			}
+			if a.Optional && !b.Optional {
+				return 1
+			}
+			if a.DepString < b.DepString {
+				return -1
+			}
+			if a.DepString > b.DepString {
+				return 1
+			}
+			if a.InstalledVersion < b.InstalledVersion {
+				return -1
+			}
+			if a.InstalledVersion > b.InstalledVersion {
+				return 1
+			}
+			return 0
+		})
+		errDep = MissingDepsError(miss)
+	}
+
+	return orphans, errDep
 }
 
 type PacmanConf struct {
@@ -236,6 +292,43 @@ func (c *PacmanConf) Get(directive string) (string, error) {
 	return string(out), nil
 }
 
+type Depend struct {
+	Depend   *alpm.Depend
+	Optional bool
+}
+
+func IterDepend(pkg *alpm.Pkg, optional bool) iter.Seq[*Depend] {
+	return func(yield func(*Depend) bool) {
+		for dep := range pkg.Depends().All() {
+			e := &Depend{Depend: dep, Optional: false}
+			if !yield(e) {
+				return
+			}
+		}
+		if optional {
+			for dep := range pkg.OptDepends().All() {
+				e := &Depend{Depend: dep, Optional: true}
+				if !yield(e) {
+					return
+				}
+			}
+		}
+	}
+}
+
+type MissingDepsError []MissingDep
+
+func (e MissingDepsError) Error() string {
+	return "could not satisfy dependencies"
+}
+
+type MissingDep struct {
+	DependentPkgName string
+	DepString        string
+	Optional         bool
+	InstalledVersion string
+}
+
 func pop[S ~[]E, E any](s S) (E, S) {
 	var zero E
 
@@ -243,16 +336,4 @@ func pop[S ~[]E, E any](s S) (E, S) {
 	s[len(s)-1] = zero
 	s = s[:len(s)-1]
 	return e, s
-}
-
-func concat[V any](seqs ...iter.Seq[V]) iter.Seq[V] {
-	return func(yield func(V) bool) {
-		for _, seq := range seqs {
-			for e := range seq {
-				if !yield(e) {
-					return
-				}
-			}
-		}
-	}
 }

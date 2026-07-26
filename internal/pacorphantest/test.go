@@ -386,3 +386,48 @@ func TestErrorALPMInit(t *testenv.T) {
 		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
 }
+
+func init() { testMain.Register("TestWarnMissingDeps", TestWarnMissingDeps) }
+func TestWarnMissingDeps(t *testenv.T) {
+	env := testenv.HelpEnv(t)
+
+	srcExp := testenv.NewPkgBuild("explicit", "1.1.1")
+	srcDep := testenv.NewPkgBuild("dependency", "1.2.1")
+	srcOpt := testenv.NewPkgBuild("optional", "1.3.1")
+	srcExp.Depends = append(srcExp.Depends, "dependency=2.2.1")
+	srcExp.OptDepends = append(srcExp.OptDepends, "optional=2.3.1")
+	srcExp.Depends = append(srcExp.Depends, "dependency-alt")
+	srcExp.OptDepends = append(srcExp.OptDepends, "optional-alt")
+	testenv.HelpMakeAndInstall(t, env, srcExp, true)
+	testenv.HelpMakeAndInstall(t, env, srcDep, false)
+	testenv.HelpMakeAndInstall(t, env, srcOpt, false)
+
+	cmd := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--sysroot", env.Root},
+	}
+
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	if err != nil {
+		t.Error(exiterr.Wrap(cmd, err))
+	}
+
+	const stdoutWant = "dependency 1.2.1-1\noptional 1.3.1-1\n"
+	if !bytes.Equal(stdout.Bytes(), []byte(stdoutWant)) {
+		t.Errorf("exec [%s]: stdout = %q, want %q", strings.Join(cmd.Args, " "), stdout.Bytes(), stdoutWant)
+	}
+
+	stderrWant := strings.Join([]string{
+		"warning: 'explicit' requires 'dependency-alt', which is not installed",
+		"warning: 'explicit' requires 'dependency=2.2.1', but version 1.2.1-1 is installed",
+		"warning: 'explicit' recommends 'optional=2.3.1', but version 1.3.1-1 is installed",
+	}, "\n") + "\n"
+	if !bytes.Equal(stderr.Bytes(), []byte(stderrWant)) {
+		t.Errorf("exec [%s]: stderr = %q, want %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrWant)
+	}
+}
