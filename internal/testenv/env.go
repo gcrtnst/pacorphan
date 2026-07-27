@@ -32,6 +32,7 @@ func NewEnvOption() *EnvOption {
 }
 
 type Env struct {
+	Opt     *EnvOption
 	Root    string
 	DBPath  string
 	MakePkg *MakePkg
@@ -78,6 +79,7 @@ func NewEnv(opt *EnvOption) (_ *Env, err error) {
 	}()
 
 	e := &Env{
+		Opt:     opt,
 		Root:    root,
 		DBPath:  filepath.Join(root, opt.DBPath),
 		MakePkg: makepkg,
@@ -115,7 +117,7 @@ func (e *Env) Install(pkg string, explicit bool) error {
 		Path: e.Unshare,
 		Args: []string{
 			e.Unshare, "--map-root-user", "--",
-			e.Pacman, "--upgrade", "--nodeps", "--nodeps", "--noconfirm", asopt, "--sysroot", e.Root, "--noprogress", "--", pkg,
+			e.Pacman, "--upgrade", "--config", e.Opt.PacmanConf, "--nodeps", "--nodeps", "--noconfirm", asopt, "--sysroot", e.Root, "--noprogress", "--", pkg,
 		},
 		Stdout: e.Stdout,
 		Stderr: e.Stderr,
