@@ -90,7 +90,7 @@ func run() int {
 		}
 	}
 
-	orphans, err := FindOrphans(root, dbpath, fStrict)
+	orphans, miss, err := FindOrphans(root, dbpath, fStrict)
 	if err != nil {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
 			switch errALPM.CFunc {
@@ -104,23 +104,22 @@ func run() int {
 				fmt.Fprintf(os.Stderr, "error: %s(): %s\n", errALPM.CFunc, errALPM.Errno.Message())
 				return 1
 			}
-		} else if errDeps, ok := errors.AsType[MissingDepsError](err); ok {
-			for _, mdep := range errDeps {
-				if mdep.InstalledVersion == "" {
-					fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', which is not installed\n", mdep.DependentPkgName, mdep.DepString)
-				} else if !mdep.Optional {
-					fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
-				} else {
-					fmt.Fprintf(os.Stderr, "warning: '%s' recommends '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
-				}
-			}
-			// continue
 		} else if errors.Is(err, alpm.ErrHandleCloseFailed) {
 			fmt.Fprintf(os.Stderr, "warning: failed to release alpm library\n")
 			// continue
 		} else {
 			fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
 			return 1
+		}
+	}
+
+	for _, mdep := range miss {
+		if mdep.InstalledVersion == "" {
+			fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', which is not installed\n", mdep.DependentPkgName, mdep.DepString)
+		} else if !mdep.Optional {
+			fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
+		} else {
+			fmt.Fprintf(os.Stderr, "warning: '%s' recommends '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
 		}
 	}
 
@@ -134,10 +133,10 @@ func run() int {
 	return 0
 }
 
-func FindOrphans(root string, dbpath string, strict bool) (orphans []Pkg, err error) {
+func FindOrphans(root string, dbpath string, strict bool) (_ []Pkg, _ []MissingDep, err error) {
 	h, errHandleNew := alpm.NewHandle(root, dbpath)
 	if errHandleNew != nil {
-		return nil, errHandleNew
+		return nil, nil, errHandleNew
 	}
 	defer func() {
 		errHandleClose := h.Close()
@@ -153,7 +152,7 @@ func FindOrphans(root string, dbpath string, strict bool) (orphans []Pkg, err er
 
 	pkgList, errPkgCache := db.PkgCache()
 	if errPkgCache != nil {
-		return nil, errPkgCache
+		return nil, nil, errPkgCache
 	}
 
 	mark := make(map[string]*alpm.Pkg)
@@ -202,7 +201,7 @@ func FindOrphans(root string, dbpath string, strict bool) (orphans []Pkg, err er
 		}
 	}
 
-	orphans = make([]Pkg, 0, len(mark))
+	orphans := make([]Pkg, 0, len(mark))
 	for _, pkg := range mark {
 		orphans = append(orphans, Pkg{
 			Name:    pkg.Name(),
@@ -219,39 +218,35 @@ func FindOrphans(root string, dbpath string, strict bool) (orphans []Pkg, err er
 		return alpm.CompareVersion(a.Version, b.Version)
 	})
 
-	errDep := (error)(nil)
-	if len(miss) > 0 {
-		slices.SortStableFunc(miss, func(a, b MissingDep) int {
-			if a.DependentPkgName < b.DependentPkgName {
-				return -1
-			}
-			if a.DependentPkgName > b.DependentPkgName {
-				return 1
-			}
-			if !a.Optional && b.Optional {
-				return -1
-			}
-			if a.Optional && !b.Optional {
-				return 1
-			}
-			if a.DepString < b.DepString {
-				return -1
-			}
-			if a.DepString > b.DepString {
-				return 1
-			}
-			if a.InstalledVersion < b.InstalledVersion {
-				return -1
-			}
-			if a.InstalledVersion > b.InstalledVersion {
-				return 1
-			}
-			return 0
-		})
-		errDep = MissingDepsError(miss)
-	}
+	slices.SortStableFunc(miss, func(a, b MissingDep) int {
+		if a.DependentPkgName < b.DependentPkgName {
+			return -1
+		}
+		if a.DependentPkgName > b.DependentPkgName {
+			return 1
+		}
+		if !a.Optional && b.Optional {
+			return -1
+		}
+		if a.Optional && !b.Optional {
+			return 1
+		}
+		if a.DepString < b.DepString {
+			return -1
+		}
+		if a.DepString > b.DepString {
+			return 1
+		}
+		if a.InstalledVersion < b.InstalledVersion {
+			return -1
+		}
+		if a.InstalledVersion > b.InstalledVersion {
+			return 1
+		}
+		return 0
+	})
 
-	return orphans, errDep
+	return orphans, miss, nil
 }
 
 type PacmanConf struct {
@@ -314,12 +309,6 @@ func IterDepend(pkg *alpm.Pkg, optional bool) iter.Seq[*Depend] {
 			}
 		}
 	}
-}
-
-type MissingDepsError []MissingDep
-
-func (e MissingDepsError) Error() string {
-	return "could not satisfy dependencies"
 }
 
 type MissingDep struct {
