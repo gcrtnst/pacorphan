@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -341,6 +342,48 @@ func TestErrorFlagParse(t *testenv.T) {
 	}
 
 	stderrRe := regexp.MustCompile(`^error: .+\n$`)
+	if !stderrRe.Match(stderr.Bytes()) {
+		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
+	}
+}
+
+func init() { testMain.Register("TestErrorPacmanConf", TestErrorPacmanConf) }
+func TestErrorPacmanConf(t *testenv.T) {
+	opt := testenv.NewEnvOption()
+	env := testenv.HelpEnvWithOption(t, opt)
+
+	errRemove := os.Remove(filepath.Join(env.Root, opt.PacmanConf))
+	if errRemove != nil {
+		t.Fatal(errRemove)
+	}
+
+	cmd := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--sysroot", env.Root},
+	}
+
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	const wantCode = 1
+	if e, ok := errors.AsType[*exec.ExitError](err); ok {
+		if e.ExitCode() != wantCode {
+			t.Errorf("exec [%s]: exit code = %d, want %d", strings.Join(cmd.Args, " "), e.ExitCode(), wantCode)
+		}
+	} else if err != nil {
+		t.Error(exiterr.Wrap(cmd, err))
+	} else {
+		t.Errorf("exec [%s]: exit code = 0, want %d", strings.Join(cmd.Args, " "), wantCode)
+	}
+
+	if stdout.Len() != 0 {
+		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
+	}
+
+	stderrRe := regexp.MustCompile(`^(.|\n)+\nerror: exec \[pacman-conf .+\]: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
 		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
