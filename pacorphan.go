@@ -62,7 +62,7 @@ func run() int {
 	}
 
 	sysroot := fSysRoot
-	if sysroot != "" {
+	if sysroot == "" {
 		sysroot = "/"
 	}
 
