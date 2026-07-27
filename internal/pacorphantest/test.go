@@ -211,6 +211,7 @@ func TestCustomPath(t *testenv.T) {
 	t.Skip("skipping due to pacman bug with --sysroot")
 
 	opt := testenv.NewEnvOption()
+	opt.PacmanConf = "/etc/pacman-alt.conf"
 	opt.DBPath = "/var/lib/pacman-alt"
 	opt.CacheDir = "/var/cache/pacman-alt/pkg"
 	env := testenv.HelpEnvWithOption(t, opt) // generates pacman.conf including DBPath
@@ -244,7 +245,7 @@ func TestCustomPath(t *testenv.T) {
 
 	cmd2 := &exec.Cmd{
 		Path: pacorphan,
-		Args: []string{"pacorphan", "--sysroot", env.Root, "--quiet"},
+		Args: []string{"pacorphan", "--sysroot", env.Root, "--config", opt.PacmanConf, "--quiet"},
 	}
 
 	stdout2 := new(bytes.Buffer)
