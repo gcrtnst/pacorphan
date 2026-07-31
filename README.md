@@ -17,7 +17,7 @@ In contrast, pacorphan walks the dependency graph from explicitly installed pack
 A dependency chain can look like this:
 
 ```mermaid
-flowchart TD
+flowchart LR
     A[package A]
     A --> B[package B]
     B --> C[package C]
@@ -77,7 +77,7 @@ pacorphan --help
 
 ### Removing orphans
 
-> [!CAUTION]
+> [!WARNING]
 > Review the list carefully before removing packages.
 
 > [!NOTE]
