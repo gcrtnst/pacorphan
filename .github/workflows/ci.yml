@@ -23,6 +23,7 @@ jobs:
         with:
           go-version: "stable"
           check-latest: true
+      - run: "go mod download"
       - parallel:
           - run: 'find . -mindepth 1 -name ".*" -prune -o -type f -name "*.go" -exec gofmt -d {} +'
           - run: "go fix -diff ./..."
