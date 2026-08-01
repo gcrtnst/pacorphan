@@ -12,7 +12,7 @@ In contrast, pacorphan walks the dependency graph from explicitly installed pack
 - find orphan packages that are part of circular dependency relationships
 - list all orphan packages at once
 
-### Dependency example
+### Example
 
 A dependency chain can look like this:
 
