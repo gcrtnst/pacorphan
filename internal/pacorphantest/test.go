@@ -295,6 +295,34 @@ func TestHelp(t *testenv.T) {
 	}
 }
 
+func init() { testMain.Register("TestVersion", TestVersion) }
+func TestVersion(t *testenv.T) {
+	cmd := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--version"},
+	}
+
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	if err != nil {
+		t.Error(exiterr.Wrap(cmd, err))
+	}
+
+	const semver = `(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?`
+	stdoutRe := regexp.MustCompile(`^pacorphan v(` + semver + `) - libalpm v(` + semver + `)\n$`)
+	if !stdoutRe.Match(stdout.Bytes()) {
+		t.Errorf("exec [%s]: stdout = %q, want regexp %q", strings.Join(cmd.Args, " "), stdout.Bytes(), stdoutRe.String())
+	}
+
+	if stderr.Len() != 0 {
+		t.Errorf(`exec [%s]: stderr = %q, want ""`, strings.Join(cmd.Args, " "), stderr.Bytes())
+	}
+}
+
 func init() { testMain.Register("TestErrorFlagParse", TestErrorFlagParse) }
 func TestErrorFlagParse(t *testenv.T) {
 	cmd := &exec.Cmd{
