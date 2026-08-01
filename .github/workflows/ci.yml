@@ -25,14 +25,14 @@ jobs:
           check-latest: true
       - run: "go mod download"
       - parallel:
-          - run: 'find . -mindepth 1 -name ".*" -prune -o -type f -name "*.go" -exec gofmt -d {} +'
-          - run: "go fix -diff ./..."
-          - run: "go vet ./..."
-          - run: "go test ./..."
+          - run: 'find . -mindepth 1 -name ".*" -prune -o -type f -name "*.go" -print -exec gofmt -d {} +'
+          - run: "go fix -v -diff ./..."
+          - run: "go vet -v ./..."
+          - run: "go test -v ./..."
           - run: |
-              go build -o "${RUNNER_TEMP}/alpmtest" ./internal/alpmtest
+              go build -v -o "${RUNNER_TEMP}/alpmtest" ./internal/alpmtest
               setpriv --reuid=1000 --regid=1000 --clear-groups --inh-caps=-all --ambient-caps=-all -- "${RUNNER_TEMP}/alpmtest"  # run as a regular user since makepkg rejects root
           - run: |
-              go build -o "${RUNNER_TEMP}/pacorphan" .
-              go build -o "${RUNNER_TEMP}/pacorphantest" ./internal/pacorphantest
+              go build -v -o "${RUNNER_TEMP}/pacorphan" .
+              go build -v -o "${RUNNER_TEMP}/pacorphantest" ./internal/pacorphantest
               setpriv --reuid=1000 --regid=1000 --clear-groups --inh-caps=-all --ambient-caps=-all -- "${RUNNER_TEMP}/pacorphantest" --cmd "${RUNNER_TEMP}/pacorphan"  # run as a regular user since makepkg rejects root
