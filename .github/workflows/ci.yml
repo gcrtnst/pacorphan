@@ -29,8 +29,10 @@ jobs:
           - run: "go test ./..."
           - run: |
               go build -o "${RUNNER_TEMP}/alpmtest" ./internal/alpmtest
+              cat /proc/sys/user/max_user_namespaces
               setpriv --reuid=1000 --regid=1000 --clear-groups --inh-caps=-all -- "${RUNNER_TEMP}/alpmtest"  # run as a regular user since makepkg rejects root
           - run: |
               go build -o "${RUNNER_TEMP}/pacorphan" .
               go build -o "${RUNNER_TEMP}/pacorphantest" ./internal/pacorphantest
+              cat /proc/sys/user/max_user_namespaces
               setpriv --reuid=1000 --regid=1000 --clear-groups --inh-caps=-all -- "${RUNNER_TEMP}/pacorphantest" --cmd "${RUNNER_TEMP}/pacorphan"  # run as a regular user since makepkg rejects root
