@@ -9,7 +9,7 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"
     allow:
-      dependency-type: "all"
+      - dependency-type: "all"
     cooldown:
       default-days: 7
     schedule:
