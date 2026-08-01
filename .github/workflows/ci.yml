@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: "read"
+
+jobs:
+  ci:
+    name: CI
+    runs-on: "ubuntu-slim"
+    container:
+      image: "archlinux:base-devel"
+
+    steps:
+      - run: "pacman-key --init"
+      - run: "pacman -Syu"
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+      - uses: "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e"
+        with:
+          check-latest: true
+      - parallel:
+          - run: 'find . -mindepth 1 -name ".*" -prune -o -type f -name "*.go" -exec gofmt -d {} +'
+          - run: "go fix -diff ./..."
+          - run: "go vet ./..."
+          - run: "go test ./..."
+          - run: |
+            go build -o "${RUNNER_TEMP}/alpmtest" ./internal/alpmtest
+            "${RUNNER_TEMP}/alpmtest"
+          - run: |
+            go build -o "${RUNNER_TEMP}/pacorphan" .
+            go build -o "${RUNNER_TEMP}/pacorphantest" ./internal/pacorphantest
+            "${RUNNER_TEMP}/pacorphantest" --cmd "${RUNNER_TEMP}/pacorphan"
