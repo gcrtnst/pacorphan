@@ -10,7 +10,7 @@ permissions:
 jobs:
   ci:
     name: CI
-    runs-on: "ubuntu-slim"
+    runs-on: "ubuntu-latest"
     container:
       image: "archlinux:base-devel"
 
