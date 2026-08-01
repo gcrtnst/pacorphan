@@ -103,4 +103,4 @@ pacorphan -qt | sudo pacman -Rn -
 
 ## License
 
-This project is released into the public domain under the [Unlicense](LICENSE).
+This project is licensed under the terms of the [LICENSE](LICENSE) file.
