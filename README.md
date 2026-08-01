@@ -23,7 +23,7 @@ flowchart LR
     B --> C[package C]
 ```
 
-If none of these packages are required by any explicitly installed package, pacorphan can report the whole chain as orphaned. `pacman -Qdt` typically only surfaces the terminal part of the picture.
+If none of the packages are explicitly installed, `pacman -Qdt` will report only `A`, but `pacorphan` will report all of `A`, `B`, and `C`.
 
 Circular dependencies are another case where pacorphan is more useful:
 
@@ -35,7 +35,7 @@ flowchart LR
     Y --> X
 ```
 
-If neither package is reachable from any explicitly installed package, pacorphan can detect the cycle as orphaned. `pacman -Qdt` does not handle this scenario well.
+If neither package is explicitly installed, pacorphan can detect the cycle as orphaned. `pacman -Qdt` does not handle this scenario well.
 
 ## Installation
 
