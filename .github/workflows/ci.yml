@@ -29,8 +29,8 @@ jobs:
           - run: "go test ./..."
           - run: |
               go build -o "${RUNNER_TEMP}/alpmtest" ./internal/alpmtest
-              "${RUNNER_TEMP}/alpmtest"
+              runuser -u 1000 -- "${RUNNER_TEMP}/alpmtest"  # run as a regular user since makepkg rejects root
           - run: |
               go build -o "${RUNNER_TEMP}/pacorphan" .
               go build -o "${RUNNER_TEMP}/pacorphantest" ./internal/pacorphantest
-              "${RUNNER_TEMP}/pacorphantest" --cmd "${RUNNER_TEMP}/pacorphan"
+              runuser -u 1000 -- "${RUNNER_TEMP}/pacorphantest" --cmd "${RUNNER_TEMP}/pacorphan"  # run as a regular user since makepkg rejects root
