@@ -58,7 +58,7 @@ func run() int {
 	}
 
 	if fVersion {
-		fmt.Printf("%s %s - libalpm %s\n", fs.Name(), Version(), alpm.Version())
+		fmt.Printf("%s %s - libalpm v%s\n", fs.Name(), Version(), alpm.Version())
 		return 0
 	}
 
