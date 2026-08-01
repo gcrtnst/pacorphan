@@ -313,7 +313,7 @@ func TestVersion(t *testenv.T) {
 	}
 
 	const semver = `(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?`
-	stdoutRe := regexp.MustCompile(`^pacorphan v(` + semver + `) - libalpm v(` + semver + `)\n$`)
+	stdoutRe := regexp.MustCompile(`^pacorphan v((` + semver + `)|\(devel\)) - libalpm v(` + semver + `)\n$`)
 	if !stdoutRe.Match(stdout.Bytes()) {
 		t.Errorf("exec [%s]: stdout = %q, want regexp %q", strings.Join(cmd.Args, " "), stdout.Bytes(), stdoutRe.String())
 	}
