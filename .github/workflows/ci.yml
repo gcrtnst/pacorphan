@@ -27,9 +27,9 @@ jobs:
           - run: "go vet ./..."
           - run: "go test ./..."
           - run: |
-            go build -o "${RUNNER_TEMP}/alpmtest" ./internal/alpmtest
-            "${RUNNER_TEMP}/alpmtest"
+              go build -o "${RUNNER_TEMP}/alpmtest" ./internal/alpmtest
+              "${RUNNER_TEMP}/alpmtest"
           - run: |
-            go build -o "${RUNNER_TEMP}/pacorphan" .
-            go build -o "${RUNNER_TEMP}/pacorphantest" ./internal/pacorphantest
-            "${RUNNER_TEMP}/pacorphantest" --cmd "${RUNNER_TEMP}/pacorphan"
+              go build -o "${RUNNER_TEMP}/pacorphan" .
+              go build -o "${RUNNER_TEMP}/pacorphantest" ./internal/pacorphantest
+              "${RUNNER_TEMP}/pacorphantest" --cmd "${RUNNER_TEMP}/pacorphan"
