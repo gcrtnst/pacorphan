@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    cooldown:
+      default-days: 7
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/"
+    allow:
+      dependency-type: "all"
+    cooldown:
+      default-days: 7
+    schedule:
+      interval: "weekly"
