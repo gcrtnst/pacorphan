@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime/debug"
 	"slices"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
@@ -33,6 +34,7 @@ func run() int {
 	fRoot := ""
 	fConfig := ""
 	fSysRoot := ""
+	fVersion := false
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
 	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
 	fs.BoolVarP(&fStrict, "strict", "t", fStrict, "ignore optdepends")
@@ -41,6 +43,7 @@ func run() int {
 	fs.StringVarP(&fConfig, "config", "C", fConfig, "set an alternate configuration file")
 	fs.StringVarP(&fSysRoot, "sysroot", "S", fSysRoot, "set an alternate system root")
 	fs.BoolVarP(&fHelp, "help", "h", fHelp, "show this help message and exit")
+	fs.BoolVar(&fVersion, "version", fVersion, "show version information and exit")
 
 	errParse := fs.Parse(os.Args[1:])
 	if errParse != nil {
@@ -51,6 +54,11 @@ func run() int {
 	if fHelp {
 		fmt.Printf("Usage of %s:\n", fs.Name())
 		fmt.Print(fs.FlagUsages())
+		return 0
+	}
+
+	if fVersion {
+		fmt.Printf("%s %s - libalpm %s\n", fs.Name(), Version(), alpm.Version())
 		return 0
 	}
 
@@ -131,6 +139,20 @@ func run() int {
 		}
 	}
 	return 0
+}
+
+func Version() string {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return "(devel)"
+	}
+
+	main := &info.Main
+	for main.Replace != nil {
+		main = main.Replace
+	}
+
+	return main.Version
 }
 
 func FindOrphans(root string, dbpath string, strict bool) (_ []Pkg, _ []MissingDep, err error) {
