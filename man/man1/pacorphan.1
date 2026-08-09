@@ -1,0 +1,74 @@
+.TH PACORPHAN 8 "2026-08-10" "pacorphan 0.1"
+.SH NAME
+pacorphan \- find orphaned packages in a pacman system
+.SH SYNOPSIS
+.SY pacorphan
+.RI [ options ]
+.YS
+.SH DESCRIPTION
+pacorphan walks the dependency graph starting from explicitly installed packages
+and reports packages installed as dependencies that are no longer required
+by any explicitly installed package.
+It detects orphaned packages missed by \[lq]pacman \-Qdt\[rq],
+including those hidden within dependency chains and circular dependencies.
+.PP
+By default, optional dependencies are treated as required.
+Use the
+.B \-t
+option to ignore them.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show a help message and exit.
+.TP
+.BR \-q ", " \-\-quiet
+Print only package names without versions, suitable for piping.
+.TP
+.BR \-t ", " \-\-strict
+Ignore optional dependencies,
+reporting packages required solely as optional dependencies as orphans.
+.TP
+\fB\-b\fP, \fB\-\-dbpath\fP \fIpath\fP
+Set an alternate database location.
+Defaults to the
+.I DBPath
+directive resolved from the pacman configuration.
+.TP
+\fB\-R\fP, \fB\-\-root\fP \fIpath\fP
+Set an alternate installation root.
+Defaults to the
+.I RootDir
+directive resolved from the pacman configuration.
+.TP
+\fB\-C\fP, \fB\-\-config\fP \fIpath\fP
+Set an alternate pacman configuration file.
+.TP
+\fB\-S\fP, \fB\-\-sysroot\fP \fIpath\fP
+Set an alternate system root.
+.TP
+.B \-\-version
+Show version information and exit.
+.SH "EXIT STATUS"
+.TP
+.B 0
+Completed successfully.
+.TP
+.B 1
+An error occurred.
+.TP
+.B 2
+Incorrect command usage.
+.SH EXAMPLES
+Remove all orphaned packages and their configuration files using pacman:
+.RS
+.EX
+.RB "$ " "pacorphan \-q | sudo pacman \-Rn \-"
+.EE
+.RE
+.SH "SEE ALSO"
+.MR pacman 8 ,
+.MR pacman.conf 5
+.SH AUTHORS
+.MT "52910071+gcrtnst@users.noreply.github.com"
+gcrtnst
+.ME
