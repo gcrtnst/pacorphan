@@ -1,4 +1,4 @@
-.TH PACORPHAN 8 "2026-08-10" "pacorphan 0.1"
+.TH PACORPHAN 8 "2026-08-14" "pacorphan (devel)"
 .SH NAME
 pacorphan \- find orphaned packages in a pacman system
 .SH SYNOPSIS
@@ -14,7 +14,7 @@ including those hidden within dependency chains and circular dependencies.
 .PP
 By default, optional dependencies are treated as required.
 Use the
-.B \-t
+.B \-O
 option to ignore them.
 .SH OPTIONS
 .TP
@@ -24,7 +24,12 @@ Show a help message and exit.
 .BR \-q ", " \-\-quiet
 Print only package names without versions, suitable for piping.
 .TP
-.BR \-t ", " \-\-strict
+.BR \-o ", " \-\-respect-optdepends
+Treat optional dependencies as required,
+preventing packages required solely as optional dependencies from being orphaned.
+This is the default.
+.TP
+.BR \-O ", " \-\-ignore-optdepends
 Ignore optional dependencies,
 reporting packages required solely as optional dependencies as orphans.
 .TP

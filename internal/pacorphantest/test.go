@@ -142,7 +142,7 @@ func TestNormal(t *testenv.T) {
 
 	cmd2 := &exec.Cmd{
 		Path: pacorphan,
-		Args: []string{"pacorphan", "--sysroot", env.Root, "--strict"},
+		Args: []string{"pacorphan", "--sysroot", env.Root, "--ignore-optdepends"},
 	}
 
 	stdout2 := new(bytes.Buffer)
@@ -197,6 +197,64 @@ func TestNormal(t *testenv.T) {
 
 	if stderr3.Len() != 0 {
 		t.Errorf(`exec [%s]: stderr = %q, want ""`, strings.Join(cmd3.Args, " "), stderr3.Bytes())
+	}
+}
+
+func init() { testMain.Register("TestFlagPrecedence", TestFlagPrecedence) }
+func TestFlagPrecedence(t *testenv.T) {
+	env := testenv.HelpEnv(t)
+
+	srcExp := testenv.NewPkgBuild("explicit", "1.1.1")
+	srcOpt := testenv.NewPkgBuild("optional", "1.3.1")
+	srcExp.OptDepends = append(srcExp.OptDepends, "optional")
+	testenv.HelpMakeAndInstall(t, env, srcExp, true)
+	testenv.HelpMakeAndInstall(t, env, srcOpt, false)
+
+	cmd1 := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--sysroot", env.Root, "--quiet", "--respect-optdepends", "--ignore-optdepends"},
+	}
+
+	stdout1 := new(bytes.Buffer)
+	stderr1 := new(bytes.Buffer)
+	cmd1.Stdout = stdout1
+	cmd1.Stderr = stderr1
+
+	err1 := cmd1.Run()
+	if err1 != nil {
+		t.Error(exiterr.Wrap(cmd1, err1))
+	}
+
+	stdout1Want := "optional\n"
+	if !bytes.Equal(stdout1.Bytes(), []byte(stdout1Want)) {
+		t.Errorf("exec [%s]: stdout = %q, want %q", strings.Join(cmd1.Args, " "), stdout1.Bytes(), stdout1Want)
+	}
+
+	if stderr1.Len() != 0 {
+		t.Errorf(`exec [%s]: stderr = %q, want ""`, strings.Join(cmd1.Args, " "), stderr1.Bytes())
+	}
+
+	cmd2 := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--sysroot", env.Root, "--quiet", "--ignore-optdepends", "--respect-optdepends"},
+	}
+
+	stdout2 := new(bytes.Buffer)
+	stderr2 := new(bytes.Buffer)
+	cmd2.Stdout = stdout2
+	cmd2.Stderr = stderr2
+
+	err2 := cmd2.Run()
+	if err2 != nil {
+		t.Error(exiterr.Wrap(cmd2, err2))
+	}
+
+	if stdout2.Len() != 0 {
+		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd2.Args, " "), stdout2.Bytes())
+	}
+
+	if stderr2.Len() != 0 {
+		t.Errorf(`exec [%s]: stderr = %q, want ""`, strings.Join(cmd2.Args, " "), stderr2.Bytes())
 	}
 }
 
@@ -328,6 +386,74 @@ func TestErrorFlagParse(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--invalid-option"},
+	}
+
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	const wantCode = 2
+	if e, ok := errors.AsType[*exec.ExitError](err); ok {
+		if e.ExitCode() != wantCode {
+			t.Errorf("exec [%s]: exit code = %d, want %d", strings.Join(cmd.Args, " "), e.ExitCode(), wantCode)
+		}
+	} else if err != nil {
+		t.Error(exiterr.Wrap(cmd, err))
+	} else {
+		t.Errorf("exec [%s]: exit code = 0, want %d", strings.Join(cmd.Args, " "), wantCode)
+	}
+
+	if stdout.Len() != 0 {
+		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
+	}
+
+	stderrRe := regexp.MustCompile(`^error: .+\n$`)
+	if !stderrRe.Match(stderr.Bytes()) {
+		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
+	}
+}
+
+func init() { testMain.Register("TestErrorFlagParseRespect", TestErrorFlagParseRespect) }
+func TestErrorFlagParseRespect(t *testenv.T) {
+	cmd := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--respect-optdepends=invalid"},
+	}
+
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	const wantCode = 2
+	if e, ok := errors.AsType[*exec.ExitError](err); ok {
+		if e.ExitCode() != wantCode {
+			t.Errorf("exec [%s]: exit code = %d, want %d", strings.Join(cmd.Args, " "), e.ExitCode(), wantCode)
+		}
+	} else if err != nil {
+		t.Error(exiterr.Wrap(cmd, err))
+	} else {
+		t.Errorf("exec [%s]: exit code = 0, want %d", strings.Join(cmd.Args, " "), wantCode)
+	}
+
+	if stdout.Len() != 0 {
+		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
+	}
+
+	stderrRe := regexp.MustCompile(`^error: .+\n$`)
+	if !stderrRe.Match(stderr.Bytes()) {
+		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
+	}
+}
+
+func init() { testMain.Register("TestErrorFlagParseIgnore", TestErrorFlagParseIgnore) }
+func TestErrorFlagParseIgnore(t *testenv.T) {
+	cmd := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"pacorphan", "--ignore-optdepends=invalid"},
 	}
 
 	stdout := new(bytes.Buffer)

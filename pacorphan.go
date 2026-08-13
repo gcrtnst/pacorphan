@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"slices"
+	"strconv"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
 	"github.com/gcrtnst/pacorphan/internal/exiterr"
@@ -29,15 +30,17 @@ type Pkg struct {
 func run() int {
 	fQuiet := false
 	fHelp := false
-	fStrict := false
+	fOptDepends := true
 	fDBPath := ""
 	fRoot := ""
 	fConfig := ""
 	fSysRoot := ""
 	fVersion := false
 	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
+	fs.SortFlags = false
 	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
-	fs.BoolVarP(&fStrict, "strict", "t", fStrict, "ignore optdepends")
+	fsRespectVarP(fs, &fOptDepends, "respect-optdepends", "o", "treat optdepends as required (default)")
+	fsIgnoreVarP(fs, &fOptDepends, "ignore-optdepends", "O", "ignore optdepends")
 	fs.StringVarP(&fDBPath, "dbpath", "b", fDBPath, "set an alternate database location")
 	fs.StringVarP(&fRoot, "root", "R", fRoot, "set an alternate installation root")
 	fs.StringVarP(&fConfig, "config", "C", fConfig, "set an alternate configuration file")
@@ -98,9 +101,9 @@ func run() int {
 		}
 	}
 
-	mask := Depends | OptDepends
-	if fStrict {
-		mask = Depends
+	mask := Depends
+	if fOptDepends {
+		mask |= OptDepends
 	}
 
 	orphans, miss, err := FindOrphans(root, dbpath, mask)
@@ -144,6 +147,30 @@ func run() int {
 		}
 	}
 	return 0
+}
+
+func fsRespectVarP(fs *pflag.FlagSet, p *bool, name string, shorthand string, usage string) {
+	fs.BoolFuncP(name, shorthand, usage, func(s string) error {
+		v, err := strconv.ParseBool(s)
+		if err != nil {
+			return err
+		}
+
+		*p = v
+		return nil
+	})
+}
+
+func fsIgnoreVarP(fs *pflag.FlagSet, p *bool, name string, shorthand string, usage string) {
+	fs.BoolFuncP(name, shorthand, usage, func(s string) error {
+		v, err := strconv.ParseBool(s)
+		if err != nil {
+			return err
+		}
+
+		*p = !v
+		return nil
+	})
 }
 
 func Version() string {
