@@ -98,7 +98,12 @@ func run() int {
 		}
 	}
 
-	orphans, miss, err := FindOrphans(root, dbpath, fStrict)
+	mask := Depends | OptDepends
+	if fStrict {
+		mask = Depends
+	}
+
+	orphans, miss, err := FindOrphans(root, dbpath, mask)
 	if err != nil {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
 			switch errALPM.CFunc {
@@ -124,7 +129,7 @@ func run() int {
 	for _, mdep := range miss {
 		if mdep.InstalledVersion == "" {
 			fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', which is not installed\n", mdep.DependentPkgName, mdep.DepString)
-		} else if !mdep.Optional {
+		} else if mdep.DepType&Depends != 0 {
 			fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
 		} else {
 			fmt.Fprintf(os.Stderr, "warning: '%s' recommends '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
@@ -155,7 +160,7 @@ func Version() string {
 	return main.Version
 }
 
-func FindOrphans(root string, dbpath string, strict bool) (_ []Pkg, _ []MissingDep, err error) {
+func FindOrphans(root string, dbpath string, mask DependType) (_ []Pkg, _ []MissingDep, err error) {
 	h, errHandleNew := alpm.NewHandle(root, dbpath)
 	if errHandleNew != nil {
 		return nil, nil, errHandleNew
@@ -195,7 +200,7 @@ func FindOrphans(root string, dbpath string, strict bool) (_ []Pkg, _ []MissingD
 		var pkg *alpm.Pkg
 		pkg, stack = pop(stack)
 
-		for meta := range IterDepend(pkg, !strict) {
+		for meta := range IterDepend(pkg, mask) {
 			dep := meta.Depend
 			depPkg := h.FindDBsSatisfier(dbList, dep.String())
 			if depPkg != nil {
@@ -208,7 +213,7 @@ func FindOrphans(root string, dbpath string, strict bool) (_ []Pkg, _ []MissingD
 				mdep := MissingDep{
 					DependentPkgName: pkg.Name(),
 					DepString:        dep.String(),
-					Optional:         meta.Optional,
+					DepType:          meta.Type,
 				}
 
 				depPkg = h.FindDBsSatisfier(dbList, dep.Name())
@@ -216,7 +221,7 @@ func FindOrphans(root string, dbpath string, strict bool) (_ []Pkg, _ []MissingD
 					mdep.InstalledVersion = depPkg.Version()
 				}
 
-				if !mdep.Optional || mdep.InstalledVersion != "" {
+				if mdep.DepType&Depends != 0 || mdep.InstalledVersion != "" {
 					miss = append(miss, mdep)
 				}
 			}
@@ -247,10 +252,10 @@ func FindOrphans(root string, dbpath string, strict bool) (_ []Pkg, _ []MissingD
 		if a.DependentPkgName > b.DependentPkgName {
 			return 1
 		}
-		if !a.Optional && b.Optional {
+		if a.DepType < b.DepType {
 			return -1
 		}
-		if a.Optional && !b.Optional {
+		if a.DepType > b.DepType {
 			return 1
 		}
 		if a.DepString < b.DepString {
@@ -310,21 +315,23 @@ func (c *PacmanConf) Get(directive string) (string, error) {
 }
 
 type Depend struct {
-	Depend   *alpm.Depend
-	Optional bool
+	Type   DependType
+	Depend *alpm.Depend
 }
 
-func IterDepend(pkg *alpm.Pkg, optional bool) iter.Seq[*Depend] {
+func IterDepend(pkg *alpm.Pkg, mask DependType) iter.Seq[*Depend] {
 	return func(yield func(*Depend) bool) {
-		for dep := range pkg.Depends().All() {
-			e := &Depend{Depend: dep, Optional: false}
-			if !yield(e) {
-				return
+		if mask&Depends != 0 {
+			for dep := range pkg.Depends().All() {
+				e := &Depend{Type: Depends, Depend: dep}
+				if !yield(e) {
+					return
+				}
 			}
 		}
-		if optional {
+		if mask&OptDepends != 0 {
 			for dep := range pkg.OptDepends().All() {
-				e := &Depend{Depend: dep, Optional: true}
+				e := &Depend{Type: OptDepends, Depend: dep}
 				if !yield(e) {
 					return
 				}
@@ -336,9 +343,16 @@ func IterDepend(pkg *alpm.Pkg, optional bool) iter.Seq[*Depend] {
 type MissingDep struct {
 	DependentPkgName string
 	DepString        string
-	Optional         bool
+	DepType          DependType
 	InstalledVersion string
 }
+
+type DependType int
+
+const (
+	Depends DependType = 1 << iota
+	OptDepends
+)
 
 func pop[S ~[]E, E any](s S) (E, S) {
 	var zero E
