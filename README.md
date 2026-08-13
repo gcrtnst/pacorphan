@@ -63,10 +63,10 @@ Show package names only:
 pacorphan -q
 ```
 
-By default, pacorphan includes optional dependencies in the analysis. Use `-t` to ignore them:
+By default, pacorphan includes optional dependencies in the analysis. Use `-O` to ignore them:
 
 ```sh
-pacorphan -t
+pacorphan -O
 ```
 
 A complete list of command-line flags is available with:
@@ -98,7 +98,7 @@ pacorphan -q | sudo pacman -Rn -
 To ignore optional dependencies and remove configuration files without backups:
 
 ```sh
-pacorphan -qt | sudo pacman -Rn -
+pacorphan -qO | sudo pacman -Rn -
 ```
 
 ## License
