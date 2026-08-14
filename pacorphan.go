@@ -60,6 +60,11 @@ func run() int {
 		return 0
 	}
 
+	if args := fs.Args(); len(args) > 0 {
+		fmt.Fprintf(os.Stderr, "error: unexpected arguments %v\n", args)
+		return 2
+	}
+
 	if fVersion {
 		fmt.Printf("%s %s - libalpm v%s\n", fs.Name(), Version(), alpm.Version())
 		return 0
