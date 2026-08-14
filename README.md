@@ -39,6 +39,24 @@ If neither package is explicitly installed, pacorphan can detect the cycle as or
 
 ## Installation
 
+### From the AUR
+
+Install it using your preferred AUR helper (e.g., `yay`):
+
+```sh
+yay -S pacorphan
+```
+
+Or build and install it manually using `makepkg`:
+
+```sh
+git clone https://aur.archlinux.org/pacorphan.git
+cd pacorphan
+makepkg -si
+```
+
+### From Source
+
 Install it with Go:
 
 ```sh
