@@ -27,6 +27,20 @@ type Pkg struct {
 	Version string
 }
 
+type MissingDep struct {
+	DependentPkgName string
+	DepString        string
+	DepType          DependType
+	InstalledVersion string
+}
+
+type DependType int
+
+const (
+	Depends DependType = 1 << iota
+	OptDepends
+)
+
 func run() int {
 	fQuiet := false
 	fHelp := false
@@ -192,6 +206,11 @@ func Version() string {
 	return main.Version
 }
 
+type Depend struct {
+	Type   DependType
+	Depend *alpm.Depend
+}
+
 func FindOrphans(root string, dbpath string, mask DependType) (_ []Pkg, _ []MissingDep, err error) {
 	h, errHandleNew := alpm.NewHandle(root, dbpath)
 	if errHandleNew != nil {
@@ -346,11 +365,6 @@ func (c *PacmanConf) Get(directive string) (string, error) {
 	return string(out), nil
 }
 
-type Depend struct {
-	Type   DependType
-	Depend *alpm.Depend
-}
-
 func IterDepend(pkg *alpm.Pkg, mask DependType) iter.Seq[*Depend] {
 	return func(yield func(*Depend) bool) {
 		if mask&Depends != 0 {
@@ -371,20 +385,6 @@ func IterDepend(pkg *alpm.Pkg, mask DependType) iter.Seq[*Depend] {
 		}
 	}
 }
-
-type MissingDep struct {
-	DependentPkgName string
-	DepString        string
-	DepType          DependType
-	InstalledVersion string
-}
-
-type DependType int
-
-const (
-	Depends DependType = 1 << iota
-	OptDepends
-)
 
 func pop[S ~[]E, E any](s S) (E, S) {
 	var zero E
