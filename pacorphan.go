@@ -42,6 +42,11 @@ const (
 )
 
 func run() int {
+	name := "pacorphan"
+	if len(os.Args) > 0 {
+		name = os.Args[0]
+	}
+
 	fQuiet := false
 	fHelp := false
 	fOptDepends := true
@@ -50,7 +55,7 @@ func run() int {
 	fConfig := ""
 	fSysRoot := ""
 	fVersion := false
-	fs := pflag.NewFlagSet("pacorphan", pflag.ContinueOnError)
+	fs := pflag.NewFlagSet(name, pflag.ContinueOnError)
 	fs.SortFlags = false
 	fs.BoolVarP(&fQuiet, "quiet", "q", fQuiet, "show less information")
 	fsRespectVarP(fs, &fOptDepends, "respect-optdepends", "o", "treat optdepends as required (default)")
@@ -64,23 +69,23 @@ func run() int {
 
 	errParse := fs.Parse(os.Args[1:])
 	if errParse != nil {
-		fmt.Fprintf(os.Stderr, "error: %s\n", errParse)
+		fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, errParse)
 		return 2
 	}
 
 	if fHelp {
-		fmt.Printf("Usage of %s:\n", fs.Name())
+		fmt.Printf("Usage of %s:\n", name)
 		fmt.Print(fs.FlagUsages())
 		return 0
 	}
 
 	if args := fs.Args(); len(args) > 0 {
-		fmt.Fprintf(os.Stderr, "error: unexpected arguments %v\n", args)
+		fmt.Fprintf(os.Stderr, "%s: error: unexpected arguments %v\n", name, args)
 		return 2
 	}
 
 	if fVersion {
-		fmt.Printf("%s %s - libalpm v%s\n", fs.Name(), Version(), alpm.Version())
+		fmt.Printf("%s %s - libalpm v%s\n", name, Version(), alpm.Version())
 		return 0
 	}
 
@@ -103,7 +108,7 @@ func run() int {
 		var err error
 		root, err = conf.Get("RootDir")
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %s\n", err)
+			fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, err)
 			return 1
 		}
 	}
@@ -115,7 +120,7 @@ func run() int {
 		var err error
 		dbpath, err = conf.Get("DBPath")
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %s\n", err)
+			fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, err)
 			return 1
 		}
 	}
@@ -130,31 +135,31 @@ func run() int {
 		if errALPM, ok := errors.AsType[*alpm.Error](err); ok {
 			switch errALPM.CFunc {
 			case "alpm_initialize":
-				fmt.Fprintf(os.Stderr, "error: failed to initialize alpm library: %s\n", errALPM.Errno.Message())
+				fmt.Fprintf(os.Stderr, "%s: error: failed to initialize alpm library: %s\n", name, errALPM.Errno.Message())
 				return 1
 			case "alpm_db_get_pkgcache":
-				fmt.Fprintf(os.Stderr, "error: failed to load pkgcache: %s\n", errALPM.Errno.Message())
+				fmt.Fprintf(os.Stderr, "%s: error: failed to load pkgcache: %s\n", name, errALPM.Errno.Message())
 				return 1
 			default:
-				fmt.Fprintf(os.Stderr, "error: %s(): %s\n", errALPM.CFunc, errALPM.Errno.Message())
+				fmt.Fprintf(os.Stderr, "%s: error: %s(): %s\n", name, errALPM.CFunc, errALPM.Errno.Message())
 				return 1
 			}
 		} else if errors.Is(err, alpm.ErrHandleCloseFailed) {
-			fmt.Fprintf(os.Stderr, "warning: failed to release alpm library\n")
+			fmt.Fprintf(os.Stderr, "%s: warning: failed to release alpm library\n", name)
 			// continue
 		} else {
-			fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
+			fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, err.Error())
 			return 1
 		}
 	}
 
 	for _, mdep := range miss {
 		if mdep.InstalledVersion == "" {
-			fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', which is not installed\n", mdep.DependentPkgName, mdep.DepString)
+			fmt.Fprintf(os.Stderr, "%s: warning: '%s' requires '%s', which is not installed\n", name, mdep.DependentPkgName, mdep.DepString)
 		} else if mdep.DepType&Depends != 0 {
-			fmt.Fprintf(os.Stderr, "warning: '%s' requires '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
+			fmt.Fprintf(os.Stderr, "%s: warning: '%s' requires '%s', but version %s is installed\n", name, mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
 		} else {
-			fmt.Fprintf(os.Stderr, "warning: '%s' recommends '%s', but version %s is installed\n", mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
+			fmt.Fprintf(os.Stderr, "%s: warning: '%s' recommends '%s', but version %s is installed\n", name, mdep.DependentPkgName, mdep.DepString, mdep.InstalledVersion)
 		}
 	}
 

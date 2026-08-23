@@ -409,7 +409,41 @@ func TestErrorUnexpectedArgs(t *testenv.T) {
 		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
 	}
 
-	stderrWant := "error: unexpected arguments [invalid]\n"
+	stderrWant := "pacorphan: error: unexpected arguments [invalid]\n"
+	if !bytes.Equal(stderr.Bytes(), []byte(stderrWant)) {
+		t.Errorf("exec [%s]: stderr = %q, want %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrWant)
+	}
+}
+
+func init() { testMain.Register("TestErrorUnexpectedArgsAltName", TestErrorUnexpectedArgsAltName) }
+func TestErrorUnexpectedArgsAltName(t *testenv.T) {
+	cmd := &exec.Cmd{
+		Path: pacorphan,
+		Args: []string{"altname", "invalid"},
+	}
+
+	stdout := new(bytes.Buffer)
+	stderr := new(bytes.Buffer)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Run()
+	const wantCode = 2
+	if e, ok := errors.AsType[*exec.ExitError](err); ok {
+		if e.ExitCode() != wantCode {
+			t.Errorf("exec [%s]: exit code = %d, want %d", strings.Join(cmd.Args, " "), e.ExitCode(), wantCode)
+		}
+	} else if err != nil {
+		t.Error(exiterr.Wrap(cmd, err))
+	} else {
+		t.Errorf("exec [%s]: exit code = 0, want %d", strings.Join(cmd.Args, " "), wantCode)
+	}
+
+	if stdout.Len() != 0 {
+		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
+	}
+
+	stderrWant := "altname: error: unexpected arguments [invalid]\n"
 	if !bytes.Equal(stderr.Bytes(), []byte(stderrWant)) {
 		t.Errorf("exec [%s]: stderr = %q, want %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrWant)
 	}
@@ -443,7 +477,7 @@ func TestErrorFlagParse(t *testenv.T) {
 		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
 	}
 
-	stderrRe := regexp.MustCompile(`^error: .+\n$`)
+	stderrRe := regexp.MustCompile(`^pacorphan: error: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
 		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
@@ -477,7 +511,7 @@ func TestErrorFlagParseRespect(t *testenv.T) {
 		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
 	}
 
-	stderrRe := regexp.MustCompile(`^error: .+\n$`)
+	stderrRe := regexp.MustCompile(`^pacorphan: error: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
 		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
@@ -511,7 +545,7 @@ func TestErrorFlagParseIgnore(t *testenv.T) {
 		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
 	}
 
-	stderrRe := regexp.MustCompile(`^error: .+\n$`)
+	stderrRe := regexp.MustCompile(`^pacorphan: error: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
 		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
@@ -553,7 +587,7 @@ func TestErrorPacmanConfRoot(t *testenv.T) {
 		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
 	}
 
-	stderrRe := regexp.MustCompile(`^(.|\n)+\nerror: exec \[pacman-conf .+\]: .+\n$`)
+	stderrRe := regexp.MustCompile(`^(.|\n)+\npacorphan: error: exec \[pacman-conf .+\]: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
 		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
@@ -609,7 +643,7 @@ func TestErrorPacmanConfDBPath(t *testenv.T) {
 		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
 	}
 
-	stderrRe := regexp.MustCompile(`^(.|\n)+\nerror: exec \[pacman-conf .+\]: .+\n$`)
+	stderrRe := regexp.MustCompile(`^(.|\n)+\npacorphan: error: exec \[pacman-conf .+\]: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
 		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
@@ -650,7 +684,7 @@ func TestErrorALPMInit(t *testenv.T) {
 		t.Errorf(`exec [%s]: stdout = %q, want ""`, strings.Join(cmd.Args, " "), stdout.Bytes())
 	}
 
-	stderrRe := regexp.MustCompile(`^error: failed to initialize alpm library: .+\n$`)
+	stderrRe := regexp.MustCompile(`^pacorphan: error: failed to initialize alpm library: .+\n$`)
 	if !stderrRe.Match(stderr.Bytes()) {
 		t.Errorf("exec [%s]: stderr = %q, want regexp %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrRe.String())
 	}
@@ -692,9 +726,9 @@ func TestWarnMissingDeps(t *testenv.T) {
 	}
 
 	stderrWant := strings.Join([]string{
-		"warning: 'explicit' requires 'dependency-alt', which is not installed",
-		"warning: 'explicit' requires 'dependency=2.2.1', but version 1.2.1-1 is installed",
-		"warning: 'explicit' recommends 'optional=2.3.1', but version 1.3.1-1 is installed",
+		"pacorphan: warning: 'explicit' requires 'dependency-alt', which is not installed",
+		"pacorphan: warning: 'explicit' requires 'dependency=2.2.1', but version 1.2.1-1 is installed",
+		"pacorphan: warning: 'explicit' recommends 'optional=2.3.1', but version 1.3.1-1 is installed",
 	}, "\n") + "\n"
 	if !bytes.Equal(stderr.Bytes(), []byte(stderrWant)) {
 		t.Errorf("exec [%s]: stderr = %q, want %q", strings.Join(cmd.Args, " "), stderr.Bytes(), stderrWant)
