@@ -8,8 +8,8 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
-func init() { testMain.Register("TestDBClosed", TestDBClosed) }
-func TestDBClosed(t *testenv.T) {
+func init() { testMain.Register("TestALPMDBClosed", TestALPMDBClosed) }
+func TestALPMDBClosed(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
@@ -39,8 +39,8 @@ func TestDBClosed(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestDBInvalid", TestDBInvalid) }
-func TestDBInvalid(t *testenv.T) {
+func init() { testMain.Register("TestALPMDBInvalid", TestALPMDBInvalid) }
+func TestALPMDBInvalid(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 	src := testenv.NewPkgBuild("a", "0.0.1")
 	testenv.HelpMakeAndInstall(t, env, src, true)
@@ -81,8 +81,8 @@ func TestDBInvalid(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestDBList", TestDBList) }
-func TestDBList(t *testenv.T) {
+func init() { testMain.Register("TestALPMDBList", TestALPMDBList) }
+func TestALPMDBList(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	src := testenv.NewPkgBuild("a", "1.2.3")
@@ -171,8 +171,8 @@ func TestDBList(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestDBListHandleMismatch", TestDBListHandleMismatch) }
-func TestDBListHandleMismatch(t *testenv.T) {
+func init() { testMain.Register("TestALPMDBListHandleMismatch", TestALPMDBListHandleMismatch) }
+func TestALPMDBListHandleMismatch(t *testenv.T) {
 	env1 := testenv.HelpEnv(t)
 	src1 := testenv.NewPkgBuild("pkg1", "0.0.1")
 	testenv.HelpMakeAndInstall(t, env1, src1, true)
@@ -275,8 +275,8 @@ func TestDBListHandleMismatch(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestDBListHandleClose", TestDBListHandleClose) }
-func TestDBListHandleClose(t *testenv.T) {
+func init() { testMain.Register("TestALPMDBListHandleClose", TestALPMDBListHandleClose) }
+func TestALPMDBListHandleClose(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
@@ -307,8 +307,8 @@ func TestDBListHandleClose(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestDBListAddUninitializedDB", TestDBListAddUninitializedDB) }
-func TestDBListAddUninitializedDB(t *testenv.T) {
+func init() { testMain.Register("TestALPMDBListAddUninitializedDB", TestALPMDBListAddUninitializedDB) }
+func TestALPMDBListAddUninitializedDB(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)

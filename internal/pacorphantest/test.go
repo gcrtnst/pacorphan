@@ -13,8 +13,8 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
-func init() { testMain.Register("TestEmpty", TestEmpty) }
-func TestEmpty(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanEmpty", TestPacOrphanEmpty) }
+func TestPacOrphanEmpty(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	cmd := &exec.Cmd{
@@ -41,8 +41,8 @@ func TestEmpty(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestNormal", TestNormal) }
-func TestNormal(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanNormal", TestPacOrphanNormal) }
+func TestPacOrphanNormal(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	srcAExp := testenv.NewPkgBuild("a-explicit", "1.1.1")
@@ -200,8 +200,8 @@ func TestNormal(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestFlagPrecedence", TestFlagPrecedence) }
-func TestFlagPrecedence(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanFlagPrecedence", TestPacOrphanFlagPrecedence) }
+func TestPacOrphanFlagPrecedence(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	srcExp := testenv.NewPkgBuild("explicit", "1.1.1")
@@ -258,8 +258,8 @@ func TestFlagPrecedence(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestCustomPath", TestCustomPath) }
-func TestCustomPath(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanCustomPath", TestPacOrphanCustomPath) }
+func TestPacOrphanCustomPath(t *testenv.T) {
 	// When --sysroot is used, if the DBPath defined in the sysroot's pacman.conf
 	// does not exist on the host system (outside the sysroot), the following error
 	// occurs even though the path exists inside the sysroot:
@@ -326,8 +326,8 @@ func TestCustomPath(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestHelp", TestHelp) }
-func TestHelp(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanHelp", TestPacOrphanHelp) }
+func TestPacOrphanHelp(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--help"},
@@ -353,8 +353,8 @@ func TestHelp(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestVersion", TestVersion) }
-func TestVersion(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanVersion", TestPacOrphanVersion) }
+func TestPacOrphanVersion(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--version"},
@@ -381,8 +381,8 @@ func TestVersion(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestErrorUnexpectedArgs", TestErrorUnexpectedArgs) }
-func TestErrorUnexpectedArgs(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanErrorUnexpectedArgs", TestPacOrphanErrorUnexpectedArgs) }
+func TestPacOrphanErrorUnexpectedArgs(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "invalid"},
@@ -415,8 +415,10 @@ func TestErrorUnexpectedArgs(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestErrorUnexpectedArgsAltName", TestErrorUnexpectedArgsAltName) }
-func TestErrorUnexpectedArgsAltName(t *testenv.T) {
+func init() {
+	testMain.Register("TestPacOrphanErrorUnexpectedArgsAltName", TestPacOrphanErrorUnexpectedArgsAltName)
+}
+func TestPacOrphanErrorUnexpectedArgsAltName(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"altname", "invalid"},
@@ -449,8 +451,8 @@ func TestErrorUnexpectedArgsAltName(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestErrorFlagParse", TestErrorFlagParse) }
-func TestErrorFlagParse(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanErrorFlagParse", TestPacOrphanErrorFlagParse) }
+func TestPacOrphanErrorFlagParse(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--invalid-option"},
@@ -483,8 +485,10 @@ func TestErrorFlagParse(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestErrorFlagParseRespect", TestErrorFlagParseRespect) }
-func TestErrorFlagParseRespect(t *testenv.T) {
+func init() {
+	testMain.Register("TestPacOrphanErrorFlagParseRespect", TestPacOrphanErrorFlagParseRespect)
+}
+func TestPacOrphanErrorFlagParseRespect(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--respect-optdepends=invalid"},
@@ -517,8 +521,10 @@ func TestErrorFlagParseRespect(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestErrorFlagParseIgnore", TestErrorFlagParseIgnore) }
-func TestErrorFlagParseIgnore(t *testenv.T) {
+func init() {
+	testMain.Register("TestPacOrphanErrorFlagParseIgnore", TestPacOrphanErrorFlagParseIgnore)
+}
+func TestPacOrphanErrorFlagParseIgnore(t *testenv.T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--ignore-optdepends=invalid"},
@@ -551,8 +557,8 @@ func TestErrorFlagParseIgnore(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestErrorPacmanConfRoot", TestErrorPacmanConfRoot) }
-func TestErrorPacmanConfRoot(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanErrorPacmanConfRoot", TestPacOrphanErrorPacmanConfRoot) }
+func TestPacOrphanErrorPacmanConfRoot(t *testenv.T) {
 	opt := testenv.NewEnvOption()
 	env := testenv.HelpEnvWithOption(t, opt)
 
@@ -593,8 +599,10 @@ func TestErrorPacmanConfRoot(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestErrorPacmanConfDBPath", TestErrorPacmanConfDBPath) }
-func TestErrorPacmanConfDBPath(t *testenv.T) {
+func init() {
+	testMain.Register("TestPacOrphanErrorPacmanConfDBPath", TestPacOrphanErrorPacmanConfDBPath)
+}
+func TestPacOrphanErrorPacmanConfDBPath(t *testenv.T) {
 	opt := testenv.NewEnvOption()
 	env := testenv.HelpEnvWithOption(t, opt)
 
@@ -649,8 +657,8 @@ func TestErrorPacmanConfDBPath(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestErrorALPMInit", TestErrorALPMInit) }
-func TestErrorALPMInit(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanErrorALPMInit", TestPacOrphanErrorALPMInit) }
+func TestPacOrphanErrorALPMInit(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	errRemove := os.RemoveAll(env.DBPath)
@@ -690,8 +698,8 @@ func TestErrorALPMInit(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestWarnMissingDeps", TestWarnMissingDeps) }
-func TestWarnMissingDeps(t *testenv.T) {
+func init() { testMain.Register("TestPacOrphanWarnMissingDeps", TestPacOrphanWarnMissingDeps) }
+func TestPacOrphanWarnMissingDeps(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	srcExp := testenv.NewPkgBuild("explicit", "1.1.1")

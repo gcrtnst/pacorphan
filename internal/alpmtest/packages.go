@@ -8,8 +8,8 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
-func init() { testMain.Register("TestPkg", TestPkg) }
-func TestPkg(t *testenv.T) {
+func init() { testMain.Register("TestALPMPkg", TestALPMPkg) }
+func TestALPMPkg(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	srcA := testenv.NewPkgBuild("a", "0.0.1")
@@ -181,8 +181,8 @@ func TestPkg(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestPkgClosed", TestPkgClosed) }
-func TestPkgClosed(t *testenv.T) {
+func init() { testMain.Register("TestALPMPkgClosed", TestALPMPkgClosed) }
+func TestALPMPkgClosed(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	srcA := testenv.NewPkgBuild("a", "0.0.1")
@@ -304,8 +304,8 @@ func TestPkgClosed(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestPkgListClosed", TestPkgListClosed) }
-func TestPkgListClosed(t *testenv.T) {
+func init() { testMain.Register("TestALPMPkgListClosed", TestALPMPkgListClosed) }
+func TestALPMPkgListClosed(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 	src := testenv.NewPkgBuild("a", "0.0.1")
 	testenv.HelpMakeAndInstall(t, env, src, false)

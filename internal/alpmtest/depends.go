@@ -5,8 +5,8 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
-func init() { testMain.Register("TestDepend", TestDepend) }
-func TestDepend(t *testenv.T) {
+func init() { testMain.Register("TestALPMDepend", TestALPMDepend) }
+func TestALPMDepend(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	srcA := testenv.NewPkgBuild("a", "0.0.1")
@@ -72,8 +72,8 @@ func TestDepend(t *testenv.T) {
 	}
 }
 
-func init() { testMain.Register("TestDependListClosed", TestDependListClosed) }
-func TestDependListClosed(t *testenv.T) {
+func init() { testMain.Register("TestALPMDependListClosed", TestALPMDependListClosed) }
+func TestALPMDependListClosed(t *testenv.T) {
 	env := testenv.HelpEnv(t)
 
 	srcA := testenv.NewPkgBuild("a", "0.0.1")
