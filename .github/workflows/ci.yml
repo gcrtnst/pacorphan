@@ -31,9 +31,6 @@ jobs:
           - run: "go vet -v ./..."
           - run: "go test -v ./..."
           - run: |
-              go build -v -o "${RUNNER_TEMP}/alpmtest" ./internal/alpmtest
-              setpriv --reuid=1000 --regid=1000 --clear-groups --inh-caps=-all --ambient-caps=-all -- "${RUNNER_TEMP}/alpmtest"  # run as a regular user since makepkg rejects root
-          - run: |
               go build -v -o "${RUNNER_TEMP}/pacorphan" .
-              go build -v -o "${RUNNER_TEMP}/pacorphantest" ./internal/pacorphantest
-              setpriv --reuid=1000 --regid=1000 --clear-groups --inh-caps=-all --ambient-caps=-all -- "${RUNNER_TEMP}/pacorphantest" --cmd "${RUNNER_TEMP}/pacorphan"  # run as a regular user since makepkg rejects root
+              go build -v -o "${RUNNER_TEMP}/testcmd" ./internal/testcmd
+              setpriv --reuid=1000 --regid=1000 --clear-groups --inh-caps=-all --ambient-caps=-all -- "${RUNNER_TEMP}/testcmd" -pacorphan "${RUNNER_TEMP}/pacorphan"  # run as a regular user since makepkg rejects root
