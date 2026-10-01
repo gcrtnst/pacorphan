@@ -19,7 +19,8 @@ func main() {
 }
 
 func run() int {
-	fs := flag.NewFlagSet("testcmd", flag.ContinueOnError)
+	const name = "testcmd"
+	fs := flag.NewFlagSet(name, flag.ContinueOnError)
 	fs.StringVar(&pacorphan, "pacorphan", "", "path to pacorphan binary")
 
 	errParse := fs.Parse(os.Args[1:])
@@ -27,7 +28,7 @@ func run() int {
 		if errors.Is(errParse, flag.ErrHelp) {
 			return 0
 		}
-		fmt.Fprintf(os.Stderr, "error: %s\n", errParse)
+		fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, errParse)
 		return 2
 	}
 
@@ -35,7 +36,7 @@ func run() int {
 		var err error
 		pacorphan, err = exec.LookPath("pacorphan")
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %s\n", err)
+			fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, err)
 			return 1
 		}
 	}
