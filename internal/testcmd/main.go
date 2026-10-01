@@ -21,7 +21,7 @@ func main() {
 func run() int {
 	const name = "testcmd"
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
-	fs.StringVar(&pacorphan, "pacorphan", "", "path to pacorphan binary")
+	fs.StringVar(&pacorphan, "pacorphan", "pacorphan", "path to pacorphan binary")
 
 	errParse := fs.Parse(os.Args[1:])
 	if errParse != nil {
@@ -32,13 +32,11 @@ func run() int {
 		return 2
 	}
 
-	if pacorphan == "" {
-		var err error
-		pacorphan, err = exec.LookPath("pacorphan")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, err)
-			return 1
-		}
+	var errWhichPacorphan error
+	pacorphan, errWhichPacorphan = exec.LookPath(pacorphan)
+	if errWhichPacorphan != nil {
+		fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, errWhichPacorphan)
+		return 1
 	}
 
 	return testMain.Run()
