@@ -9,8 +9,8 @@ import (
 )
 
 func init() { testMain.Register("TestALPMDBClosed", TestALPMDBClosed) }
-func TestALPMDBClosed(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMDBClosed(t *T) {
+	env := HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -40,10 +40,10 @@ func TestALPMDBClosed(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMDBInvalid", TestALPMDBInvalid) }
-func TestALPMDBInvalid(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMDBInvalid(t *T) {
+	env := HelpEnv(t)
 	src := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, src, true)
+	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -82,11 +82,11 @@ func TestALPMDBInvalid(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMDBList", TestALPMDBList) }
-func TestALPMDBList(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMDBList(t *T) {
+	env := HelpEnv(t)
 
 	src := testenv.NewPkgBuild("a", "1.2.3")
-	testenv.HelpMakeAndInstall(t, env, src, true)
+	HelpMakeAndInstall(t, env, src, true)
 	const pkgName = "a"
 	const pkgVer = "1.2.3-1"
 	const pkgCnt = 1
@@ -172,14 +172,14 @@ func TestALPMDBList(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMDBListHandleMismatch", TestALPMDBListHandleMismatch) }
-func TestALPMDBListHandleMismatch(t *testenv.T) {
-	env1 := testenv.HelpEnv(t)
+func TestALPMDBListHandleMismatch(t *T) {
+	env1 := HelpEnv(t)
 	src1 := testenv.NewPkgBuild("pkg1", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env1, src1, true)
+	HelpMakeAndInstall(t, env1, src1, true)
 
-	env2 := testenv.HelpEnv(t)
+	env2 := HelpEnv(t)
 	src2 := testenv.NewPkgBuild("pkg2", "0.0.2")
-	testenv.HelpMakeAndInstall(t, env2, src2, true)
+	HelpMakeAndInstall(t, env2, src2, true)
 
 	h1, errHandle1 := alpm.NewHandle(env1.Root, env1.DBPath)
 	if errHandle1 != nil {
@@ -276,8 +276,8 @@ func TestALPMDBListHandleMismatch(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMDBListHandleClose", TestALPMDBListHandleClose) }
-func TestALPMDBListHandleClose(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMDBListHandleClose(t *T) {
+	env := HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -308,8 +308,8 @@ func TestALPMDBListHandleClose(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMDBListAddUninitializedDB", TestALPMDBListAddUninitializedDB) }
-func TestALPMDBListAddUninitializedDB(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMDBListAddUninitializedDB(t *T) {
+	env := HelpEnv(t)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {

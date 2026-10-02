@@ -1,13 +1,17 @@
-package testenv
+package main
 
-import "bytes"
+import (
+	"bytes"
 
-func HelpEnv(t *T) *Env {
+	"github.com/gcrtnst/pacorphan/internal/testenv"
+)
+
+func HelpEnv(t *T) *testenv.Env {
 	return HelpEnvWithOption(t, nil)
 }
 
-func HelpEnvWithOption(t *T, opt *EnvOption) *Env {
-	env, err := NewEnv(opt)
+func HelpEnvWithOption(t *T, opt *testenv.EnvOption) *testenv.Env {
+	env, err := testenv.NewEnv(opt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,7 +27,7 @@ func HelpEnvWithOption(t *T, opt *EnvOption) *Env {
 	return env
 }
 
-func HelpMakeAndInstall(t *T, env *Env, src *PkgBuild, explicit bool) {
+func HelpMakeAndInstall(t *T, env *testenv.Env, src *testenv.PkgBuild, explicit bool) {
 	we1 := env.Stdout
 	we2 := env.Stderr
 	wm1 := env.MakePkg.Stdout

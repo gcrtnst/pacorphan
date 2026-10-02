@@ -9,8 +9,8 @@ import (
 )
 
 func init() { testMain.Register("TestALPMHandle", TestALPMHandle) }
-func TestALPMHandle(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMHandle(t *T) {
+	env := HelpEnv(t)
 
 	h, err := alpm.NewHandle(env.Root, env.DBPath)
 	if err != nil {
@@ -35,8 +35,8 @@ func TestALPMHandle(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMHandleClosed", TestALPMHandleClosed) }
-func TestALPMHandleClosed(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMHandleClosed(t *T) {
+	env := HelpEnv(t)
 
 	h, errNew := alpm.NewHandle(env.Root, env.DBPath)
 	if errNew != nil {
@@ -73,7 +73,7 @@ func TestALPMHandleClosed(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMHandleInitError", TestALPMHandleInitError) }
-func TestALPMHandleInitError(t *testenv.T) {
+func TestALPMHandleInitError(t *T) {
 	root, errMkdir := os.MkdirTemp("", "")
 	if errMkdir != nil {
 		t.Error(errMkdir)
@@ -107,12 +107,12 @@ func TestALPMHandleInitError(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMFindDBsSatisfier", TestALPMFindDBsSatisfier) }
-func TestALPMFindDBsSatisfier(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMFindDBsSatisfier(t *T) {
+	env := HelpEnv(t)
 	srcA := testenv.NewPkgBuild("a", "0.0.1")
 	srcB := testenv.NewPkgBuild("b", "0.0.2")
-	testenv.HelpMakeAndInstall(t, env, srcA, true)
-	testenv.HelpMakeAndInstall(t, env, srcB, true)
+	HelpMakeAndInstall(t, env, srcA, true)
+	HelpMakeAndInstall(t, env, srcB, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -149,10 +149,10 @@ func TestALPMFindDBsSatisfier(t *testenv.T) {
 func init() {
 	testMain.Register("TestALPMFindDBsSatisfierHandleClosed", TestALPMFindDBsSatisfierHandleClosed)
 }
-func TestALPMFindDBsSatisfierHandleClosed(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMFindDBsSatisfierHandleClosed(t *T) {
+	env := HelpEnv(t)
 	src := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, src, true)
+	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -182,10 +182,10 @@ func TestALPMFindDBsSatisfierHandleClosed(t *testenv.T) {
 func init() {
 	testMain.Register("TestALPMFindDBsSatisfierHandleNil", TestALPMFindDBsSatisfierHandleNil)
 }
-func TestALPMFindDBsSatisfierHandleNil(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMFindDBsSatisfierHandleNil(t *T) {
+	env := HelpEnv(t)
 	src := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, src, true)
+	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -212,10 +212,10 @@ func TestALPMFindDBsSatisfierHandleNil(t *testenv.T) {
 func init() {
 	testMain.Register("TestALPMFindDBsSatisfierHandleZero", TestALPMFindDBsSatisfierHandleZero)
 }
-func TestALPMFindDBsSatisfierHandleZero(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMFindDBsSatisfierHandleZero(t *T) {
+	env := HelpEnv(t)
 	src := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, src, true)
+	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -242,14 +242,14 @@ func TestALPMFindDBsSatisfierHandleZero(t *testenv.T) {
 func init() {
 	testMain.Register("TestALPMFindDBsSatisfierHandleMismatch", TestALPMFindDBsSatisfierHandleMismatch)
 }
-func TestALPMFindDBsSatisfierHandleMismatch(t *testenv.T) {
-	env1 := testenv.HelpEnv(t)
+func TestALPMFindDBsSatisfierHandleMismatch(t *T) {
+	env1 := HelpEnv(t)
 	src1 := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env1, src1, true)
+	HelpMakeAndInstall(t, env1, src1, true)
 
-	env2 := testenv.HelpEnv(t)
+	env2 := HelpEnv(t)
 	src2 := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env2, src2, true)
+	HelpMakeAndInstall(t, env2, src2, true)
 
 	h1, errHandle1 := alpm.NewHandle(env1.Root, env1.DBPath)
 	if errHandle1 != nil {
@@ -283,10 +283,10 @@ func TestALPMFindDBsSatisfierHandleMismatch(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMFindDBsSatisfierDBsNil", TestALPMFindDBsSatisfierDBsNil) }
-func TestALPMFindDBsSatisfierDBsNil(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMFindDBsSatisfierDBsNil(t *T) {
+	env := HelpEnv(t)
 	src := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, src, true)
+	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -307,10 +307,10 @@ func TestALPMFindDBsSatisfierDBsNil(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMFindDBsSatisfierDBsZero", TestALPMFindDBsSatisfierDBsZero) }
-func TestALPMFindDBsSatisfierDBsZero(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMFindDBsSatisfierDBsZero(t *T) {
+	env := HelpEnv(t)
 	src := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, src, true)
+	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {

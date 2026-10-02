@@ -6,13 +6,11 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-
-	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 var pacorphan = ""
 
-var testMain = testenv.NewTestMain()
+var testMain = NewTestMain()
 
 func main() {
 	os.Exit(run())

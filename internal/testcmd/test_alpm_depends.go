@@ -6,15 +6,15 @@ import (
 )
 
 func init() { testMain.Register("TestALPMDepend", TestALPMDepend) }
-func TestALPMDepend(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMDepend(t *T) {
+	env := HelpEnv(t)
 
 	srcA := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, srcA, false)
+	HelpMakeAndInstall(t, env, srcA, false)
 
 	srcB := testenv.NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a=0.0.1")
-	testenv.HelpMakeAndInstall(t, env, srcB, true)
+	HelpMakeAndInstall(t, env, srcB, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -73,15 +73,15 @@ func TestALPMDepend(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMDependListClosed", TestALPMDependListClosed) }
-func TestALPMDependListClosed(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMDependListClosed(t *T) {
+	env := HelpEnv(t)
 
 	srcA := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, srcA, false)
+	HelpMakeAndInstall(t, env, srcA, false)
 
 	srcB := testenv.NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a=0.0.1")
-	testenv.HelpMakeAndInstall(t, env, srcB, true)
+	HelpMakeAndInstall(t, env, srcB, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {

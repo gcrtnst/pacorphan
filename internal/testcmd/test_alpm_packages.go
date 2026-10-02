@@ -9,19 +9,19 @@ import (
 )
 
 func init() { testMain.Register("TestALPMPkg", TestALPMPkg) }
-func TestALPMPkg(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMPkg(t *T) {
+	env := HelpEnv(t)
 
 	srcA := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, srcA, false)
+	HelpMakeAndInstall(t, env, srcA, false)
 
 	srcB := testenv.NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a")
-	testenv.HelpMakeAndInstall(t, env, srcB, true)
+	HelpMakeAndInstall(t, env, srcB, true)
 
 	srcC := testenv.NewPkgBuild("c", "0.0.3")
 	srcC.OptDepends = append(srcC.OptDepends, "a")
-	testenv.HelpMakeAndInstall(t, env, srcC, true)
+	HelpMakeAndInstall(t, env, srcC, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -182,19 +182,19 @@ func TestALPMPkg(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMPkgClosed", TestALPMPkgClosed) }
-func TestALPMPkgClosed(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMPkgClosed(t *T) {
+	env := HelpEnv(t)
 
 	srcA := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, srcA, false)
+	HelpMakeAndInstall(t, env, srcA, false)
 
 	srcB := testenv.NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a")
-	testenv.HelpMakeAndInstall(t, env, srcB, true)
+	HelpMakeAndInstall(t, env, srcB, true)
 
 	srcC := testenv.NewPkgBuild("c", "0.0.3")
 	srcC.OptDepends = append(srcC.OptDepends, "a")
-	testenv.HelpMakeAndInstall(t, env, srcC, true)
+	HelpMakeAndInstall(t, env, srcC, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {
@@ -305,10 +305,10 @@ func TestALPMPkgClosed(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestALPMPkgListClosed", TestALPMPkgListClosed) }
-func TestALPMPkgListClosed(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestALPMPkgListClosed(t *T) {
+	env := HelpEnv(t)
 	src := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, src, false)
+	HelpMakeAndInstall(t, env, src, false)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
 	if errHandle != nil {

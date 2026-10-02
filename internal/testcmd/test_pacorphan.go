@@ -14,8 +14,8 @@ import (
 )
 
 func init() { testMain.Register("TestPacOrphanEmpty", TestPacOrphanEmpty) }
-func TestPacOrphanEmpty(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestPacOrphanEmpty(t *T) {
+	env := HelpEnv(t)
 
 	cmd := &exec.Cmd{
 		Path: pacorphan,
@@ -42,8 +42,8 @@ func TestPacOrphanEmpty(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanNormal", TestPacOrphanNormal) }
-func TestPacOrphanNormal(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestPacOrphanNormal(t *T) {
+	env := HelpEnv(t)
 
 	srcAExp := testenv.NewPkgBuild("a-explicit", "1.1.1")
 	srcADep1 := testenv.NewPkgBuild("a-dependency-1", "1.2.1")
@@ -54,20 +54,20 @@ func TestPacOrphanNormal(t *testenv.T) {
 	srcAExp.OptDepends = append(srcAExp.OptDepends, "a-optional-1")
 	srcADep1.Depends = append(srcADep1.Depends, "a-dependency-2")
 	srcAOpt1.OptDepends = append(srcAOpt1.OptDepends, "a-optional-2")
-	testenv.HelpMakeAndInstall(t, env, srcAExp, true)
-	testenv.HelpMakeAndInstall(t, env, srcADep1, false)
-	testenv.HelpMakeAndInstall(t, env, srcADep2, false)
-	testenv.HelpMakeAndInstall(t, env, srcAOpt1, false)
-	testenv.HelpMakeAndInstall(t, env, srcAOpt2, false)
+	HelpMakeAndInstall(t, env, srcAExp, true)
+	HelpMakeAndInstall(t, env, srcADep1, false)
+	HelpMakeAndInstall(t, env, srcADep2, false)
+	HelpMakeAndInstall(t, env, srcAOpt1, false)
+	HelpMakeAndInstall(t, env, srcAOpt2, false)
 
 	srcBOrp1 := testenv.NewPkgBuild("b-orphan-1", "2.4.1")
 	srcBOrp2 := testenv.NewPkgBuild("b-orphan-2", "2.4.2")
 	srcBOrp3 := testenv.NewPkgBuild("b-orphan-3", "2.4.3")
 	srcBOrp1.Depends = append(srcBOrp1.Depends, "b-orphan-2")
 	srcBOrp1.OptDepends = append(srcBOrp1.OptDepends, "b-orphan-3")
-	testenv.HelpMakeAndInstall(t, env, srcBOrp1, false)
-	testenv.HelpMakeAndInstall(t, env, srcBOrp2, false)
-	testenv.HelpMakeAndInstall(t, env, srcBOrp3, false)
+	HelpMakeAndInstall(t, env, srcBOrp1, false)
+	HelpMakeAndInstall(t, env, srcBOrp2, false)
+	HelpMakeAndInstall(t, env, srcBOrp3, false)
 
 	srcCExp := testenv.NewPkgBuild("c-explicit", "3.1.1")
 	srcCDep := testenv.NewPkgBuild("c-dependency", "3.2.1")
@@ -76,24 +76,24 @@ func TestPacOrphanNormal(t *testenv.T) {
 	srcCExp.Depends = append(srcCExp.Depends, "c-dependency")
 	srcCDep.OptDepends = append(srcCDep.OptDepends, "c-optional-1")
 	srcCOpt1.Depends = append(srcCOpt1.Depends, "c-optional-2")
-	testenv.HelpMakeAndInstall(t, env, srcCExp, true)
-	testenv.HelpMakeAndInstall(t, env, srcCDep, false)
-	testenv.HelpMakeAndInstall(t, env, srcCOpt1, false)
-	testenv.HelpMakeAndInstall(t, env, srcCOpt2, false)
+	HelpMakeAndInstall(t, env, srcCExp, true)
+	HelpMakeAndInstall(t, env, srcCDep, false)
+	HelpMakeAndInstall(t, env, srcCOpt1, false)
+	HelpMakeAndInstall(t, env, srcCOpt2, false)
 
 	srcDOrp1 := testenv.NewPkgBuild("d-orphan-1", "4.4.1")
 	srcDOrp2 := testenv.NewPkgBuild("d-orphan-2", "4.4.2")
 	srcDOrp1.Depends = append(srcDOrp1.Depends, "d-orphan-2")
 	srcDOrp2.Depends = append(srcDOrp2.Depends, "d-orphan-1")
-	testenv.HelpMakeAndInstall(t, env, srcDOrp1, false)
-	testenv.HelpMakeAndInstall(t, env, srcDOrp2, false)
+	HelpMakeAndInstall(t, env, srcDOrp1, false)
+	HelpMakeAndInstall(t, env, srcDOrp2, false)
 
 	srcEOrp1 := testenv.NewPkgBuild("e-orphan-1", "5.4.1")
 	srcEOrp2 := testenv.NewPkgBuild("e-orphan-2", "5.4.2")
 	srcEOrp1.OptDepends = append(srcEOrp1.OptDepends, "e-orphan-2")
 	srcEOrp2.OptDepends = append(srcEOrp2.OptDepends, "e-orphan-1")
-	testenv.HelpMakeAndInstall(t, env, srcEOrp1, false)
-	testenv.HelpMakeAndInstall(t, env, srcEOrp2, false)
+	HelpMakeAndInstall(t, env, srcEOrp1, false)
+	HelpMakeAndInstall(t, env, srcEOrp2, false)
 
 	srcFExp := testenv.NewPkgBuild("f-explicit", "6.1.1")
 	srcFDep1 := testenv.NewPkgBuild("f-dependency-1", "6.2.1")
@@ -106,11 +106,11 @@ func TestPacOrphanNormal(t *testenv.T) {
 	srcFDep2.Depends = append(srcFDep2.Depends, "f-dependency-1")
 	srcFOpt1.OptDepends = append(srcFOpt1.OptDepends, "f-optional-2")
 	srcFOpt2.OptDepends = append(srcFOpt2.OptDepends, "f-optional-1")
-	testenv.HelpMakeAndInstall(t, env, srcFExp, true)
-	testenv.HelpMakeAndInstall(t, env, srcFDep1, false)
-	testenv.HelpMakeAndInstall(t, env, srcFDep2, false)
-	testenv.HelpMakeAndInstall(t, env, srcFOpt1, false)
-	testenv.HelpMakeAndInstall(t, env, srcFOpt2, false)
+	HelpMakeAndInstall(t, env, srcFExp, true)
+	HelpMakeAndInstall(t, env, srcFDep1, false)
+	HelpMakeAndInstall(t, env, srcFDep2, false)
+	HelpMakeAndInstall(t, env, srcFOpt1, false)
+	HelpMakeAndInstall(t, env, srcFOpt2, false)
 
 	cmd1 := &exec.Cmd{
 		Path: pacorphan,
@@ -201,14 +201,14 @@ func TestPacOrphanNormal(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanFlagPrecedence", TestPacOrphanFlagPrecedence) }
-func TestPacOrphanFlagPrecedence(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestPacOrphanFlagPrecedence(t *T) {
+	env := HelpEnv(t)
 
 	srcExp := testenv.NewPkgBuild("explicit", "1.1.1")
 	srcOpt := testenv.NewPkgBuild("optional", "1.3.1")
 	srcExp.OptDepends = append(srcExp.OptDepends, "optional")
-	testenv.HelpMakeAndInstall(t, env, srcExp, true)
-	testenv.HelpMakeAndInstall(t, env, srcOpt, false)
+	HelpMakeAndInstall(t, env, srcExp, true)
+	HelpMakeAndInstall(t, env, srcOpt, false)
 
 	cmd1 := &exec.Cmd{
 		Path: pacorphan,
@@ -259,7 +259,7 @@ func TestPacOrphanFlagPrecedence(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanCustomPath", TestPacOrphanCustomPath) }
-func TestPacOrphanCustomPath(t *testenv.T) {
+func TestPacOrphanCustomPath(t *T) {
 	// When --sysroot is used, if the DBPath defined in the sysroot's pacman.conf
 	// does not exist on the host system (outside the sysroot), the following error
 	// occurs even though the path exists inside the sysroot:
@@ -272,10 +272,10 @@ func TestPacOrphanCustomPath(t *testenv.T) {
 	opt.PacmanConf = "/etc/pacman-alt.conf"
 	opt.DBPath = "/var/lib/pacman-alt"
 	opt.CacheDir = "/var/cache/pacman-alt/pkg"
-	env := testenv.HelpEnvWithOption(t, opt) // generates pacman.conf including DBPath
+	env := HelpEnvWithOption(t, opt) // generates pacman.conf including DBPath
 
 	src := testenv.NewPkgBuild("a", "0.0.1")
-	testenv.HelpMakeAndInstall(t, env, src, false) // pacman is executed internally with --sysroot
+	HelpMakeAndInstall(t, env, src, false) // pacman is executed internally with --sysroot
 
 	cmd1 := &exec.Cmd{
 		Path: pacorphan,
@@ -327,7 +327,7 @@ func TestPacOrphanCustomPath(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanHelp", TestPacOrphanHelp) }
-func TestPacOrphanHelp(t *testenv.T) {
+func TestPacOrphanHelp(t *T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--help"},
@@ -354,7 +354,7 @@ func TestPacOrphanHelp(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanVersion", TestPacOrphanVersion) }
-func TestPacOrphanVersion(t *testenv.T) {
+func TestPacOrphanVersion(t *T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--version"},
@@ -382,7 +382,7 @@ func TestPacOrphanVersion(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanErrorUnexpectedArgs", TestPacOrphanErrorUnexpectedArgs) }
-func TestPacOrphanErrorUnexpectedArgs(t *testenv.T) {
+func TestPacOrphanErrorUnexpectedArgs(t *T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "invalid"},
@@ -418,7 +418,7 @@ func TestPacOrphanErrorUnexpectedArgs(t *testenv.T) {
 func init() {
 	testMain.Register("TestPacOrphanErrorUnexpectedArgsAltName", TestPacOrphanErrorUnexpectedArgsAltName)
 }
-func TestPacOrphanErrorUnexpectedArgsAltName(t *testenv.T) {
+func TestPacOrphanErrorUnexpectedArgsAltName(t *T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"altname", "invalid"},
@@ -452,7 +452,7 @@ func TestPacOrphanErrorUnexpectedArgsAltName(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanErrorFlagParse", TestPacOrphanErrorFlagParse) }
-func TestPacOrphanErrorFlagParse(t *testenv.T) {
+func TestPacOrphanErrorFlagParse(t *T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--invalid-option"},
@@ -488,7 +488,7 @@ func TestPacOrphanErrorFlagParse(t *testenv.T) {
 func init() {
 	testMain.Register("TestPacOrphanErrorFlagParseRespect", TestPacOrphanErrorFlagParseRespect)
 }
-func TestPacOrphanErrorFlagParseRespect(t *testenv.T) {
+func TestPacOrphanErrorFlagParseRespect(t *T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--respect-optdepends=invalid"},
@@ -524,7 +524,7 @@ func TestPacOrphanErrorFlagParseRespect(t *testenv.T) {
 func init() {
 	testMain.Register("TestPacOrphanErrorFlagParseIgnore", TestPacOrphanErrorFlagParseIgnore)
 }
-func TestPacOrphanErrorFlagParseIgnore(t *testenv.T) {
+func TestPacOrphanErrorFlagParseIgnore(t *T) {
 	cmd := &exec.Cmd{
 		Path: pacorphan,
 		Args: []string{"pacorphan", "--ignore-optdepends=invalid"},
@@ -558,9 +558,9 @@ func TestPacOrphanErrorFlagParseIgnore(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanErrorPacmanConfRoot", TestPacOrphanErrorPacmanConfRoot) }
-func TestPacOrphanErrorPacmanConfRoot(t *testenv.T) {
+func TestPacOrphanErrorPacmanConfRoot(t *T) {
 	opt := testenv.NewEnvOption()
-	env := testenv.HelpEnvWithOption(t, opt)
+	env := HelpEnvWithOption(t, opt)
 
 	errRemove := os.Remove(filepath.Join(env.Root, opt.PacmanConf))
 	if errRemove != nil {
@@ -602,9 +602,9 @@ func TestPacOrphanErrorPacmanConfRoot(t *testenv.T) {
 func init() {
 	testMain.Register("TestPacOrphanErrorPacmanConfDBPath", TestPacOrphanErrorPacmanConfDBPath)
 }
-func TestPacOrphanErrorPacmanConfDBPath(t *testenv.T) {
+func TestPacOrphanErrorPacmanConfDBPath(t *T) {
 	opt := testenv.NewEnvOption()
-	env := testenv.HelpEnvWithOption(t, opt)
+	env := HelpEnvWithOption(t, opt)
 
 	f, errOpen := os.OpenFile(
 		filepath.Join(env.Root, opt.PacmanConf),
@@ -658,8 +658,8 @@ func TestPacOrphanErrorPacmanConfDBPath(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanErrorALPMInit", TestPacOrphanErrorALPMInit) }
-func TestPacOrphanErrorALPMInit(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestPacOrphanErrorALPMInit(t *T) {
+	env := HelpEnv(t)
 
 	errRemove := os.RemoveAll(env.DBPath)
 	if errRemove != nil {
@@ -699,8 +699,8 @@ func TestPacOrphanErrorALPMInit(t *testenv.T) {
 }
 
 func init() { testMain.Register("TestPacOrphanWarnMissingDeps", TestPacOrphanWarnMissingDeps) }
-func TestPacOrphanWarnMissingDeps(t *testenv.T) {
-	env := testenv.HelpEnv(t)
+func TestPacOrphanWarnMissingDeps(t *T) {
+	env := HelpEnv(t)
 
 	srcExp := testenv.NewPkgBuild("explicit", "1.1.1")
 	srcDep := testenv.NewPkgBuild("dependency", "1.2.1")
@@ -709,9 +709,9 @@ func TestPacOrphanWarnMissingDeps(t *testenv.T) {
 	srcExp.OptDepends = append(srcExp.OptDepends, "optional=2.3.1")
 	srcExp.Depends = append(srcExp.Depends, "dependency-alt")
 	srcExp.OptDepends = append(srcExp.OptDepends, "optional-alt")
-	testenv.HelpMakeAndInstall(t, env, srcExp, true)
-	testenv.HelpMakeAndInstall(t, env, srcDep, false)
-	testenv.HelpMakeAndInstall(t, env, srcOpt, false)
+	HelpMakeAndInstall(t, env, srcExp, true)
+	HelpMakeAndInstall(t, env, srcDep, false)
+	HelpMakeAndInstall(t, env, srcOpt, false)
 
 	cmd := &exec.Cmd{
 		Path: pacorphan,
