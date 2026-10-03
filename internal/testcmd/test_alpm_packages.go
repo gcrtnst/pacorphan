@@ -5,21 +5,20 @@ import (
 	"slices"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
-	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 func init() { testMain.Register("TestALPMPkg", TestALPMPkg) }
 func TestALPMPkg(t *T) {
 	env := HelpEnv(t)
 
-	srcA := testenv.NewPkgBuild("a", "0.0.1")
+	srcA := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, srcA, false)
 
-	srcB := testenv.NewPkgBuild("b", "0.0.2")
+	srcB := NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a")
 	HelpMakeAndInstall(t, env, srcB, true)
 
-	srcC := testenv.NewPkgBuild("c", "0.0.3")
+	srcC := NewPkgBuild("c", "0.0.3")
 	srcC.OptDepends = append(srcC.OptDepends, "a")
 	HelpMakeAndInstall(t, env, srcC, true)
 
@@ -185,14 +184,14 @@ func init() { testMain.Register("TestALPMPkgClosed", TestALPMPkgClosed) }
 func TestALPMPkgClosed(t *T) {
 	env := HelpEnv(t)
 
-	srcA := testenv.NewPkgBuild("a", "0.0.1")
+	srcA := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, srcA, false)
 
-	srcB := testenv.NewPkgBuild("b", "0.0.2")
+	srcB := NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a")
 	HelpMakeAndInstall(t, env, srcB, true)
 
-	srcC := testenv.NewPkgBuild("c", "0.0.3")
+	srcC := NewPkgBuild("c", "0.0.3")
 	srcC.OptDepends = append(srcC.OptDepends, "a")
 	HelpMakeAndInstall(t, env, srcC, true)
 
@@ -307,7 +306,7 @@ func TestALPMPkgClosed(t *T) {
 func init() { testMain.Register("TestALPMPkgListClosed", TestALPMPkgListClosed) }
 func TestALPMPkgListClosed(t *T) {
 	env := HelpEnv(t)
-	src := testenv.NewPkgBuild("a", "0.0.1")
+	src := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, src, false)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)

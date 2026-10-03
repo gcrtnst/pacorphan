@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
-	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 func init() { testMain.Register("TestALPMDBClosed", TestALPMDBClosed) }
@@ -42,7 +41,7 @@ func TestALPMDBClosed(t *T) {
 func init() { testMain.Register("TestALPMDBInvalid", TestALPMDBInvalid) }
 func TestALPMDBInvalid(t *T) {
 	env := HelpEnv(t)
-	src := testenv.NewPkgBuild("a", "0.0.1")
+	src := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
@@ -85,7 +84,7 @@ func init() { testMain.Register("TestALPMDBList", TestALPMDBList) }
 func TestALPMDBList(t *T) {
 	env := HelpEnv(t)
 
-	src := testenv.NewPkgBuild("a", "1.2.3")
+	src := NewPkgBuild("a", "1.2.3")
 	HelpMakeAndInstall(t, env, src, true)
 	const pkgName = "a"
 	const pkgVer = "1.2.3-1"
@@ -174,11 +173,11 @@ func TestALPMDBList(t *T) {
 func init() { testMain.Register("TestALPMDBListHandleMismatch", TestALPMDBListHandleMismatch) }
 func TestALPMDBListHandleMismatch(t *T) {
 	env1 := HelpEnv(t)
-	src1 := testenv.NewPkgBuild("pkg1", "0.0.1")
+	src1 := NewPkgBuild("pkg1", "0.0.1")
 	HelpMakeAndInstall(t, env1, src1, true)
 
 	env2 := HelpEnv(t)
-	src2 := testenv.NewPkgBuild("pkg2", "0.0.2")
+	src2 := NewPkgBuild("pkg2", "0.0.2")
 	HelpMakeAndInstall(t, env2, src2, true)
 
 	h1, errHandle1 := alpm.NewHandle(env1.Root, env1.DBPath)

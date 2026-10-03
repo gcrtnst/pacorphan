@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/gcrtnst/pacorphan/internal/exiterr"
-	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 func init() { testMain.Register("TestPacOrphanEmpty", TestPacOrphanEmpty) }
@@ -45,11 +44,11 @@ func init() { testMain.Register("TestPacOrphanNormal", TestPacOrphanNormal) }
 func TestPacOrphanNormal(t *T) {
 	env := HelpEnv(t)
 
-	srcAExp := testenv.NewPkgBuild("a-explicit", "1.1.1")
-	srcADep1 := testenv.NewPkgBuild("a-dependency-1", "1.2.1")
-	srcADep2 := testenv.NewPkgBuild("a-dependency-2", "1.2.2")
-	srcAOpt1 := testenv.NewPkgBuild("a-optional-1", "1.3.1")
-	srcAOpt2 := testenv.NewPkgBuild("a-optional-2", "1.3.2")
+	srcAExp := NewPkgBuild("a-explicit", "1.1.1")
+	srcADep1 := NewPkgBuild("a-dependency-1", "1.2.1")
+	srcADep2 := NewPkgBuild("a-dependency-2", "1.2.2")
+	srcAOpt1 := NewPkgBuild("a-optional-1", "1.3.1")
+	srcAOpt2 := NewPkgBuild("a-optional-2", "1.3.2")
 	srcAExp.Depends = append(srcAExp.Depends, "a-dependency-1")
 	srcAExp.OptDepends = append(srcAExp.OptDepends, "a-optional-1")
 	srcADep1.Depends = append(srcADep1.Depends, "a-dependency-2")
@@ -60,19 +59,19 @@ func TestPacOrphanNormal(t *T) {
 	HelpMakeAndInstall(t, env, srcAOpt1, false)
 	HelpMakeAndInstall(t, env, srcAOpt2, false)
 
-	srcBOrp1 := testenv.NewPkgBuild("b-orphan-1", "2.4.1")
-	srcBOrp2 := testenv.NewPkgBuild("b-orphan-2", "2.4.2")
-	srcBOrp3 := testenv.NewPkgBuild("b-orphan-3", "2.4.3")
+	srcBOrp1 := NewPkgBuild("b-orphan-1", "2.4.1")
+	srcBOrp2 := NewPkgBuild("b-orphan-2", "2.4.2")
+	srcBOrp3 := NewPkgBuild("b-orphan-3", "2.4.3")
 	srcBOrp1.Depends = append(srcBOrp1.Depends, "b-orphan-2")
 	srcBOrp1.OptDepends = append(srcBOrp1.OptDepends, "b-orphan-3")
 	HelpMakeAndInstall(t, env, srcBOrp1, false)
 	HelpMakeAndInstall(t, env, srcBOrp2, false)
 	HelpMakeAndInstall(t, env, srcBOrp3, false)
 
-	srcCExp := testenv.NewPkgBuild("c-explicit", "3.1.1")
-	srcCDep := testenv.NewPkgBuild("c-dependency", "3.2.1")
-	srcCOpt1 := testenv.NewPkgBuild("c-optional-1", "3.3.1")
-	srcCOpt2 := testenv.NewPkgBuild("c-optional-2", "3.3.2")
+	srcCExp := NewPkgBuild("c-explicit", "3.1.1")
+	srcCDep := NewPkgBuild("c-dependency", "3.2.1")
+	srcCOpt1 := NewPkgBuild("c-optional-1", "3.3.1")
+	srcCOpt2 := NewPkgBuild("c-optional-2", "3.3.2")
 	srcCExp.Depends = append(srcCExp.Depends, "c-dependency")
 	srcCDep.OptDepends = append(srcCDep.OptDepends, "c-optional-1")
 	srcCOpt1.Depends = append(srcCOpt1.Depends, "c-optional-2")
@@ -81,25 +80,25 @@ func TestPacOrphanNormal(t *T) {
 	HelpMakeAndInstall(t, env, srcCOpt1, false)
 	HelpMakeAndInstall(t, env, srcCOpt2, false)
 
-	srcDOrp1 := testenv.NewPkgBuild("d-orphan-1", "4.4.1")
-	srcDOrp2 := testenv.NewPkgBuild("d-orphan-2", "4.4.2")
+	srcDOrp1 := NewPkgBuild("d-orphan-1", "4.4.1")
+	srcDOrp2 := NewPkgBuild("d-orphan-2", "4.4.2")
 	srcDOrp1.Depends = append(srcDOrp1.Depends, "d-orphan-2")
 	srcDOrp2.Depends = append(srcDOrp2.Depends, "d-orphan-1")
 	HelpMakeAndInstall(t, env, srcDOrp1, false)
 	HelpMakeAndInstall(t, env, srcDOrp2, false)
 
-	srcEOrp1 := testenv.NewPkgBuild("e-orphan-1", "5.4.1")
-	srcEOrp2 := testenv.NewPkgBuild("e-orphan-2", "5.4.2")
+	srcEOrp1 := NewPkgBuild("e-orphan-1", "5.4.1")
+	srcEOrp2 := NewPkgBuild("e-orphan-2", "5.4.2")
 	srcEOrp1.OptDepends = append(srcEOrp1.OptDepends, "e-orphan-2")
 	srcEOrp2.OptDepends = append(srcEOrp2.OptDepends, "e-orphan-1")
 	HelpMakeAndInstall(t, env, srcEOrp1, false)
 	HelpMakeAndInstall(t, env, srcEOrp2, false)
 
-	srcFExp := testenv.NewPkgBuild("f-explicit", "6.1.1")
-	srcFDep1 := testenv.NewPkgBuild("f-dependency-1", "6.2.1")
-	srcFDep2 := testenv.NewPkgBuild("f-dependency-2", "6.2.2")
-	srcFOpt1 := testenv.NewPkgBuild("f-optional-1", "6.3.1")
-	srcFOpt2 := testenv.NewPkgBuild("f-optional-2", "6.3.2")
+	srcFExp := NewPkgBuild("f-explicit", "6.1.1")
+	srcFDep1 := NewPkgBuild("f-dependency-1", "6.2.1")
+	srcFDep2 := NewPkgBuild("f-dependency-2", "6.2.2")
+	srcFOpt1 := NewPkgBuild("f-optional-1", "6.3.1")
+	srcFOpt2 := NewPkgBuild("f-optional-2", "6.3.2")
 	srcFExp.Depends = append(srcFExp.Depends, "f-dependency-1")
 	srcFExp.OptDepends = append(srcFExp.OptDepends, "f-optional-1")
 	srcFDep1.Depends = append(srcFDep1.Depends, "f-dependency-2")
@@ -204,8 +203,8 @@ func init() { testMain.Register("TestPacOrphanFlagPrecedence", TestPacOrphanFlag
 func TestPacOrphanFlagPrecedence(t *T) {
 	env := HelpEnv(t)
 
-	srcExp := testenv.NewPkgBuild("explicit", "1.1.1")
-	srcOpt := testenv.NewPkgBuild("optional", "1.3.1")
+	srcExp := NewPkgBuild("explicit", "1.1.1")
+	srcOpt := NewPkgBuild("optional", "1.3.1")
 	srcExp.OptDepends = append(srcExp.OptDepends, "optional")
 	HelpMakeAndInstall(t, env, srcExp, true)
 	HelpMakeAndInstall(t, env, srcOpt, false)
@@ -268,13 +267,13 @@ func TestPacOrphanCustomPath(t *T) {
 	// Since this is considered a bug in pacman, this test is skipped until it is fixed.
 	t.Skip("skipping due to pacman bug with --sysroot")
 
-	opt := testenv.NewEnvOption()
+	opt := NewEnvOption()
 	opt.PacmanConf = "/etc/pacman-alt.conf"
 	opt.DBPath = "/var/lib/pacman-alt"
 	opt.CacheDir = "/var/cache/pacman-alt/pkg"
 	env := HelpEnvWithOption(t, opt) // generates pacman.conf including DBPath
 
-	src := testenv.NewPkgBuild("a", "0.0.1")
+	src := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, src, false) // pacman is executed internally with --sysroot
 
 	cmd1 := &exec.Cmd{
@@ -559,7 +558,7 @@ func TestPacOrphanErrorFlagParseIgnore(t *T) {
 
 func init() { testMain.Register("TestPacOrphanErrorPacmanConfRoot", TestPacOrphanErrorPacmanConfRoot) }
 func TestPacOrphanErrorPacmanConfRoot(t *T) {
-	opt := testenv.NewEnvOption()
+	opt := NewEnvOption()
 	env := HelpEnvWithOption(t, opt)
 
 	errRemove := os.Remove(filepath.Join(env.Root, opt.PacmanConf))
@@ -603,7 +602,7 @@ func init() {
 	testMain.Register("TestPacOrphanErrorPacmanConfDBPath", TestPacOrphanErrorPacmanConfDBPath)
 }
 func TestPacOrphanErrorPacmanConfDBPath(t *T) {
-	opt := testenv.NewEnvOption()
+	opt := NewEnvOption()
 	env := HelpEnvWithOption(t, opt)
 
 	f, errOpen := os.OpenFile(
@@ -702,9 +701,9 @@ func init() { testMain.Register("TestPacOrphanWarnMissingDeps", TestPacOrphanWar
 func TestPacOrphanWarnMissingDeps(t *T) {
 	env := HelpEnv(t)
 
-	srcExp := testenv.NewPkgBuild("explicit", "1.1.1")
-	srcDep := testenv.NewPkgBuild("dependency", "1.2.1")
-	srcOpt := testenv.NewPkgBuild("optional", "1.3.1")
+	srcExp := NewPkgBuild("explicit", "1.1.1")
+	srcDep := NewPkgBuild("dependency", "1.2.1")
+	srcOpt := NewPkgBuild("optional", "1.3.1")
 	srcExp.Depends = append(srcExp.Depends, "dependency=2.2.1")
 	srcExp.OptDepends = append(srcExp.OptDepends, "optional=2.3.1")
 	srcExp.Depends = append(srcExp.Depends, "dependency-alt")

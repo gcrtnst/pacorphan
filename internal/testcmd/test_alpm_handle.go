@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/gcrtnst/pacorphan/internal/alpm"
-	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 func init() { testMain.Register("TestALPMHandle", TestALPMHandle) }
@@ -109,8 +108,8 @@ func TestALPMHandleInitError(t *T) {
 func init() { testMain.Register("TestALPMFindDBsSatisfier", TestALPMFindDBsSatisfier) }
 func TestALPMFindDBsSatisfier(t *T) {
 	env := HelpEnv(t)
-	srcA := testenv.NewPkgBuild("a", "0.0.1")
-	srcB := testenv.NewPkgBuild("b", "0.0.2")
+	srcA := NewPkgBuild("a", "0.0.1")
+	srcB := NewPkgBuild("b", "0.0.2")
 	HelpMakeAndInstall(t, env, srcA, true)
 	HelpMakeAndInstall(t, env, srcB, true)
 
@@ -151,7 +150,7 @@ func init() {
 }
 func TestALPMFindDBsSatisfierHandleClosed(t *T) {
 	env := HelpEnv(t)
-	src := testenv.NewPkgBuild("a", "0.0.1")
+	src := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
@@ -184,7 +183,7 @@ func init() {
 }
 func TestALPMFindDBsSatisfierHandleNil(t *T) {
 	env := HelpEnv(t)
-	src := testenv.NewPkgBuild("a", "0.0.1")
+	src := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
@@ -214,7 +213,7 @@ func init() {
 }
 func TestALPMFindDBsSatisfierHandleZero(t *T) {
 	env := HelpEnv(t)
-	src := testenv.NewPkgBuild("a", "0.0.1")
+	src := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
@@ -244,11 +243,11 @@ func init() {
 }
 func TestALPMFindDBsSatisfierHandleMismatch(t *T) {
 	env1 := HelpEnv(t)
-	src1 := testenv.NewPkgBuild("a", "0.0.1")
+	src1 := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env1, src1, true)
 
 	env2 := HelpEnv(t)
-	src2 := testenv.NewPkgBuild("a", "0.0.1")
+	src2 := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env2, src2, true)
 
 	h1, errHandle1 := alpm.NewHandle(env1.Root, env1.DBPath)
@@ -285,7 +284,7 @@ func TestALPMFindDBsSatisfierHandleMismatch(t *T) {
 func init() { testMain.Register("TestALPMFindDBsSatisfierDBsNil", TestALPMFindDBsSatisfierDBsNil) }
 func TestALPMFindDBsSatisfierDBsNil(t *T) {
 	env := HelpEnv(t)
-	src := testenv.NewPkgBuild("a", "0.0.1")
+	src := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)
@@ -309,7 +308,7 @@ func TestALPMFindDBsSatisfierDBsNil(t *T) {
 func init() { testMain.Register("TestALPMFindDBsSatisfierDBsZero", TestALPMFindDBsSatisfierDBsZero) }
 func TestALPMFindDBsSatisfierDBsZero(t *T) {
 	env := HelpEnv(t)
-	src := testenv.NewPkgBuild("a", "0.0.1")
+	src := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, src, true)
 
 	h, errHandle := alpm.NewHandle(env.Root, env.DBPath)

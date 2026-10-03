@@ -2,17 +2,16 @@ package main
 
 import (
 	"github.com/gcrtnst/pacorphan/internal/alpm"
-	"github.com/gcrtnst/pacorphan/internal/testenv"
 )
 
 func init() { testMain.Register("TestALPMDepend", TestALPMDepend) }
 func TestALPMDepend(t *T) {
 	env := HelpEnv(t)
 
-	srcA := testenv.NewPkgBuild("a", "0.0.1")
+	srcA := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, srcA, false)
 
-	srcB := testenv.NewPkgBuild("b", "0.0.2")
+	srcB := NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a=0.0.1")
 	HelpMakeAndInstall(t, env, srcB, true)
 
@@ -76,10 +75,10 @@ func init() { testMain.Register("TestALPMDependListClosed", TestALPMDependListCl
 func TestALPMDependListClosed(t *T) {
 	env := HelpEnv(t)
 
-	srcA := testenv.NewPkgBuild("a", "0.0.1")
+	srcA := NewPkgBuild("a", "0.0.1")
 	HelpMakeAndInstall(t, env, srcA, false)
 
-	srcB := testenv.NewPkgBuild("b", "0.0.2")
+	srcB := NewPkgBuild("b", "0.0.2")
 	srcB.Depends = append(srcB.Depends, "a=0.0.1")
 	HelpMakeAndInstall(t, env, srcB, true)
 
