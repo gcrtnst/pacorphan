@@ -30,11 +30,13 @@ func run() int {
 		return 2
 	}
 
-	var errWhichPacorphan error
-	pacorphan, errWhichPacorphan = exec.LookPath(pacorphan)
-	if errWhichPacorphan != nil {
-		fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, errWhichPacorphan)
-		return 1
+	if pacorphan == "" {
+		var err error
+		pacorphan, err = exec.LookPath("pacorphan")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s: error: %s\n", name, err)
+			return 1
+		}
 	}
 
 	return testMain.Run()
