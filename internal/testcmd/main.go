@@ -8,8 +8,6 @@ import (
 	"os/exec"
 )
 
-var pacorphan = ""
-
 var testMain = NewTestMain()
 
 func main() {
@@ -18,6 +16,7 @@ func main() {
 
 func run() int {
 	const name = "testcmd"
+	var pacorphan string
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
 	fs.StringVar(&pacorphan, "pacorphan", "pacorphan", "path to pacorphan binary")
 
@@ -39,5 +38,6 @@ func run() int {
 		}
 	}
 
+	testMain.Config.pacorphan = pacorphan
 	return testMain.Run()
 }

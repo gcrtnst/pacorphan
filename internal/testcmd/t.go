@@ -15,12 +15,14 @@ type T struct {
 	skipped  bool
 	output   io.Writer
 	cleanups []func()
+	cfg      *Config
 }
 
 func newT() *T {
 	return &T{
 		failed: false,
 		output: io.Discard,
+		cfg:    &Config{},
 	}
 }
 
@@ -95,3 +97,13 @@ func (t *T) Logf(format string, args ...any) {
 func (t *T) Cleanup(f func()) {
 	t.cleanups = append(t.cleanups, f)
 }
+
+func (t *T) Config() *Config {
+	return t.cfg
+}
+
+type Config struct {
+	pacorphan string
+}
+
+func (c *Config) PacOrphan() string { return c.pacorphan }

@@ -15,12 +15,16 @@ type testEntry struct {
 
 type TestMain struct {
 	Output io.Writer
+	Config *Config
 
 	testList []testEntry
 }
 
 func NewTestMain() *TestMain {
-	return &TestMain{Output: os.Stdout}
+	return &TestMain{
+		Output: os.Stdout,
+		Config: &Config{},
+	}
 }
 
 func (m *TestMain) Register(name string, fn TestFunc) {
@@ -68,6 +72,7 @@ func (m *TestMain) runTest(fn TestFunc) (result testResult) {
 
 	t := newT()
 	t.output = newPrefixWriter(m.Output, "    ")
+	t.cfg = m.Config
 
 	defer func() {
 		if t.Failed() {

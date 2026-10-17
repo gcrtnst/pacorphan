@@ -17,7 +17,7 @@ func TestPacOrphanEmpty(t *T) {
 	env := HelpEnv(t)
 
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root},
 	}
 
@@ -112,7 +112,7 @@ func TestPacOrphanNormal(t *T) {
 	HelpMakeAndInstall(t, env, srcFOpt2, false)
 
 	cmd1 := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root},
 	}
 
@@ -140,7 +140,7 @@ func TestPacOrphanNormal(t *T) {
 	}
 
 	cmd2 := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root, "--ignore-optdepends"},
 	}
 
@@ -171,7 +171,7 @@ func TestPacOrphanNormal(t *T) {
 	}
 
 	cmd3 := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root, "--quiet"},
 	}
 
@@ -210,7 +210,7 @@ func TestPacOrphanFlagPrecedence(t *T) {
 	HelpMakeAndInstall(t, env, srcOpt, false)
 
 	cmd1 := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root, "--quiet", "--respect-optdepends", "--ignore-optdepends"},
 	}
 
@@ -234,7 +234,7 @@ func TestPacOrphanFlagPrecedence(t *T) {
 	}
 
 	cmd2 := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root, "--quiet", "--ignore-optdepends", "--respect-optdepends"},
 	}
 
@@ -277,7 +277,7 @@ func TestPacOrphanCustomPath(t *T) {
 	HelpMakeAndInstall(t, env, src, false) // pacman is executed internally with --sysroot
 
 	cmd1 := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--root", env.Root, "--dbpath", env.DBPath, "--quiet"},
 	}
 
@@ -301,7 +301,7 @@ func TestPacOrphanCustomPath(t *T) {
 	}
 
 	cmd2 := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root, "--config", opt.PacmanConf, "--quiet"},
 	}
 
@@ -328,7 +328,7 @@ func TestPacOrphanCustomPath(t *T) {
 func init() { testMain.Register("TestPacOrphanHelp", TestPacOrphanHelp) }
 func TestPacOrphanHelp(t *T) {
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--help"},
 	}
 
@@ -355,7 +355,7 @@ func TestPacOrphanHelp(t *T) {
 func init() { testMain.Register("TestPacOrphanVersion", TestPacOrphanVersion) }
 func TestPacOrphanVersion(t *T) {
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--version"},
 	}
 
@@ -383,7 +383,7 @@ func TestPacOrphanVersion(t *T) {
 func init() { testMain.Register("TestPacOrphanErrorUnexpectedArgs", TestPacOrphanErrorUnexpectedArgs) }
 func TestPacOrphanErrorUnexpectedArgs(t *T) {
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "invalid"},
 	}
 
@@ -419,7 +419,7 @@ func init() {
 }
 func TestPacOrphanErrorUnexpectedArgsAltName(t *T) {
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"altname", "invalid"},
 	}
 
@@ -453,7 +453,7 @@ func TestPacOrphanErrorUnexpectedArgsAltName(t *T) {
 func init() { testMain.Register("TestPacOrphanErrorFlagParse", TestPacOrphanErrorFlagParse) }
 func TestPacOrphanErrorFlagParse(t *T) {
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--invalid-option"},
 	}
 
@@ -489,7 +489,7 @@ func init() {
 }
 func TestPacOrphanErrorFlagParseRespect(t *T) {
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--respect-optdepends=invalid"},
 	}
 
@@ -525,7 +525,7 @@ func init() {
 }
 func TestPacOrphanErrorFlagParseIgnore(t *T) {
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--ignore-optdepends=invalid"},
 	}
 
@@ -567,7 +567,7 @@ func TestPacOrphanErrorPacmanConfRoot(t *T) {
 	}
 
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root},
 	}
 
@@ -625,7 +625,7 @@ func TestPacOrphanErrorPacmanConfDBPath(t *T) {
 	}
 
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root},
 	}
 
@@ -666,7 +666,7 @@ func TestPacOrphanErrorALPMInit(t *T) {
 	}
 
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root},
 	}
 
@@ -713,7 +713,7 @@ func TestPacOrphanWarnMissingDeps(t *T) {
 	HelpMakeAndInstall(t, env, srcOpt, false)
 
 	cmd := &exec.Cmd{
-		Path: pacorphan,
+		Path: t.Config().PacOrphan(),
 		Args: []string{"pacorphan", "--sysroot", env.Root},
 	}
 
