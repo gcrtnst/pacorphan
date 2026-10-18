@@ -104,6 +104,12 @@ func (t *T) Config() *Config {
 
 type Config struct {
 	pacorphan string
+	pacman    string
+	makepkg   string
+	unshare   string
 }
 
 func (c *Config) PacOrphan() string { return c.pacorphan }
+func (c *Config) Pacman() string    { return c.pacman }
+func (c *Config) MakePkg() string   { return c.makepkg }
+func (c *Config) Unshare() string   { return c.unshare }

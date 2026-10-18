@@ -21,6 +21,10 @@ type EnvOption struct {
 	PacmanConf string
 	DBPath     string
 	CacheDir   string
+
+	Pacman  string
+	MakePkg string
+	Unshare string
 }
 
 func NewEnvOption() *EnvOption {
@@ -48,17 +52,23 @@ func NewEnv(opt *EnvOption) (_ *Env, err error) {
 		opt = NewEnvOption()
 	}
 
-	unshare, err := exec.LookPath("unshare")
-	if err != nil {
-		return nil, err
+	unshare := opt.Unshare
+	if unshare == "" {
+		unshare, err = exec.LookPath("unshare")
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	pacman, err := exec.LookPath("pacman")
-	if err != nil {
-		return nil, err
+	pacman := opt.Pacman
+	if pacman == "" {
+		pacman, err = exec.LookPath("pacman")
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	makepkg, err := NewMakePkg()
+	makepkg, err := NewMakePkg(opt.MakePkg)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +126,7 @@ func (e *Env) Install(pkg string, explicit bool) error {
 	cmd := &exec.Cmd{
 		Path: e.Unshare,
 		Args: []string{
-			e.Unshare, "--map-root-user", "--",
+			"unshare", "--map-root-user", "--",
 			e.Pacman, "--upgrade", "--config", e.Opt.PacmanConf, "--nodeps", "--nodeps", "--noconfirm", asopt, "--sysroot", e.Root, "--noprogress", "--", pkg,
 		},
 		Stdout: e.Stdout,

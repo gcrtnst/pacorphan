@@ -20,12 +20,14 @@ type MakePkg struct {
 	Stderr  io.Writer
 }
 
-func NewMakePkg() (*MakePkg, error) {
+func NewMakePkg(bin string) (*MakePkg, error) {
 	var err error
 
-	bin, err := exec.LookPath("makepkg")
-	if err != nil {
-		return nil, err
+	if bin == "" {
+		bin, err = exec.LookPath("makepkg")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	cfg, err := CreateTempMakePkgConf()
@@ -68,7 +70,7 @@ func (m *MakePkg) Run(dst string, src *PkgBuild) ([]string, error) {
 	}
 
 	arg := []string{
-		bin, "--config", m.CfgPath,
+		"makepkg", "--config", m.CfgPath,
 		"-p", srcName, "--nodeps", "--clean", "--cleanbuild",
 	}
 
