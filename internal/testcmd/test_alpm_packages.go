@@ -7,7 +7,7 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/alpm"
 )
 
-func init() { testMain.Register("TestALPMPkg", TestALPMPkg) }
+func init() { register("TestALPMPkg", TestALPMPkg) }
 func TestALPMPkg(t *T) {
 	env := HelpEnv(t)
 
@@ -180,7 +180,7 @@ func TestALPMPkg(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestALPMPkgClosed", TestALPMPkgClosed) }
+func init() { register("TestALPMPkgClosed", TestALPMPkgClosed) }
 func TestALPMPkgClosed(t *T) {
 	env := HelpEnv(t)
 
@@ -303,7 +303,7 @@ func TestALPMPkgClosed(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestALPMPkgListClosed", TestALPMPkgListClosed) }
+func init() { register("TestALPMPkgListClosed", TestALPMPkgListClosed) }
 func TestALPMPkgListClosed(t *T) {
 	env := HelpEnv(t)
 	src := NewPkgBuild("a", "0.0.1")

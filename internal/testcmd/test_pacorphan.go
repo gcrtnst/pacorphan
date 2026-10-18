@@ -12,7 +12,7 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/exiterr"
 )
 
-func init() { testMain.Register("TestPacOrphanEmpty", TestPacOrphanEmpty) }
+func init() { register("TestPacOrphanEmpty", TestPacOrphanEmpty) }
 func TestPacOrphanEmpty(t *T) {
 	env := HelpEnv(t)
 
@@ -40,7 +40,7 @@ func TestPacOrphanEmpty(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanNormal", TestPacOrphanNormal) }
+func init() { register("TestPacOrphanNormal", TestPacOrphanNormal) }
 func TestPacOrphanNormal(t *T) {
 	env := HelpEnv(t)
 
@@ -199,7 +199,7 @@ func TestPacOrphanNormal(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanFlagPrecedence", TestPacOrphanFlagPrecedence) }
+func init() { register("TestPacOrphanFlagPrecedence", TestPacOrphanFlagPrecedence) }
 func TestPacOrphanFlagPrecedence(t *T) {
 	env := HelpEnv(t)
 
@@ -257,7 +257,7 @@ func TestPacOrphanFlagPrecedence(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanCustomPath", TestPacOrphanCustomPath) }
+func init() { register("TestPacOrphanCustomPath", TestPacOrphanCustomPath) }
 func TestPacOrphanCustomPath(t *T) {
 	// When --sysroot is used, if the DBPath defined in the sysroot's pacman.conf
 	// does not exist on the host system (outside the sysroot), the following error
@@ -325,7 +325,7 @@ func TestPacOrphanCustomPath(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanHelp", TestPacOrphanHelp) }
+func init() { register("TestPacOrphanHelp", TestPacOrphanHelp) }
 func TestPacOrphanHelp(t *T) {
 	cmd := &exec.Cmd{
 		Path: t.Config().PacOrphan(),
@@ -352,7 +352,7 @@ func TestPacOrphanHelp(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanVersion", TestPacOrphanVersion) }
+func init() { register("TestPacOrphanVersion", TestPacOrphanVersion) }
 func TestPacOrphanVersion(t *T) {
 	cmd := &exec.Cmd{
 		Path: t.Config().PacOrphan(),
@@ -380,7 +380,7 @@ func TestPacOrphanVersion(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanErrorUnexpectedArgs", TestPacOrphanErrorUnexpectedArgs) }
+func init() { register("TestPacOrphanErrorUnexpectedArgs", TestPacOrphanErrorUnexpectedArgs) }
 func TestPacOrphanErrorUnexpectedArgs(t *T) {
 	cmd := &exec.Cmd{
 		Path: t.Config().PacOrphan(),
@@ -415,7 +415,7 @@ func TestPacOrphanErrorUnexpectedArgs(t *T) {
 }
 
 func init() {
-	testMain.Register("TestPacOrphanErrorUnexpectedArgsAltName", TestPacOrphanErrorUnexpectedArgsAltName)
+	register("TestPacOrphanErrorUnexpectedArgsAltName", TestPacOrphanErrorUnexpectedArgsAltName)
 }
 func TestPacOrphanErrorUnexpectedArgsAltName(t *T) {
 	cmd := &exec.Cmd{
@@ -450,7 +450,7 @@ func TestPacOrphanErrorUnexpectedArgsAltName(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanErrorFlagParse", TestPacOrphanErrorFlagParse) }
+func init() { register("TestPacOrphanErrorFlagParse", TestPacOrphanErrorFlagParse) }
 func TestPacOrphanErrorFlagParse(t *T) {
 	cmd := &exec.Cmd{
 		Path: t.Config().PacOrphan(),
@@ -485,7 +485,7 @@ func TestPacOrphanErrorFlagParse(t *T) {
 }
 
 func init() {
-	testMain.Register("TestPacOrphanErrorFlagParseRespect", TestPacOrphanErrorFlagParseRespect)
+	register("TestPacOrphanErrorFlagParseRespect", TestPacOrphanErrorFlagParseRespect)
 }
 func TestPacOrphanErrorFlagParseRespect(t *T) {
 	cmd := &exec.Cmd{
@@ -521,7 +521,7 @@ func TestPacOrphanErrorFlagParseRespect(t *T) {
 }
 
 func init() {
-	testMain.Register("TestPacOrphanErrorFlagParseIgnore", TestPacOrphanErrorFlagParseIgnore)
+	register("TestPacOrphanErrorFlagParseIgnore", TestPacOrphanErrorFlagParseIgnore)
 }
 func TestPacOrphanErrorFlagParseIgnore(t *T) {
 	cmd := &exec.Cmd{
@@ -556,7 +556,7 @@ func TestPacOrphanErrorFlagParseIgnore(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanErrorPacmanConfRoot", TestPacOrphanErrorPacmanConfRoot) }
+func init() { register("TestPacOrphanErrorPacmanConfRoot", TestPacOrphanErrorPacmanConfRoot) }
 func TestPacOrphanErrorPacmanConfRoot(t *T) {
 	opt := NewEnvOption()
 	env := HelpEnvWithOption(t, opt)
@@ -599,7 +599,7 @@ func TestPacOrphanErrorPacmanConfRoot(t *T) {
 }
 
 func init() {
-	testMain.Register("TestPacOrphanErrorPacmanConfDBPath", TestPacOrphanErrorPacmanConfDBPath)
+	register("TestPacOrphanErrorPacmanConfDBPath", TestPacOrphanErrorPacmanConfDBPath)
 }
 func TestPacOrphanErrorPacmanConfDBPath(t *T) {
 	opt := NewEnvOption()
@@ -656,7 +656,7 @@ func TestPacOrphanErrorPacmanConfDBPath(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanErrorALPMInit", TestPacOrphanErrorALPMInit) }
+func init() { register("TestPacOrphanErrorALPMInit", TestPacOrphanErrorALPMInit) }
 func TestPacOrphanErrorALPMInit(t *T) {
 	env := HelpEnv(t)
 
@@ -697,7 +697,7 @@ func TestPacOrphanErrorALPMInit(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestPacOrphanWarnMissingDeps", TestPacOrphanWarnMissingDeps) }
+func init() { register("TestPacOrphanWarnMissingDeps", TestPacOrphanWarnMissingDeps) }
 func TestPacOrphanWarnMissingDeps(t *T) {
 	env := HelpEnv(t)
 

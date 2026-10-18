@@ -10,6 +10,10 @@ import (
 
 var testMain = NewTestMain()
 
+func register(name string, fn TestFunc) {
+	testMain.Register(name, fn)
+}
+
 func main() {
 	os.Exit(run())
 }

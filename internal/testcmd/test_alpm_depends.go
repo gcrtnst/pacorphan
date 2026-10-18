@@ -4,7 +4,7 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/alpm"
 )
 
-func init() { testMain.Register("TestALPMDepend", TestALPMDepend) }
+func init() { register("TestALPMDepend", TestALPMDepend) }
 func TestALPMDepend(t *T) {
 	env := HelpEnv(t)
 
@@ -71,7 +71,7 @@ func TestALPMDepend(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestALPMDependListClosed", TestALPMDependListClosed) }
+func init() { register("TestALPMDependListClosed", TestALPMDependListClosed) }
 func TestALPMDependListClosed(t *T) {
 	env := HelpEnv(t)
 

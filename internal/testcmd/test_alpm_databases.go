@@ -7,7 +7,7 @@ import (
 	"github.com/gcrtnst/pacorphan/internal/alpm"
 )
 
-func init() { testMain.Register("TestALPMDBClosed", TestALPMDBClosed) }
+func init() { register("TestALPMDBClosed", TestALPMDBClosed) }
 func TestALPMDBClosed(t *T) {
 	env := HelpEnv(t)
 
@@ -38,7 +38,7 @@ func TestALPMDBClosed(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestALPMDBInvalid", TestALPMDBInvalid) }
+func init() { register("TestALPMDBInvalid", TestALPMDBInvalid) }
 func TestALPMDBInvalid(t *T) {
 	env := HelpEnv(t)
 	src := NewPkgBuild("a", "0.0.1")
@@ -80,7 +80,7 @@ func TestALPMDBInvalid(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestALPMDBList", TestALPMDBList) }
+func init() { register("TestALPMDBList", TestALPMDBList) }
 func TestALPMDBList(t *T) {
 	env := HelpEnv(t)
 
@@ -170,7 +170,7 @@ func TestALPMDBList(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestALPMDBListHandleMismatch", TestALPMDBListHandleMismatch) }
+func init() { register("TestALPMDBListHandleMismatch", TestALPMDBListHandleMismatch) }
 func TestALPMDBListHandleMismatch(t *T) {
 	env1 := HelpEnv(t)
 	src1 := NewPkgBuild("pkg1", "0.0.1")
@@ -274,7 +274,7 @@ func TestALPMDBListHandleMismatch(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestALPMDBListHandleClose", TestALPMDBListHandleClose) }
+func init() { register("TestALPMDBListHandleClose", TestALPMDBListHandleClose) }
 func TestALPMDBListHandleClose(t *T) {
 	env := HelpEnv(t)
 
@@ -306,7 +306,7 @@ func TestALPMDBListHandleClose(t *T) {
 	}
 }
 
-func init() { testMain.Register("TestALPMDBListAddUninitializedDB", TestALPMDBListAddUninitializedDB) }
+func init() { register("TestALPMDBListAddUninitializedDB", TestALPMDBListAddUninitializedDB) }
 func TestALPMDBListAddUninitializedDB(t *T) {
 	env := HelpEnv(t)
 
